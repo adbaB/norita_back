@@ -55,6 +55,7 @@ export default [
       '.prettierrc',
       '.env',
       'eslint.config.mjs',
+      'dist',
     ],
   },
   { languageOptions: { globals: globals.browser } },
