@@ -38,6 +38,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "^10.0.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
@@ -98,5 +99,10 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@scarf/scarf"
+    ]
   }
 }
