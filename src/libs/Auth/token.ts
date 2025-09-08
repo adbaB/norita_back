@@ -1,15 +1,13 @@
 export class PayloadToken {
-  readonly id: number;
-  readonly username: string;
-  readonly name: string;
-  readonly permissions: number[];
+  readonly uuid: string;
+  readonly email: string;
+  readonly sessionUUID: string;
 }
 
 export class JwtTokenPayload {
-  readonly id: number;
-  readonly username: string;
-  readonly name: string;
-  readonly permissions: number[];
+  readonly uuid: string;
+  readonly email: string;
+  readonly sessionUUID: string;
   readonly iat: number;
   readonly exp: number;
 }

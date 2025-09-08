@@ -5,6 +5,8 @@ import { AuthService } from '../services/auth.service';
 import { Response } from 'express';
 import { IsPublic } from '../decorators/isPublic.decorator';
 import { LoginDto } from '../dto/logIn.dto';
+import { RegisterDto } from '../../users/dto/user/create-user.dto';
+import { CreatedResponse } from '../../utils/responses';
 
 @Controller('auth')
 export class AuthController {
@@ -15,26 +17,12 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const response = await this.authService.signIn(loginDto);
 
-    res.cookie('access_token', response.data.accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 1), // 1 hour
-    });
-
-    res.cookie('refresh_token', response.data.refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
-    });
-
-    res.cookie('is_logged_in', 'true', {
-      httpOnly: false,
-      sameSite: 'lax',
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 1), // 1 hour
-    });
-
     res.status(response.status).json(response);
+  }
+
+  @IsPublic()
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto): Promise<CreatedResponse<unknown>> {
+    return this.authService.register(registerDto);
   }
 }

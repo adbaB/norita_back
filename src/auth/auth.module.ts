@@ -6,7 +6,6 @@ import configuration from '../config/configuration';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { JwtGuard } from './guards/jwt.guard';
-import { PermissionsGuard } from './guards/role.guard';
 import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategys/jwt.strategy';
 
@@ -26,18 +25,7 @@ import { JwtStrategy } from './strategys/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
-  ],
+  providers: [AuthService, JwtStrategy, { provide: APP_GUARD, useClass: JwtGuard }],
   exports: [JwtModule, AuthService],
 })
 export class AuthModule {}

@@ -8,7 +8,7 @@ import * as cookieParser from 'cookie-parser';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.use(cookieParser());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

@@ -1,38 +1,28 @@
-import {
-  IsAlphanumeric,
-  IsArray,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsPositive,
-  IsString,
-} from 'class-validator';
-import { IsUsernameValid } from '../../validations/is-username-valid';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class CreateUserDto {
+export class RegisterDto {
   @IsNotEmpty()
-  @IsAlphanumeric()
-  @IsUsernameValid()
-  username: string;
+  @IsEmail()
+  email: string;
 
-  @IsString()
   @IsNotEmpty()
   password: string;
 
-  @IsString()
-  @IsNotEmpty()
-  firstName: string;
+  jwt?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
-
-  @IsEmail()
+  @IsBoolean()
   @IsOptional()
-  email?: string;
+  firstLesson: boolean;
 
-  @IsArray()
-  @IsPositive({ each: true })
-  @IsNotEmpty({ each: true })
-  permissions?: number[];
+  @IsBoolean()
+  @IsOptional()
+  secondLesson: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  firstTutorial: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  secondTutorial: boolean;
 }

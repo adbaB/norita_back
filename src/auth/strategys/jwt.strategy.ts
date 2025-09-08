@@ -1,7 +1,6 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import config from 'src/config/configuration';
@@ -16,16 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly userService: UsersService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request): string => {
-          const data: string = request?.cookies['access_token'];
-          if (!data) {
-            return null;
-          }
-
-          return data;
-        },
-      ]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.jwt.secret,
     });
@@ -33,13 +23,24 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: PayloadToken): Promise<PayloadToken> {
     if (payload === null) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token not found');
     }
-    const user = await this.userService.validateUser(payload.id);
+    console.log(payload);
+    const user = await this.userService.validateUser(payload.uuid);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token Invalid');
     }
+
+    if (payload.sessionUUID !== user.deviceJWT) {
+      throw new ConflictException(
+        'The session is active on another device; therefore, it is closed for security reasons.',
+        {
+          description: 'reauthenticate',
+        },
+      );
+    }
+
     return payload;
   }
 }
