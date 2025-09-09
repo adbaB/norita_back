@@ -22,10 +22,13 @@ export class AuthService {
 
     const user = await this.usersService.findByEmail(email);
 
-    const isValid = await comparePassword(password, user.password);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('email or password is incorrect');
+    }
+    const isValid = await comparePassword(password, user?.password);
 
-    if (!user || !user.isActive || !isValid) {
-      throw new UnauthorizedException('username or password is incorrect');
+    if (!isValid) {
+      throw new UnauthorizedException('email or password is incorrect');
     }
 
     const sessionUUID = randomUUID();

@@ -52,6 +52,10 @@ export class UsersService {
   }
 
   async update(uuid: string, updateUserDto: UpdateUserDto): Promise<UpdateResponse> {
+    if (updateUserDto?.password) {
+      const passwordHash = await hashPassword(updateUserDto.password);
+      updateUserDto.password = passwordHash;
+    }
     const user = await this.userRepo.update({ uuid }, updateUserDto);
 
     if (user.affected === 0) {
