@@ -17,6 +17,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  /**
+   * Sign in with the provided credentials.
+   * @param loginDto {LoginDto} - The request body containing the email and password.
+   * @returns {Promise<LoginResponse>} - A promise that resolves with a LoginResponse object containing the access token.
+   * @throws {UnauthorizedException} - If the email or password is incorrect.
+   */
   async signIn(loginDto: LoginDto): Promise<LoginResponse> {
     const { email, password } = loginDto;
 
@@ -50,13 +56,20 @@ export class AuthService {
     };
   }
 
+  /**
+   * Register a new user
+   * @param registerDto {RegisterDto} - The request body
+   * @returns {Promise<CreatedResponse<User>>} - A promise that resolves with the response
+   */
   async register(registerDto: RegisterDto): Promise<CreatedResponse<User>> {
     const user = await this.usersService.findByEmail(registerDto.email);
     if (user) {
+      // If the user already exists, throw a BadRequestException
       throw new BadRequestException('Email already exists');
     }
 
     const sessionUUID = randomUUID();
+
     const createdUser = await this.usersService.register({
       ...registerDto,
       jwt: sessionUUID,
@@ -68,6 +81,7 @@ export class AuthService {
       sessionUUID,
     };
 
+    // Generate an access token
     const accessToken = await this.generateAccessToken(payload);
     return {
       status: 201,
