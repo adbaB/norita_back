@@ -11,7 +11,7 @@ export class LevelService {
     return this.levelRepo.find();
   }
 
-  async findByOrder(order: number): Promise<Level> {
-    return this.levelRepo.findOne({ where: { order } });
+  async findByUUID(uuid: string): Promise<Level> {
+    return this.levelRepo.findOne({ where: { uuid } });
   }
 }

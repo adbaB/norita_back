@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -28,13 +28,18 @@ export class UsersService {
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, ...rest } = dto;
+    const { password, jwt, levelUuid, ...rest } = dto;
     const passwordHash = await hashPassword(password);
 
     const user = this.userRepo.create({ password: passwordHash, deviceJWT: jwt, ...rest });
 
-    const levelEntity = await this.levelService.findByOrder(this.INITIAL_LEVEL);
-    user.level = levelEntity;
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      if (!levelEntity) {
+        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
+      }
+      user.level = levelEntity;
+    }
 
     return await this.userRepo.save(user);
   }
@@ -109,14 +114,23 @@ export class UsersService {
    * @returns {Promise<UpdateResponse>} - A promise that resolves with an UpdateResponse object containing the result of the update.
    */
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { ...updateData } = dto;
+    const { levelUuid, password, ...updateData } = dto;
 
-    if (updateData.password) {
-      const hashedPassword = await hashPassword(updateData.password);
-      updateData.password = hashedPassword;
+    let user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user = { ...user, ...updateData };
+    if (password) {
+      const hashedPassword = await hashPassword(password);
+      user.password = hashedPassword;
     }
 
-    const result = await this.userRepo.update({ uuid }, updateData);
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      user.level = levelEntity;
+    }
+    const result = await this.userRepo.update({ uuid }, user);
 
     return {
       affected: result.affected,
