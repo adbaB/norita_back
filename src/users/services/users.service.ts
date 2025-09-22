@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { hashPassword } from '../../utils/bcrypt.utils';
-import { UpdateResponse } from '../../utils/responses';
+import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { RegisterDto } from '../dto/user/create-user.dto';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { User } from '../entities/user.entity';
+import { LevelService } from './level.service';
 
 /**
  * UsersService is a service that handles user-related operations.
@@ -14,11 +15,12 @@ import { User } from '../entities/user.entity';
  */
 @Injectable()
 export class UsersService {
-  /**
-   * Constructor of UsersService.
-   * @param {Repository<User>} userRepo - The TypeORM repository for User entity.
-   */
-  constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
+  private INITIAL_LEVEL = 0;
+
+  constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    private readonly levelService: LevelService,
+  ) {}
 
   /**
    * Registers a new user.
@@ -28,8 +30,22 @@ export class UsersService {
   async register(dto: RegisterDto): Promise<User> {
     const { password, jwt, ...rest } = dto;
     const passwordHash = await hashPassword(password);
+
     const user = this.userRepo.create({ password: passwordHash, deviceJWT: jwt, ...rest });
+
+    const levelEntity = await this.levelService.findByOrder(this.INITIAL_LEVEL);
+    user.level = levelEntity;
+
     return await this.userRepo.save(user);
+  }
+
+  /**
+   * Finds a user by UUID.
+   * @param {string} uuid - The UUID of the user to be found.
+   * @returns {Promise<User>} - A promise that resolves with the user if found, null otherwise.
+   */
+  findByUUID(uuid: string): Promise<User> {
+    return this.userRepo.findOne({ where: { uuid }, relations: ['level'] });
   }
 
   /**
@@ -89,23 +105,34 @@ export class UsersService {
   /**
    * Updates a user by UUID.
    * @param {string} uuid - The UUID of the user to be updated.
-   * @param {UpdateUserDto} updateUserDto - The request body containing the user's updated information.
+   * @param {UpdateUserDto} dto - The request body containing the user's updated information.
    * @returns {Promise<UpdateResponse>} - A promise that resolves with an UpdateResponse object containing the result of the update.
    */
-  async update(uuid: string, updateUserDto: UpdateUserDto): Promise<UpdateResponse> {
-    if (updateUserDto?.password) {
-      const passwordHash = await hashPassword(updateUserDto.password);
-      updateUserDto.password = passwordHash;
-    }
-    const user = await this.userRepo.update({ uuid }, updateUserDto);
+  async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
+    const { ...updateData } = dto;
 
-    if (user.affected === 0) {
-      return {
-        affected: 0,
-        status: 204,
-        message: 'not content',
-      };
+    if (updateData.password) {
+      const hashedPassword = await hashPassword(updateData.password);
+      updateData.password = hashedPassword;
     }
+
+    const result = await this.userRepo.update({ uuid }, updateData);
+
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+      message: result.affected === 0 ? 'not content' : 'success',
+    };
+  }
+
+  /**
+   * Deletes a user by UUID.
+   * @param {string} uuid - The UUID of the user to be deleted.
+   * @returns {Promise<DeleteResponse>} - A promise that resolves with a DeleteResponse object containing the result of the deletion.
+   */
+  async delete(uuid: string): Promise<DeleteResponse> {
+    const user = await this.userRepo.delete({ uuid });
+
     return {
       affected: user.affected,
       status: 200,

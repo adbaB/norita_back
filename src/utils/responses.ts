@@ -38,6 +38,17 @@ export class UpdateResponse {
   affected: number;
 }
 
+export class DeleteResponse {
+  @ApiProperty({ description: 'status code', type: Number })
+  status: number;
+
+  @ApiProperty({ description: 'message', type: String })
+  message: string;
+
+  @ApiProperty({ description: 'number of records affected' })
+  affected: number;
+}
+
 interface infoFormat {
   total: number;
   currentPage: number;

@@ -1,8 +1,9 @@
-import { Body, Controller, Put } from '@nestjs/common';
+import { Body, Controller, Get, Put } from '@nestjs/common';
 import { ApiHeader, ApiResponse } from '@nestjs/swagger';
 import { UpdateResponse } from '../../utils/responses';
 import { User } from '../decorators/user.decorator';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
+import { User as UserEntity } from '../entities/user.entity';
 import { UsersService } from '../services/users.service';
 
 /**
@@ -13,6 +14,18 @@ import { UsersService } from '../services/users.service';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  /**
+   * Finds a user by UUID.
+   * @param user {string} - The UUID of the user to be found.
+   * @returns {Promise<UserEntity>} - A promise that resolves with the user if found, null otherwise.
+   */
+  @ApiResponse({ status: '2XX', type: UserEntity, description: 'Success' })
+  @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @Get('/me')
+  findByUUID(@User() user: string): Promise<UserEntity> {
+    return this.usersService.findByUUID(user);
+  }
 
   /**
    * Update a user

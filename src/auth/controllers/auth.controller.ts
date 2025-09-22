@@ -26,29 +26,19 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const response = await this.authService.signIn(loginDto);
-
-    /**
-     * Set the response status and json body.
-     * @param response {LoginResponse} - The response object.
-     */
     res.status(response.status).json(response);
   }
 
+  /**
+   * Handle the register request and return the response.
+   * @param registerDto {RegisterDto} - The request body.
+   * @returns {Promise<CreatedResponse<User>>} - A promise that resolves with the response.
+   */
   @IsPublic()
   @ApiResponse({ status: 201, type: CreatedResponse<User>, description: 'success' })
   @ApiUnauthorizedResponse()
   @Post('register')
-  /**
-   * Handle the register request and return the response.
-   * @param registerDto {RegisterDto} - The request body.
-   * @returns {Promise<CreatedResponse<unknown>>} - A promise that resolves with the response.
-   */
   async register(@Body() registerDto: RegisterDto): Promise<CreatedResponse<User>> {
-    /**
-     * Call the AuthService.register method to register a new user.
-     * @param registerDto {RegisterDto} - The request body.
-     * @returns {Promise<CreatedResponse<unknown>>} - A promise that resolves with the response.
-     */
     return this.authService.register(registerDto);
   }
 }
