@@ -12,6 +12,11 @@ export class LevelService {
   }
 
   async findByUUID(uuid: string): Promise<Level> {
-    return this.levelRepo.findOne({ where: { uuid } });
+    return this.levelRepo.findOne({
+      where: { uuid },
+      order: {
+        order: 'ASC',
+      },
+    });
   }
 }
