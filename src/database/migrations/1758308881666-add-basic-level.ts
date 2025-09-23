@@ -3,22 +3,16 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class AddBasicLevel1758308881666 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'Introducción\', 0, now())',
+      'INSERT INTO public."level" ("uuid",level, title,description, "order", updated_at) VALUES(uuid_generate_v4(),1, \'Novato\',\'Soy una hoja en blanco\', 0, now())',
     );
     await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'JLPT1\', 1, now())',
+      'INSERT INTO public."level" ("uuid",level, title,description, "order", updated_at) VALUES(uuid_generate_v4(),2, \'Principiante\',\'Tengo las bases del Japonés\', 1, now())',
     );
     await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'JLPT2\', 2, now())',
+      'INSERT INTO public."level" ("uuid",level, title,description, "order", updated_at) VALUES(uuid_generate_v4(),3, \'Intermedio\',\'Sé defenderme en Japonés.\', 2, now())',
     );
     await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'JLPT3\', 3, now())',
-    );
-    await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'JLPT4\', 4, now())',
-    );
-    await queryRunner.query(
-      'INSERT INTO public."level" ("uuid", title, "order", updated_at) VALUES(uuid_generate_v4(), \'JLPT5\', 5, now())',
+      'INSERT INTO public."level" ("uuid",level, title,description, "order", updated_at) VALUES(uuid_generate_v4(),4, \'Avanzado\',\'No hay nadie quien me detenga en Japonés.\', 3, now())',
     );
   }
 

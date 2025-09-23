@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({ description: 'email of the user', nullable: false, required: true, type: String })
@@ -59,4 +59,14 @@ export class RegisterDto {
   @IsBoolean()
   @IsOptional()
   secondTutorial: boolean;
+
+  @ApiProperty({
+    description: 'level selected of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsUUID('4')
+  @IsOptional()
+  levelUuid?: string;
 }

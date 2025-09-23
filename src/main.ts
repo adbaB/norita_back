@@ -17,7 +17,9 @@ async function bootstrap(): Promise<void> {
     .build();
   const documentFactory = (): OpenAPIObject => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({ transform: true, forbidNonWhitelisted: true, whitelist: true }),
+  );
 
   app.use(cookieParser());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

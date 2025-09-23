@@ -12,8 +12,14 @@ export class Level {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
+  @Column({ name: 'level', type: 'integer' })
+  level: number;
+
   @Column({ name: 'title', type: 'varchar', unique: true })
   title: string;
+
+  @Column({ name: 'description', type: 'varchar' })
+  description: string;
 
   @Column({ type: 'integer', unique: true })
   order: number;
