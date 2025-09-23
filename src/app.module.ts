@@ -4,9 +4,10 @@ import { AuthModule } from './auth/auth.module';
 import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
+import { LessonsModule } from './lessons/lessons.module';
 
 @Module({
-  imports: [EnvConfigModule, DatabaseModule, UsersModule, AuthModule],
+  imports: [EnvConfigModule, DatabaseModule, UsersModule, AuthModule, LessonsModule],
   controllers: [],
   providers: [
     {
