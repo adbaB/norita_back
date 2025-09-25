@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   Column,
@@ -9,18 +10,23 @@ import {
 
 @Entity('level')
 export class Level {
+  @ApiProperty({ description: 'UUID of the level', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
+  @ApiProperty({ description: 'Level number', type: Number })
   @Column({ name: 'level', type: 'integer' })
   level: number;
 
+  @ApiProperty({ description: 'Title of the level', type: String })
   @Column({ name: 'title', type: 'varchar', unique: true })
   title: string;
 
+  @ApiProperty({ description: 'Description of the level', type: String })
   @Column({ name: 'description', type: 'varchar' })
   description: string;
 
+  @ApiProperty({ description: 'Order of the level', type: Number })
   @Column({ type: 'integer', unique: true })
   order: number;
 
