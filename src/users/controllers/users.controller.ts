@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Put } from '@nestjs/common';
 import { ApiHeader, ApiResponse } from '@nestjs/swagger';
-import { UpdateResponse } from '../../utils/responses';
+import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { User } from '../decorators/user.decorator';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { User as UserEntity } from '../entities/user.entity';
@@ -38,5 +38,12 @@ export class UsersController {
   @Put()
   update(@Body() dto: UpdateUserDto, @User() user: string): Promise<UpdateResponse> {
     return this.usersService.update(user, dto);
+  }
+
+  @ApiResponse({ status: '2XX', type: UpdateResponse, description: 'Success' })
+  @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @Delete()
+  delete(@User() user: string): Promise<DeleteResponse> {
+    return this.usersService.delete(user);
   }
 }
