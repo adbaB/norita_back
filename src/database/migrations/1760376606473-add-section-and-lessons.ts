@@ -1,0 +1,333 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+const lessons = [
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_1',
+    background: 'icon_background_leccion_1',
+    number: '1.',
+    name: 'Un nuevo horizonte',
+    content: 'Introducción al japonés',
+    description:
+      '¿Sabías que el japonés es hablado por más de 125 millones de personas en todo el mundo? Y esa cifra aumentara contigo!!',
+    time: 4,
+    coins_needed_unlock_with_requirements: 0,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_1_1',
+    background: 'icon_background_leccion_1_1',
+    number: '1.1',
+    name: 'Una lengua con tres sabores',
+    content: 'Tipos de escritura',
+    description:
+      'El japonés no se anda con rodeos: ¡usa tres sistemas de escritura! Hiragana, Katakana y Kanji… cada uno con su "sazón" único. Prepárate para saborearlos sin indigestarte.',
+    time: 10,
+    coins_needed_unlock_with_requirements: 0,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 70,
+    icon: 'icon_leccion_1_2',
+    background: 'icon_background_leccion_1_2',
+    number: '1.2',
+    name: 'La Melodía de las Palabras',
+    content: 'Pronunciación Japonesa',
+    description:
+      '¿El japonés se canta? Bueno, no literalmente... pero suena tan armónico que casi podrías bailarlo. Aquí aprenderás a pronunciar sin tropezarte con las sílabas.',
+    time: 6,
+    coins_needed_unlock_with_requirements: 0,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_2',
+    background: 'icon_background_leccion_2',
+    number: '2.',
+    name: 'La delicada base de nuestro sushi lingüístico',
+    content: 'Hiragana',
+    description:
+      'Como el arroz en el sushi, el hiragana es la base del japonés. Suave, versátil y esencial. Sin él, todo se desmorona. ¡Hora de cocinar palabras!',
+    time: 6,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_2_1',
+    background: 'icon_background_leccion_2_1',
+    number: '2.1',
+    name: 'Un sabor que resalta',
+    content: 'Hiragana Dakuon y Handakuon',
+    description:
+      'Lo que resalta no siempre es lo evidente, sino lo que se siente profundo y auténtico.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_2_2',
+    background: 'icon_background_leccion_2_2',
+    number: '2.2',
+    name: 'El toque especial del arroz',
+    content: 'Hiragana yōon',
+    description:
+      'Yōon es como el vinagre del arroz: no se nota a simple vista, pero está ahí cambiando todo el sabor. Vamos a aprender estas deliciosas combinaciones.',
+    time: 5,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_3',
+    background: 'icon_background_leccion_3',
+    number: '3.',
+    name: 'El exótico pescado de nuestro sushi',
+    content: 'Katakana',
+    description:
+      'Katakana entra en escena como ese ingrediente importado y exótico. Aquí conocerás su forma elegante y cómo se luce en palabras extranjeras.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_3_1',
+    background: 'icon_background_leccion_3_1',
+    number: '3.1',
+    name: 'Realzando el pescado en nuestro sushi',
+    content: 'Katakana Dakuon y Handakuon',
+    description:
+      'Dakuon y Handakuon regresan, esta vez con katakana. ¡El sushi está que arde! Aprenderás a realzar palabras con un simple gesto.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_3_2',
+    background: 'icon_background_leccion_3_2',
+    number: '3.2',
+    name: 'Combinaciones sabrosas',
+    content: 'Katakana yōon',
+    description:
+      'Yōon en katakana es como juntar wasabi con soja: potente y directo. Prepárate para combinaciones que hacen que las palabras suenen más internacionales.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_3_3',
+    background: 'icon_background_leccion_3_3',
+    number: '3.3',
+    name: 'Puentes entre culturas',
+    content: 'Creando Katakana',
+    description:
+      '¿Sabías que muchos katakana representan palabras extranjeras? Aquí aprenderás cómo el japonés les tiende un puente... ¡y las hace sonar cool!',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_4',
+    background: 'icon_background_leccion_4',
+    number: '4.',
+    name: 'Una melodía sostenida',
+    content: 'Vocales largas',
+    description:
+      'Las vocales largas no solo cambian el ritmo… ¡cambian el significado! Aprende a estirar bien las vocales sin sonar como un disco rayado.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_5',
+    background: 'icon_background_leccion_5',
+    number: '5.',
+    name: 'La fuerza del doble impacto',
+    content: 'Consonantes dobles',
+    description:
+      'Una consonante doble puede parecer pequeña... pero golpea fuerte. Aquí aprenderás cómo darle poder a tus palabras con un mini silencio explosivo.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_6',
+    background: 'icon_background_leccion_6',
+    number: '6.',
+    name: 'Condimentos esenciales',
+    content: 'Radicales',
+    description:
+      'Los radicales son los condimentos secretos del kanji. No siempre se notan, pero sin ellos nada sabría igual. Prepárate a reconocerlos y usarlos.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_7',
+    background: 'icon_background_leccion_7',
+    number: '7.',
+    name: 'El festín comienza',
+    content: 'Introducción al Kanji',
+    description:
+      '¡Por fin! Llegó el Kanji. Puede parecer intimidante, pero tranquilo, no vamos a comérnoslo todo de una. Este es solo el primer bocado.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_7_1',
+    background: 'icon_background_leccion_7_1',
+    number: '7.1',
+    name: 'Acomodando los complementos',
+    content: 'Orden de los trazos en un Kanji',
+    description:
+      'Antes de pintar obras de arte, hay que trazar las líneas en orden. Aquí aprenderás cómo se escribe un kanji sin que se vea como un garabato.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_7_2',
+    background: 'icon_background_leccion_7_2',
+    number: '7.2',
+    name: 'Degustando y explorando sabores',
+    content: 'Kanji parte 2',
+    description:
+      'Seguimos con el Kanji, ahora con más ejemplos y combinaciones. Como una cata de sake: suave al principio, pero cada sorbo te revela más.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_7_3',
+    background: 'icon_background_leccion_7_3',
+    number: '7.3',
+    name: 'Dominando el arte de la combinación',
+    content: 'Kanji parte 3',
+    description:
+      'Aquí es donde todo cobra sentido: combinar kanjis es como armar rompecabezas con significado. ¡Verás que puedes decir mucho con poco!',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_8',
+    background: 'icon_background_leccion_8',
+    number: '8.',
+    name: 'Faros que iluminan un camino',
+    content: 'Furigana y Yomigana',
+    description:
+      'Furigana y yomigana son tus linternas cuando el kanji se pone denso. Te ayudan a leer sin perderte… ¡como señales en medio de un bosque!',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_9',
+    background: 'icon_background_leccion_9',
+    number: '9.',
+    name: 'Siguiendo el flujo',
+    content: 'Orientación en la escritura japonesa',
+    description:
+      'La escritura japonesa fluye de formas curiosas: de arriba abajo, de derecha a izquierda… ¡es como un río! Aquí aprenderás a no nadar contra la corriente.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '1',
+    reward: 20,
+    icon: 'icon_leccion_10',
+    background: 'icon_background_leccion_10',
+    number: '10.',
+    name: 'Tres caminos entrelazados',
+    content: 'La importancia de hiragana, katakana y kanji',
+    description:
+      'Hiragana, katakana y kanji: cada uno con su personalidad, pero juntos hacen magia. Esta lección es el nudo que une todo tu aprendizaje.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 20,
+    coins_needed_unlock_without_requirements: 50,
+  },
+  {
+    type: '2',
+    reward: 20,
+    icon: 'icon_leccion_extra',
+    background: 'icon_background_leccion_extra',
+    number: 'Extra',
+    name: 'El puente hacia una lengua familiar',
+    content: 'Romaji',
+    description:
+      'Romaji es como las rueditas de entrenamiento: no es el destino final, pero te ayuda a empezar. Aquí lo usaremos sabiamente… y luego lo soltamos.',
+    time: 7,
+    coins_needed_unlock_with_requirements: 0,
+    coins_needed_unlock_without_requirements: 50,
+  },
+];
+export class AddSectionAndLessons1760376606473 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      "insert into sections (\"name\" ,\"order\" ) values ('Introducción',1),('JLPT5',2),('JLPT4',3),('JLPT3',4),('JLPT2',5),('JLPT1',6)",
+    );
+
+    const section = await queryRunner.query(
+      'select uuid from sections where "name" = \'Introducción\'',
+    );
+    const sectionId = section[0].uuid;
+    for (const lesson of lessons) {
+      await queryRunner.query(
+        'insert into lessons (type, reward, icon, background, number, name, content, description, time, coins_needed_unlock_with_requirements, coins_needed_unlock_without_requirements, section_uuid) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+        [
+          lesson.type,
+          lesson.reward,
+          lesson.icon,
+          lesson.background,
+          lesson.number,
+          lesson.name,
+          lesson.content,
+          lesson.description,
+          lesson.time,
+          lesson.coins_needed_unlock_with_requirements,
+          lesson.coins_needed_unlock_without_requirements,
+          sectionId,
+        ],
+      );
+    }
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query('DELETE FROM public."lessons"');
+    await queryRunner.query('DELETE FROM public."sections"');
+  }
+}
