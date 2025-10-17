@@ -102,7 +102,9 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@scarf/scarf"
+      "@nestjs/core",
+      "@scarf/scarf",
+      "bcrypt"
     ]
   }
 }

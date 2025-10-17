@@ -11,7 +11,7 @@ export class LessonsService {
     return this.lessonRepo.findOne({
       where: { uuid },
       relations: {
-        lessonContent: { dialogs: true, notes: true, glossaries: true, bibliographies: true },
+        lessonContent: { dialogs: true, notes: true, bibliographies: true, glossaries: true },
       },
     });
   }

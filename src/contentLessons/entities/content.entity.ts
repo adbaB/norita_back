@@ -27,16 +27,16 @@ export class Content {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @OneToMany(() => Dialog, (dialog) => dialog)
+  @OneToMany(() => Dialog, (dialog) => dialog.lessonContent)
   dialogs: Dialog[];
 
-  @OneToMany(() => Notes, (notes) => notes)
+  @OneToMany(() => Notes, (notes) => notes.lessonContent)
   notes: Notes[];
 
-  @OneToMany(() => Glossary, (glossary) => glossary)
+  @OneToMany(() => Glossary, (glossary) => glossary.lessonContent)
   glossaries: Glossary[];
 
-  @OneToMany(() => Bibliography, (bibliography) => bibliography)
+  @OneToMany(() => Bibliography, (bibliography) => bibliography.lessonContent)
   bibliographies: Bibliography[];
 
   //pending exercise entity
