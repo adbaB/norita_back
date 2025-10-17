@@ -8,6 +8,11 @@ export class LessonsService {
   constructor(@InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>) {}
 
   async findByUUID(uuid: string): Promise<Lesson | null> {
-    return this.lessonRepo.findOne({ where: { uuid } });
+    return this.lessonRepo.findOne({
+      where: { uuid },
+      relations: {
+        lessonContent: { dialogs: true, notes: true, bibliographies: true, glossaries: true },
+      },
+    });
   }
 }

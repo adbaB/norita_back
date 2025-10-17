@@ -7,9 +7,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Content } from '../../contentLessons/entities/content.entity';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
 import { Section } from './section.entity';
 
@@ -78,6 +80,9 @@ export class Lesson {
   @ManyToOne(() => Section, (section) => section.lessons, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'section_uuid' })
   section: Section;
+
+  @OneToOne(() => Content, (content) => content.lesson)
+  lessonContent: Content;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
