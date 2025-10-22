@@ -14,4 +14,8 @@ export class SectionService {
   async findOne(uuid: string): Promise<Section | null> {
     return this.sectionRepository.findOne({ where: { uuid }, relations: ['lessons'] });
   }
+
+  async findByUUID(uuid: string): Promise<Section> {
+    return this.sectionRepository.findOne({ where: { uuid: uuid } });
+  }
 }

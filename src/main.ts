@@ -6,8 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 async function bootstrap(): Promise<void> {
+  initializeTransactionalContext();
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
