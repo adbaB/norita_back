@@ -42,8 +42,6 @@ export class ContentService {
       throw new NotFoundException('Content not found');
     }
 
-    console.log(content);
-
     await this.contentRepo.update({ uuid }, { name: content.name, content: content.content });
     await this.dialogService.update(contentFound, content?.dialogs);
     await this.glossaryService.update(contentFound, content?.glossaries);

@@ -3172,7 +3172,6 @@ export class AddContentLessons1760378882175 implements MigrationInterface {
           }
         }
         if (content.bibliography && content.bibliography.length > 0) {
-          console.log(content.bibliography);
           for (const bibliography of content.bibliography) {
             await queryRunner.query(
               'INSERT INTO "bibliography" ( "content", "audio", "lesson_content_uuid") VALUES($1, $2, $3)',
