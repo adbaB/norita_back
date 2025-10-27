@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   Column,
@@ -13,12 +14,15 @@ import { Content } from './content.entity';
 
 @Entity('notes')
 export class Notes {
+  @ApiProperty({ description: 'UUID of the notes', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
+  @ApiProperty({ description: 'Content of the notes', type: String })
   @Column({ type: 'text' })
   content: string;
 
+  @ApiProperty({ description: 'Audio of the notes', type: String, nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
