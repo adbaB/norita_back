@@ -42,7 +42,10 @@ export class Content {
   //pending exercise entity
   exercises: unknown[];
 
-  @OneToOne(() => Lesson, (lesson) => lesson.lessonContent)
+  @OneToOne(() => Lesson, (lesson) => lesson.lessonContent, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_uuid' })
   lesson: Lesson;
 

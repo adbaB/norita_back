@@ -22,7 +22,10 @@ export class Bibliography {
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
-  @ManyToOne(() => Content, (content) => content.bibliographies)
+  @ManyToOne(() => Content, (content) => content.bibliographies, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 

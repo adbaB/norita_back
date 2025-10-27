@@ -55,7 +55,10 @@ export class Dialog {
   @Column({ type: 'jsonb', name: 'content', default: '{}' })
   content: ContentJSON;
 
-  @ManyToOne(() => Content, (content) => content.dialogs)
+  @ManyToOne(() => Content, (content) => content.dialogs, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 

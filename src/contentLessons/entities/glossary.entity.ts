@@ -31,7 +31,10 @@ export class Glossary {
   @Column({ type: 'varchar', nullable: true, length: 255 })
   audio: string;
 
-  @ManyToOne(() => Content, (content) => content.glossaries)
+  @ManyToOne(() => Content, (content) => content.glossaries, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 

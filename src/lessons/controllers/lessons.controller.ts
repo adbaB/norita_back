@@ -1,26 +1,43 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
-import { IsPublic } from '../../auth/decorators/isPublic.decorator';
-import { LessonDTO } from '../dto/lesson.dto';
+import { Roles } from '../../auth/decorators/role.decorator';
+import { RoleEnum } from '../../users/enum/role.enum';
+import { CreatedResponse, UpdateResponse } from '../../utils/responses';
+import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { LessonsService } from '../services/lessons.service';
-import { CreatedResponse } from '../../utils/responses';
 
 @Controller('lessons')
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
   @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
-  @IsPublic()
   @Get('/:uuid')
-  async findByUUID(@Param('uuid') uuid: string): Promise<Lesson> {
+  async findByUUID(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<Lesson> {
     return this.lessonsService.findByUUID(uuid);
   }
 
   @ApiResponse({ status: 201, type: Lesson, description: 'Created' })
-  @IsPublic()
+  @Roles(RoleEnum.ADMIN)
   @Post()
   async create(@Body() lesson: LessonDTO): Promise<CreatedResponse<Lesson>> {
     return this.lessonsService.create(lesson);
+  }
+
+  @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
+  @Roles(RoleEnum.ADMIN)
+  @Put('/:uuid')
+  async update(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Body() lesson: UpdateLessonDTO,
+  ): Promise<UpdateResponse> {
+    return this.lessonsService.update(uuid, lesson);
+  }
+
+  @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
+  @Roles(RoleEnum.ADMIN)
+  @Delete('/:uuid')
+  async delete(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<UpdateResponse> {
+    return this.lessonsService.delete(uuid);
   }
 }

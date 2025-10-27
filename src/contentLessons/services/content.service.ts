@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -10,7 +10,7 @@ import { DialogService } from './dialog.service';
 import { GlossaryService } from './glossary.service';
 import { NoteService } from './note.service';
 
-import { ContentDTO } from '../dtos/content.dto';
+import { ContentDTO, UpdateContentDTO } from '../dtos/content.dto';
 @Injectable()
 export class ContentService {
   constructor(
@@ -26,15 +26,28 @@ export class ContentService {
     newContent.lesson = lesson;
     const newContentSaved = await this.contentRepo.save(newContent);
 
-    const [dialog] = await Promise.all([
+    await Promise.all([
       this.dialogService.create(newContentSaved, content.dialogs),
       this.glossaryService.create(newContentSaved, content.glossaries),
       this.noteService.create(newContentSaved, content.notes),
       this.bibliographyService.create(content.bibliographies, newContentSaved),
     ]);
-    newContentSaved.dialogs = dialog;
+
     return newContentSaved;
   }
 
-  update(): void {}
+  async update(uuid: string, content: UpdateContentDTO): Promise<void> {
+    const contentFound = await this.contentRepo.findOne({ where: { uuid } });
+    if (!contentFound) {
+      throw new NotFoundException('Content not found');
+    }
+
+    console.log(content);
+
+    await this.contentRepo.update({ uuid }, { name: content.name, content: content.content });
+    await this.dialogService.update(contentFound, content?.dialogs);
+    await this.glossaryService.update(contentFound, content?.glossaries);
+    await this.noteService.update(contentFound, content?.notes);
+    await this.bibliographyService.update(contentFound, content?.bibliographies);
+  }
 }

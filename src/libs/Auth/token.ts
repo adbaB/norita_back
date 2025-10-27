@@ -1,6 +1,7 @@
 export class PayloadToken {
   readonly uuid: string;
   readonly email: string;
+  readonly role: string;
   readonly sessionUUID: string;
 }
 

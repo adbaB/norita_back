@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DeleteResponse } from '../../utils/responses';
 import { NoteDTO } from '../dtos/note.dto';
 import { Content } from '../entities/content.entity';
 import { Notes } from '../entities/notes.entity';
@@ -20,5 +21,24 @@ export class NoteService {
     });
 
     return this.noteRepo.save(newNotes);
+  }
+
+  async update(lessonContent: Content, notes: NoteDTO[]): Promise<void> {
+    if (notes?.length === 0) {
+      return;
+    }
+
+    await this.noteRepo.delete({ lessonContent: { uuid: lessonContent.uuid } });
+    await this.create(lessonContent, notes);
+  }
+
+  async delete(uuid: string): Promise<DeleteResponse> {
+    const deleted = await this.noteRepo.delete({ uuid });
+
+    return {
+      message: 'Note deleted successfully',
+      affected: deleted.affected,
+      status: 200,
+    };
   }
 }

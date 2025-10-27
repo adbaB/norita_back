@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { BibliographyDTO } from './biblography.dto';
@@ -38,3 +39,5 @@ export class ContentDTO {
   @IsOptional()
   bibliographies?: BibliographyDTO[] = [];
 }
+
+export class UpdateContentDTO extends PartialType(ContentDTO) {}

@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
@@ -9,7 +8,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { ContentDTO } from '../../contentLessons/dtos/content.dto';
+import { ContentDTO, UpdateContentDTO } from '../../contentLessons/dtos/content.dto';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
 
 export class LessonDTO {
@@ -67,4 +66,57 @@ export class LessonDTO {
   contentLesson: ContentDTO;
 }
 
-export class UpdateLessonDTO extends PartialType(LessonDTO) {}
+export class UpdateLessonDTO {
+  @IsEnum(TypeLessonEnum, { message: 'type must be a valid TypeLessonEnum value' })
+  @IsOptional()
+  type: TypeLessonEnum;
+
+  @IsOptional()
+  @Min(0, { message: 'reward must be a non-negative number' })
+  reward: number;
+
+  @IsOptional()
+  @IsString({ message: 'icon must be a string' })
+  icon: string;
+
+  @IsOptional()
+  @IsString({ message: 'background must be a string' })
+  background: string;
+
+  @IsOptional()
+  @IsString({ message: 'number must be a string' })
+  number: string;
+
+  @IsOptional()
+  @IsString({ message: 'name must be a string' })
+  name: string;
+
+  @IsOptional()
+  @IsString({ message: 'content must be a string' })
+  content: string;
+
+  @IsOptional()
+  @IsString({ message: 'description must be a string' })
+  description: string;
+
+  @IsOptional()
+  @IsString({ message: 'requirements must be a string' })
+  time: number;
+
+  @IsOptional()
+  @Min(0, { message: 'coins_needed_unlock_with_requirements must be a non-negative number' })
+  coins_needed_unlock_with_requirements: number;
+
+  @IsOptional()
+  @Min(0, { message: 'coins_needed_unlock_without_requirements must be a non-negative number' })
+  coins_needed_unlock_without_requirements: number;
+
+  @IsOptional()
+  @IsUUID(4, { message: 'sectionUuid must be a string' })
+  sectionUuid: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateContentDTO)
+  contentLesson: UpdateContentDTO;
+}

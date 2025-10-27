@@ -22,7 +22,10 @@ export class Notes {
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
-  @ManyToOne(() => Content, (content) => content.notes)
+  @ManyToOne(() => Content, (content) => content.notes, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 

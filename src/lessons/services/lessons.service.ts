@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
-import { CreatedResponse } from '../../utils/responses';
+import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
@@ -50,22 +50,52 @@ export class LessonsService {
     });
   }
 
-  async update(uuid: string, lesson: UpdateLessonDTO): Promise<Lesson> {
+  @Transactional()
+  async update(uuid: string, lesson: UpdateLessonDTO): Promise<UpdateResponse> {
     const { sectionUuid, ...rest } = lesson;
+
+    const lessonFound = await this.lessonRepo.findOne({
+      where: { uuid },
+      relations: ['lessonContent'],
+    });
+
+    if (!lessonFound) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
     const section = await this.sectionService.findOne(sectionUuid);
 
     if (!section) {
       throw new NotFoundException('Section not found ');
     }
 
-    const lessonEntity = this.lessonRepo.create({
+    const lessonEntity = this.lessonRepo.merge(lessonFound, {
       ...rest,
       section,
     });
 
-    return this.lessonRepo.save({
-      ...lessonEntity,
-      uuid,
-    });
+    await this.lessonRepo.save(lessonEntity);
+    if (lessonFound?.lessonContent.uuid) {
+      await this.contentService.update(lessonFound?.lessonContent?.uuid, lesson.contentLesson);
+    }
+    return {
+      affected: 1,
+      message: 'Lesson updated successfully',
+      status: 200,
+    };
+  }
+
+  async delete(uuid: string): Promise<DeleteResponse> {
+    const lessonFound = await this.findByUUID(uuid);
+    if (!lessonFound) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
+    await this.lessonRepo.delete({ uuid });
+    return {
+      affected: 1,
+      message: 'Lesson deleted successfully',
+      status: 200,
+    };
   }
 }

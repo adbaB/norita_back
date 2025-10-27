@@ -41,6 +41,7 @@ export class AuthService {
     const payload: PayloadToken = {
       email,
       uuid: user.uuid,
+      role: user.role,
       sessionUUID,
     };
 
@@ -78,6 +79,7 @@ export class AuthService {
     const payload: PayloadToken = {
       email: createdUser.email,
       uuid: createdUser.uuid,
+      role: createdUser.role,
       sessionUUID,
     };
 
