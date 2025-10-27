@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   Column,
@@ -24,12 +25,15 @@ export class ContentJSON {
 
 @Entity('dialog')
 export class Dialog {
+  @ApiProperty({ description: 'UUID of the dialog', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
+  @ApiProperty({ description: 'Lottie animation', type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, name: 'lottie_animation', nullable: true })
   lottieAnimation: string;
 
+  @ApiProperty({ description: 'Story structure', enum: StoryStructureEnum })
   @Column({
     type: 'enum',
     enum: StoryStructureEnum,
@@ -38,6 +42,7 @@ export class Dialog {
   })
   storyStructure: StoryStructureEnum;
 
+  @ApiProperty({ description: 'Type structure', enum: TypeStructureEnum })
   @Column({
     type: 'enum',
     enum: TypeStructureEnum,
@@ -46,16 +51,22 @@ export class Dialog {
   })
   typeStructure: TypeStructureEnum;
 
+  @ApiProperty({ description: 'Focused of the dialog', type: Boolean })
   @Column({ type: 'boolean', default: false })
   focused: boolean;
 
+  @ApiProperty({ description: 'Audio of the dialog', type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
+  @ApiProperty({ description: 'Content of the dialog', type: Object })
   @Column({ type: 'jsonb', name: 'content', default: '{}' })
   content: ContentJSON;
 
-  @ManyToOne(() => Content, (content) => content.dialogs)
+  @ManyToOne(() => Content, (content) => content.dialogs, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 

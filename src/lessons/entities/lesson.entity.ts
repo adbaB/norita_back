@@ -81,6 +81,7 @@ export class Lesson {
   @JoinColumn({ name: 'section_uuid' })
   section: Section;
 
+  @ApiProperty({ description: 'Content of the lesson', type: () => Content })
   @OneToOne(() => Content, (content) => content.lesson)
   lessonContent: Content;
 
