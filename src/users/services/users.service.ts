@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { RegisterDto } from '../dto/user/create-user.dto';
@@ -20,6 +21,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly levelService: LevelService,
+    private readonly lessonProgressService: LessonProgressService,
   ) {}
 
   /**
@@ -41,7 +43,11 @@ export class UsersService {
       user.level = levelEntity;
     }
 
-    return await this.userRepo.save(user);
+    const userCreated = await this.userRepo.save(user);
+
+    await this.lessonProgressService.addInitialProgress(userCreated);
+
+    return userCreated;
   }
 
   /**
@@ -105,6 +111,32 @@ export class UsersService {
    */
   async updateSession(userUUID: string, sessionUUID: string): Promise<void> {
     await this.userRepo.update({ uuid: userUUID }, { deviceJWT: sessionUUID });
+  }
+
+  async addCoins(uuid: string, coins: number): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const result = await this.userRepo.update({ uuid }, { coin: user.coin + coins });
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+      message: result.affected === 0 ? 'not content' : 'success',
+    };
+  }
+
+  async decreaseCoins(uuid: string, coins: number): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const result = await this.userRepo.update({ uuid }, { coin: user.coin - coins });
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+      message: result.affected === 0 ? 'not content' : 'success',
+    };
   }
 
   /**

@@ -63,11 +63,32 @@ export class LessonsService {
     }
   }
 
-  async findByUUID(uuid: string): Promise<Lesson | null> {
+  async findByUUID(uuid: string, userUUID?: string): Promise<Lesson | null> {
+    const queryBuilder = this.lessonRepo
+      .createQueryBuilder('lesson')
+      .leftJoinAndSelect('lesson.lessonContent', 'lessonContent')
+      .leftJoinAndSelect('lessonContent.dialogs', 'dialog')
+      .leftJoinAndSelect('lessonContent.notes', 'notes')
+      .leftJoinAndSelect('lessonContent.bibliographies', 'bibliography')
+      .leftJoinAndSelect('lessonContent.glossaries', 'glossary')
+      .where('lesson.uuid = :uuid', { uuid });
+
+    if (userUUID) {
+      queryBuilder.leftJoinAndSelect(
+        'lesson.lessonProgress',
+        'lessonProgress',
+        'lessonProgress.user_uuid = :userUUID',
+        { userUUID },
+      );
+    }
+
+    return queryBuilder.getOne();
+  }
+
+  async getFirstLesson(): Promise<Lesson | null> {
     return this.lessonRepo.findOne({
-      where: { uuid },
-      relations: {
-        lessonContent: { dialogs: true, notes: true, bibliographies: true, glossaries: true },
+      where: {
+        order: 1,
       },
     });
   }

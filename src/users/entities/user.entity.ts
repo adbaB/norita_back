@@ -6,9 +6,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { RoleEnum } from '../enum/role.enum';
 import { Level } from './level.entity';
 
@@ -73,6 +75,9 @@ export class User {
   @ApiProperty({ description: 'is active of the user', type: Boolean })
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
+
+  @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
+  lessonProgress: LessonProgress[];
 
   @Exclude({ toPlainOnly: true })
   @UpdateDateColumn({

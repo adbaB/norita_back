@@ -88,7 +88,7 @@ export class Lesson {
   @OneToOne(() => Content, (content) => content.lesson)
   lessonContent: Content;
 
-  @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.Lesson)
+  @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
   lessonProgress: LessonProgress;
 
   @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
