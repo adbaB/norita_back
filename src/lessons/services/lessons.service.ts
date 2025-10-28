@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, QueryFailedError, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
@@ -19,26 +19,49 @@ export class LessonsService {
 
   @Transactional()
   async create(lesson: LessonDTO): Promise<CreatedResponse<Lesson>> {
-    const { sectionUuid, contentLesson, ...rest } = lesson;
-    const section = await this.sectionService.findByUUID(sectionUuid);
+    try {
+      let order = Number(await this.lessonRepo.maximum('order')) + 1;
+      const { sectionUuid, contentLesson, nextLessonUuid, ...rest } = lesson;
+      const section = await this.sectionService.findByUUID(sectionUuid);
 
-    if (!section) {
-      throw new NotFoundException('Section not found ');
+      if (nextLessonUuid) {
+        const nextLesson = await this.lessonRepo.findOne({
+          where: { uuid: nextLessonUuid },
+        });
+        if (!nextLesson) {
+          throw new NotFoundException('Next lesson not found ');
+        }
+        const previusLesson = await this.lessonRepo.findOne({
+          where: { order: LessThan(nextLesson.order) },
+          order: { order: 'DESC' },
+        });
+        order = Number(previusLesson.order) + 0.01;
+        console.log(order);
+      }
+
+      if (!section) {
+        throw new NotFoundException('Section not found ');
+      }
+
+      const lessonEntity = this.lessonRepo.create({
+        ...rest,
+        type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
+        section,
+        order,
+      });
+
+      const newLesson = await this.lessonRepo.save(lessonEntity);
+      await this.contentService.create(newLesson, contentLesson);
+      return {
+        data: newLesson,
+        message: 'Lesson created successfully',
+        status: 201,
+      };
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        throw new ConflictException(error.message);
+      }
     }
-
-    const lessonEntity = this.lessonRepo.create({
-      ...rest,
-      type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
-      section,
-    });
-
-    const newLesson = await this.lessonRepo.save(lessonEntity);
-    await this.contentService.create(newLesson, contentLesson);
-    return {
-      data: newLesson,
-      message: 'Lesson created successfully',
-      status: 201,
-    };
   }
 
   async findByUUID(uuid: string): Promise<Lesson | null> {

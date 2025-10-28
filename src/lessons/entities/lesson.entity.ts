@@ -5,13 +5,16 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Content } from '../../contentLessons/entities/content.entity';
+import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
 import { Section } from './section.entity';
 
@@ -38,11 +41,11 @@ export class Lesson {
   background: string;
 
   @ApiProperty({ description: 'Lesson number', type: String, maxLength: 10 })
-  @Column({ name: 'number', type: 'varchar', length: 10 })
+  @Column({ name: 'number', type: 'varchar', length: 10, unique: true })
   number: string;
 
   @ApiProperty({ description: 'Name of the lesson', type: String, maxLength: 255 })
-  @Column({ name: 'name', type: 'varchar', length: 255 })
+  @Column({ name: 'name', type: 'varchar', length: 255, unique: true })
   name: string;
 
   @ApiProperty({ description: 'Content of the lesson', type: String })
@@ -84,6 +87,14 @@ export class Lesson {
   @ApiProperty({ description: 'Content of the lesson', type: () => Content })
   @OneToOne(() => Content, (content) => content.lesson)
   lessonContent: Content;
+
+  @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.Lesson)
+  lessonProgress: LessonProgress;
+
+  @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
+  @Index({ unique: true })
+  @Column({ name: 'order', type: 'decimal', precision: 10, scale: 2 })
+  order: number;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

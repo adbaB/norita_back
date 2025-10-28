@@ -13,6 +13,7 @@ const lessons = [
     time: 4,
     coins_needed_unlock_with_requirements: 0,
     coins_needed_unlock_without_requirements: 50,
+    order: 1,
   },
   {
     type: '1',
@@ -27,6 +28,7 @@ const lessons = [
     time: 10,
     coins_needed_unlock_with_requirements: 0,
     coins_needed_unlock_without_requirements: 50,
+    order: 2,
   },
   {
     type: '1',
@@ -41,6 +43,7 @@ const lessons = [
     time: 6,
     coins_needed_unlock_with_requirements: 0,
     coins_needed_unlock_without_requirements: 50,
+    order: 3,
   },
   {
     type: '1',
@@ -55,6 +58,7 @@ const lessons = [
     time: 6,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 4,
   },
   {
     type: '1',
@@ -69,6 +73,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 5,
   },
   {
     type: '1',
@@ -83,6 +88,7 @@ const lessons = [
     time: 5,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 6,
   },
   {
     type: '1',
@@ -97,6 +103,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 7,
   },
   {
     type: '1',
@@ -111,6 +118,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 8,
   },
   {
     type: '1',
@@ -125,6 +133,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 9,
   },
   {
     type: '1',
@@ -139,6 +148,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 10,
   },
   {
     type: '1',
@@ -153,6 +163,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 11,
   },
   {
     type: '1',
@@ -167,6 +178,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 12,
   },
   {
     type: '1',
@@ -181,6 +193,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 13,
   },
   {
     type: '1',
@@ -195,6 +208,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 14,
   },
   {
     type: '1',
@@ -209,6 +223,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 15,
   },
   {
     type: '1',
@@ -223,6 +238,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 16,
   },
   {
     type: '1',
@@ -237,6 +253,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 17,
   },
   {
     type: '1',
@@ -251,6 +268,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 18,
   },
   {
     type: '1',
@@ -265,6 +283,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 19,
   },
   {
     type: '1',
@@ -279,6 +298,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 20,
     coins_needed_unlock_without_requirements: 50,
+    order: 20,
   },
   {
     type: '2',
@@ -293,6 +313,7 @@ const lessons = [
     time: 7,
     coins_needed_unlock_with_requirements: 0,
     coins_needed_unlock_without_requirements: 50,
+    order: 21,
   },
 ];
 export class AddSectionAndLessons1760376606473 implements MigrationInterface {
@@ -307,7 +328,7 @@ export class AddSectionAndLessons1760376606473 implements MigrationInterface {
     const sectionId = section[0].uuid;
     for (const lesson of lessons) {
       await queryRunner.query(
-        'insert into lessons (type, reward, icon, background, number, name, content, description, time, coins_needed_unlock_with_requirements, coins_needed_unlock_without_requirements, section_uuid) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+        'insert into lessons (type, reward, icon, background, number, name, content, description, time, coins_needed_unlock_with_requirements, coins_needed_unlock_without_requirements, section_uuid,"order") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)',
         [
           lesson.type,
           lesson.reward,
@@ -321,6 +342,7 @@ export class AddSectionAndLessons1760376606473 implements MigrationInterface {
           lesson.coins_needed_unlock_with_requirements,
           lesson.coins_needed_unlock_without_requirements,
           sectionId,
+          lesson.order,
         ],
       );
     }
