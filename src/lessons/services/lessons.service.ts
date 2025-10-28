@@ -36,7 +36,6 @@ export class LessonsService {
           order: { order: 'DESC' },
         });
         order = Number(previusLesson.order) + 0.01;
-        console.log(order);
       }
 
       if (!section) {
@@ -75,7 +74,7 @@ export class LessonsService {
 
   @Transactional()
   async update(uuid: string, lesson: UpdateLessonDTO): Promise<UpdateResponse> {
-    const { sectionUuid, ...rest } = lesson;
+    const { sectionUuid, nextLessonUuid, ...rest } = lesson;
 
     const lessonFound = await this.lessonRepo.findOne({
       where: { uuid },
@@ -96,6 +95,20 @@ export class LessonsService {
       ...rest,
       section,
     });
+
+    if (nextLessonUuid) {
+      const nextLesson = await this.lessonRepo.findOne({
+        where: { uuid: nextLessonUuid },
+      });
+      if (!nextLesson) {
+        throw new NotFoundException('Next lesson not found ');
+      }
+      const previusLesson = await this.lessonRepo.findOne({
+        where: { order: LessThan(nextLesson.order) },
+        order: { order: 'DESC' },
+      });
+      lessonEntity.order = Number(previusLesson.order) + 0.01;
+    }
 
     await this.lessonRepo.save(lessonEntity);
     if (lessonFound?.lessonContent.uuid) {
