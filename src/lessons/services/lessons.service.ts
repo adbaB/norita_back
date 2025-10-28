@@ -107,7 +107,9 @@ export class LessonsService {
         where: { order: LessThan(nextLesson.order) },
         order: { order: 'DESC' },
       });
-      lessonEntity.order = Number(previusLesson.order) + 0.01;
+      if (previusLesson.uuid !== uuid) {
+        lessonEntity.order = Number(previusLesson.order) + 0.01;
+      }
     }
 
     await this.lessonRepo.save(lessonEntity);
