@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
+import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
@@ -13,8 +15,12 @@ export class LessonsController {
 
   @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
   @Get('/:uuid')
-  async findByUUID(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<Lesson> {
-    return this.lessonsService.findByUUID(uuid);
+  @IsPublic()
+  async findByUUID(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @User() user: string,
+  ): Promise<Lesson> {
+    return this.lessonsService.findByUUID(uuid, user);
   }
 
   @ApiResponse({ status: 201, type: CreatedResponse<Lesson>, description: 'Created' })

@@ -24,7 +24,17 @@ export class JwtGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
     if (isPublic) {
-      return true;
+      try {
+        // Intentamos autenticar, si falla, no lanzamos error y continuamos sin usuario
+        const canActivateResult = super.canActivate(context);
+        if (canActivateResult instanceof Promise) {
+          return canActivateResult.catch(() => true);
+        }
+        return canActivateResult;
+      } catch {
+        // Si hay error, significa que el token no es válido o no está presente, pero como es público, permitimos el acceso.
+        return true;
+      }
     }
     return super.canActivate(context);
   }

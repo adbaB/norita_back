@@ -146,6 +146,16 @@ export class LessonDTO {
   @ValidateNested()
   @Type(() => ContentDTO)
   contentLesson: ContentDTO;
+
+  @ApiProperty({
+    description: 'UUID of the next lesson',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'nextLessonUuid must be a string' })
+  nextLessonUuid?: string;
 }
 
 export class UpdateLessonDTO {
@@ -282,4 +292,14 @@ export class UpdateLessonDTO {
   @ValidateNested()
   @Type(() => UpdateContentDTO)
   contentLesson: UpdateContentDTO;
+
+  @ApiProperty({
+    description: 'UUID of the next lesson',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'nextLessonUuid must be a string' })
+  nextLessonUuid?: string;
 }

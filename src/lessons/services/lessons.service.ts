@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, QueryFailedError, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
@@ -19,40 +19,101 @@ export class LessonsService {
 
   @Transactional()
   async create(lesson: LessonDTO): Promise<CreatedResponse<Lesson>> {
-    const { sectionUuid, contentLesson, ...rest } = lesson;
-    const section = await this.sectionService.findByUUID(sectionUuid);
+    try {
+      let order = Number(await this.lessonRepo.maximum('order')) + 1;
+      const { sectionUuid, contentLesson, nextLessonUuid, ...rest } = lesson;
+      const section = await this.sectionService.findByUUID(sectionUuid);
 
-    if (!section) {
-      throw new NotFoundException('Section not found ');
+      if (nextLessonUuid) {
+        const nextLesson = await this.lessonRepo.findOne({
+          where: { uuid: nextLessonUuid },
+        });
+        if (!nextLesson) {
+          throw new NotFoundException('Next lesson not found ');
+        }
+        const previusLesson = await this.lessonRepo.findOne({
+          where: { order: LessThan(nextLesson.order) },
+          order: { order: 'DESC' },
+        });
+        order = Number(previusLesson.order) + 0.01;
+      }
+
+      if (!section) {
+        throw new NotFoundException('Section not found ');
+      }
+
+      const lessonEntity = this.lessonRepo.create({
+        ...rest,
+        type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
+        section,
+        order,
+      });
+
+      const newLesson = await this.lessonRepo.save(lessonEntity);
+      await this.contentService.create(newLesson, contentLesson);
+      return {
+        data: newLesson,
+        message: 'Lesson created successfully',
+        status: 201,
+      };
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        throw new ConflictException(error.message);
+      }
     }
-
-    const lessonEntity = this.lessonRepo.create({
-      ...rest,
-      type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
-      section,
-    });
-
-    const newLesson = await this.lessonRepo.save(lessonEntity);
-    await this.contentService.create(newLesson, contentLesson);
-    return {
-      data: newLesson,
-      message: 'Lesson created successfully',
-      status: 201,
-    };
   }
 
-  async findByUUID(uuid: string): Promise<Lesson | null> {
+  async findByUUID(uuid: string, userUUID?: string): Promise<Lesson | null> {
+    const queryBuilder = this.lessonRepo
+      .createQueryBuilder('lesson')
+      .leftJoinAndSelect('lesson.lessonContent', 'lessonContent')
+      .leftJoinAndSelect('lessonContent.dialogs', 'dialog')
+      .leftJoinAndSelect('lessonContent.notes', 'notes')
+      .leftJoinAndSelect('lessonContent.bibliographies', 'bibliography')
+      .leftJoinAndSelect('lessonContent.glossaries', 'glossary')
+      .where('lesson.uuid = :uuid', { uuid });
+
+    if (userUUID) {
+      queryBuilder.leftJoinAndSelect(
+        'lesson.lessonProgress',
+        'lessonProgress',
+        'lessonProgress.user_uuid = :userUUID',
+        { userUUID },
+      );
+    }
+
+    return queryBuilder.getOne();
+  }
+
+  async getFirstLesson(): Promise<Lesson | null> {
     return this.lessonRepo.findOne({
-      where: { uuid },
-      relations: {
-        lessonContent: { dialogs: true, notes: true, bibliographies: true, glossaries: true },
+      where: {
+        order: 1,
+      },
+    });
+  }
+
+  async getNextLesson(uuid: string): Promise<Lesson | null> {
+    const lesson = await this.lessonRepo.findOne({
+      where: {
+        uuid,
+      },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
+    return this.lessonRepo.findOne({
+      where: {
+        order: MoreThan(lesson.order),
       },
     });
   }
 
   @Transactional()
   async update(uuid: string, lesson: UpdateLessonDTO): Promise<UpdateResponse> {
-    const { sectionUuid, ...rest } = lesson;
+    const { sectionUuid, nextLessonUuid, ...rest } = lesson;
 
     const lessonFound = await this.lessonRepo.findOne({
       where: { uuid },
@@ -73,6 +134,22 @@ export class LessonsService {
       ...rest,
       section,
     });
+
+    if (nextLessonUuid) {
+      const nextLesson = await this.lessonRepo.findOne({
+        where: { uuid: nextLessonUuid },
+      });
+      if (!nextLesson) {
+        throw new NotFoundException('Next lesson not found ');
+      }
+      const previusLesson = await this.lessonRepo.findOne({
+        where: { order: LessThan(nextLesson.order) },
+        order: { order: 'DESC' },
+      });
+      if (previusLesson.uuid !== uuid) {
+        lessonEntity.order = Number(previusLesson.order) + 0.01;
+      }
+    }
 
     await this.lessonRepo.save(lessonEntity);
     if (lessonFound?.lessonContent.uuid) {
