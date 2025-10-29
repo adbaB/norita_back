@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -132,6 +132,9 @@ export class UsersService {
     const user = await this.userRepo.findOne({ where: { uuid } });
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+    if (user.coin - coins < 0) {
+      throw new ConflictException('Not enough coins');
     }
     const result = await this.userRepo.update({ uuid }, { coin: user.coin - coins });
     return {

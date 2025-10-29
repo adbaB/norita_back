@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 
 import * as moment from 'moment';
 
+import { Transactional } from 'typeorm-transactional';
 import { LessonsService } from '../../lessons/services/lessons.service';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
@@ -66,6 +67,7 @@ export class LessonProgressService {
     };
   }
 
+  @Transactional()
   async completeLesson(userUUID: string, lessonUUID: string): Promise<UpdateResponse> {
     const lessonProgress = await this.lessonProgressRepo.findOne({
       where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
@@ -111,5 +113,47 @@ export class LessonProgressService {
       unlockedAt: moment().add(nextLesson.timeToUnlock, 'hour').toDate(),
     });
     await this.lessonProgressRepo.save(newLessonProgress);
+  }
+
+  @Transactional()
+  async unlockLesson(userUUID: string, lessonUUID: string): Promise<LessonProgress> {
+    const lesson = await this.lessonsService.findByUUID(lessonUUID);
+
+    if (!lesson) {
+      throw new NotFoundException('No lesson found');
+    }
+
+    const user = await this.usersService.findByUUID(userUUID);
+    if (!user) {
+      throw new NotFoundException('No user found');
+    }
+
+    const existingProgress = await this.lessonProgressRepo.findOne({
+      where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
+    });
+    if (existingProgress && existingProgress.isUnlocked()) {
+      throw new ConflictException('Lesson already unlocked');
+    }
+    if (!user.isPremiun) {
+      await this.usersService.decreaseCoins(
+        userUUID,
+        existingProgress
+          ? lesson.coinsNeededUnlockWithRequirements
+          : lesson.coinsNeededUnlockWithoutRequirements,
+      );
+    }
+    if (existingProgress) {
+      existingProgress.unlockedAt = new Date();
+      return this.lessonProgressRepo.save(existingProgress);
+    }
+    const lessonProgress = this.lessonProgressRepo.create({
+      user,
+      lesson,
+      completed: false,
+      dateCompleted: null,
+      lastLineSeen: 0,
+      unlockedAt: new Date(),
+    });
+    return this.lessonProgressRepo.save(lessonProgress);
   }
 }
