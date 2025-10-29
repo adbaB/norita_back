@@ -113,11 +113,13 @@ export class UsersService {
     await this.userRepo.update({ uuid: userUUID }, { deviceJWT: sessionUUID });
   }
 
-  async addCoins(uuid: string, coins: number): Promise<UpdateResponse> {
+  async increaseCoins(uuid: string, coins: number): Promise<UpdateResponse> {
     const user = await this.userRepo.findOne({ where: { uuid } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    console.log('Current coins:', user.coin, 'Increasing by:', coins);
+    console.log('New coin total:', user.coin + coins);
     const result = await this.userRepo.update({ uuid }, { coin: user.coin + coins });
     return {
       affected: result.affected,

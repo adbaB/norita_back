@@ -1,14 +1,24 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Expose } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Lesson } from '../../lessons/entities/lesson.entity';
 import { User } from '../../users/entities/user.entity';
+
+import * as moment from 'moment';
 
 @Entity('lesson_progress')
 export class LessonProgress {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'boolean', default: false })
-  unlocked: boolean;
+  @Column({ name: 'unlocked_at', type: 'timestamptz' })
+  unlockedAt: Date;
 
   @Column({ type: 'boolean', default: false })
   completed: boolean;
@@ -16,7 +26,7 @@ export class LessonProgress {
   @Column({ type: 'int', default: 0 })
   lastLineSeen: number;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ name: 'date_completed', type: 'timestamptz', nullable: true })
   dateCompleted: Date | null;
 
   @ManyToOne(() => User, (user) => user.lessonProgress, {
@@ -30,4 +40,16 @@ export class LessonProgress {
   })
   @JoinColumn({ name: 'lesson_uuid' })
   lesson: Lesson;
+
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
+  @Expose({ name: 'unlocked' })
+  isUnlocked(): boolean {
+    return moment().isSameOrAfter(this.unlockedAt);
+  }
 }

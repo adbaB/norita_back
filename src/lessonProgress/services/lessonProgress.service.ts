@@ -1,8 +1,20 @@
-import { forwardRef, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import * as moment from 'moment';
+
 import { LessonsService } from '../../lessons/services/lessons.service';
 import { User } from '../../users/entities/user.entity';
+import { UsersService } from '../../users/services/users.service';
+import { UpdateResponse } from '../../utils/responses';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 
 @Injectable()
@@ -11,6 +23,7 @@ export class LessonProgressService {
     @InjectRepository(LessonProgress)
     private readonly lessonProgressRepo: Repository<LessonProgress>,
     @Inject(forwardRef(() => LessonsService)) private readonly lessonsService: LessonsService,
+    @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
   ) {}
 
   async addInitialProgress(user: User): Promise<void> {
@@ -25,9 +38,78 @@ export class LessonProgressService {
       completed: false,
       dateCompleted: null,
       lastLineSeen: 0,
-      unlocked: true,
+      unlockedAt: new Date(),
     });
 
     await this.lessonProgressRepo.save(lessonProgress);
+  }
+
+  async updateLessonProgress(
+    userUUID: string,
+    lessonUUID: string,
+    lastLineSeen: number,
+  ): Promise<UpdateResponse> {
+    const lessonProgress = await this.lessonProgressRepo.findOne({
+      where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
+    });
+    if (!lessonProgress) {
+      throw new NotFoundException('No lesson progress found');
+    }
+
+    lessonProgress.lastLineSeen = lastLineSeen;
+    await this.lessonProgressRepo.save(lessonProgress);
+
+    return {
+      affected: 1,
+      message: 'Lesson progress updated successfully',
+      status: 200,
+    };
+  }
+
+  async completeLesson(userUUID: string, lessonUUID: string): Promise<UpdateResponse> {
+    const lessonProgress = await this.lessonProgressRepo.findOne({
+      where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
+    });
+    if (!lessonProgress) {
+      throw new NotFoundException('No lesson progress found');
+    }
+
+    const lesson = await this.lessonsService.findByUUID(lessonUUID);
+    if (!lesson) {
+      throw new NotFoundException('No lesson found');
+    }
+    lessonProgress.completed = true;
+    lessonProgress.dateCompleted = new Date();
+    await this.usersService.increaseCoins(userUUID, lesson.reward);
+    await this.unlockNextLesson(userUUID, lessonUUID);
+    await this.lessonProgressRepo.save(lessonProgress);
+    return {
+      affected: 1,
+      message: 'Lesson completed successfully',
+      status: 200,
+    };
+  }
+
+  private async unlockNextLesson(userUUID: string, lessonUUID: string): Promise<void> {
+    const nextLesson = await this.lessonsService.getNextLesson(lessonUUID);
+    if (!nextLesson) {
+      throw new NotFoundException('No next lesson found');
+    }
+    const lessonProgress = await this.lessonProgressRepo.findOne({
+      where: { user: { uuid: userUUID }, lesson: { uuid: nextLesson.uuid } },
+    });
+    if (lessonProgress) {
+      throw new ConflictException('Next lesson already unlocked');
+    }
+
+    const newLessonProgress = this.lessonProgressRepo.create({
+      user: { uuid: userUUID },
+      lesson: nextLesson,
+      completed: false,
+      dateCompleted: null,
+      lastLineSeen: 0,
+      unlockedAt: moment().add(nextLesson.timeToUnlock, 'hour').toDate(),
+    });
+    await this.lessonProgressRepo.save(newLessonProgress);
   }
 }

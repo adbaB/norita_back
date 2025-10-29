@@ -96,6 +96,9 @@ export class Lesson {
   @Column({ name: 'order', type: 'decimal', precision: 10, scale: 2 })
   order: number;
 
+  @Column({ name: 'time_to_unlock', type: 'integer', default: 0 })
+  timeToUnlock: number;
+
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
     name: 'created_at',

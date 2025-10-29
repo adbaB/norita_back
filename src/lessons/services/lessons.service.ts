@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, QueryFailedError, Repository } from 'typeorm';
+import { LessThan, MoreThan, QueryFailedError, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
@@ -89,6 +89,24 @@ export class LessonsService {
     return this.lessonRepo.findOne({
       where: {
         order: 1,
+      },
+    });
+  }
+
+  async getNextLesson(uuid: string): Promise<Lesson | null> {
+    const lesson = await this.lessonRepo.findOne({
+      where: {
+        uuid,
+      },
+    });
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
+    return this.lessonRepo.findOne({
+      where: {
+        order: MoreThan(lesson.order),
       },
     });
   }
