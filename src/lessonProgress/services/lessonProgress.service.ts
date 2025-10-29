@@ -104,13 +104,22 @@ export class LessonProgressService {
       throw new ConflictException('Next lesson already unlocked');
     }
 
+    const user = await this.usersService.findByUUID(userUUID);
+    if (!user) {
+      throw new NotFoundException('No user found');
+    }
+    let unlockedAt = moment().add(nextLesson.timeToUnlock, 'hour').toDate();
+    if (!user.isPremiun) {
+      unlockedAt = new Date();
+    }
+
     const newLessonProgress = this.lessonProgressRepo.create({
       user: { uuid: userUUID },
       lesson: nextLesson,
       completed: false,
       dateCompleted: null,
       lastLineSeen: 0,
-      unlockedAt: moment().add(nextLesson.timeToUnlock, 'hour').toDate(),
+      unlockedAt,
     });
     await this.lessonProgressRepo.save(newLessonProgress);
   }
