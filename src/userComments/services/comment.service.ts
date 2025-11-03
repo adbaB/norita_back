@@ -4,6 +4,7 @@ import { formatResponse, getSkip } from '../../utils/functions';
 import { FormatResponse } from '../../utils/responses';
 import { CreateCommentDto, findComment } from '../dto/comments.dto';
 import { Comments } from '../entities/comments.entity';
+import { StatsResponse } from '../interfaces/stats.reponse';
 
 export class CommentsService {
   constructor(
@@ -32,6 +33,24 @@ export class CommentsService {
       skip,
     });
     return formatResponse(comments, page, limit, total);
+  }
+
+  async findStats(uuid: string): Promise<StatsResponse> {
+    const average = await this.commentsRepository
+      .createQueryBuilder('comment')
+      .select('AVG(comment.rating)', 'rating')
+      .where('comment.lesson_uuid = :uuid', { uuid })
+      .getRawOne();
+
+    const rating = await this.commentsRepository
+      .createQueryBuilder('comment')
+      .select('comment.rating, COUNT(comment.rating)', 'count')
+      .where('comment.lesson_uuid = :uuid', { uuid })
+      .groupBy('comment.rating')
+      .getRawMany();
+    console.log(rating);
+    console.log('average', average);
+    return { average: average.rating, rating };
   }
 
   async delete(uuid: string, userUuid: string): Promise<void> {

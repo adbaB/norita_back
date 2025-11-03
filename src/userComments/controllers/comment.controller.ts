@@ -3,6 +3,7 @@ import { User } from '../../users/decorators/user.decorator';
 import { FormatResponse } from '../../utils/responses';
 import { CreateCommentDto } from '../dto/comments.dto';
 import { Comments } from '../entities/comments.entity';
+import { StatsResponse } from '../interfaces/stats.reponse';
 import { CommentsService } from '../services/comment.service';
 
 @Controller('comments')
@@ -12,6 +13,11 @@ export class CommentsController {
   @Post('/')
   async create(@User('uuid') userUuid: string, @Body() dto: CreateCommentDto): Promise<Comments> {
     return this.commentsService.create(dto, userUuid);
+  }
+
+  @Get('/stats/:uuid')
+  async findStats(@Param('uuid') uuid: string): Promise<StatsResponse> {
+    return this.commentsService.findStats(uuid);
   }
 
   @Get('/:uuid')
