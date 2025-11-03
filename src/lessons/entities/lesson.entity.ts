@@ -15,6 +15,7 @@ import {
 } from 'typeorm';
 import { Content } from '../../contentLessons/entities/content.entity';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
+import { Comments } from '../../userComments/entities/comments.entity';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
 import { Section } from './section.entity';
 
@@ -98,6 +99,9 @@ export class Lesson {
 
   @Column({ name: 'time_to_unlock', type: 'integer', default: 0 })
   timeToUnlock: number;
+
+  @OneToMany(() => Comments, (comments) => comments.lesson)
+  comments: Comments[];
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
