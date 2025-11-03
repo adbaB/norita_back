@@ -5,6 +5,7 @@ import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
 import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     LessonsModule,
     LessonProgressModule,
+    UserCommentsModule,
   ],
   controllers: [],
   providers: [
