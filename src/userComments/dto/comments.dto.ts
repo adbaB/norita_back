@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUUID, Min } from 'class-validator';
+import { IsNotEmpty, IsUUID, Max, Min } from 'class-validator';
 import { Paginate } from '../../utils/models/paginate-request';
 
 export class CreateCommentDto {
@@ -10,7 +10,7 @@ export class CreateCommentDto {
 
   @IsNotEmpty()
   @Min(1)
-  @Min(5)
+  @Max(5)
   rating: number;
 }
 

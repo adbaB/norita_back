@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -33,6 +33,7 @@ export class Comments {
   @JoinColumn({ name: 'lesson_uuid' })
   lesson: Lesson;
 
+  @Exclude({ toPlainOnly: true })
   @OneToMany(() => UserLikes, (userLikes) => userLikes.comment)
   Userlikes: UserLikes[];
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { User } from '../../users/decorators/user.decorator';
 import { FormatResponse } from '../../utils/responses';
 import { CreateCommentDto } from '../dto/comments.dto';
@@ -16,8 +16,8 @@ export class CommentsController {
 
   @Get('/:uuid')
   async find(
-    @Query('limit') limit: number,
-    @Query('page') page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+    @Query('page', ParseIntPipe) page: number,
     @Param('uuid') uuid: string,
   ): Promise<FormatResponse<Comments>> {
     return this.commentsService.findAll({ lessonUuid: uuid, limit, page });
