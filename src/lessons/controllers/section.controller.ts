@@ -1,10 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { Section } from '../entities/section.entity';
 import { SectionService } from '../services/section.service';
 
+@ApiBearerAuth()
 @Controller('sections')
 export class SectionController {
   constructor(private readonly sectionService: SectionService) {}
