@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
@@ -9,6 +9,7 @@ import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { LessonsService } from '../services/lessons.service';
 
+@ApiBearerAuth()
 @Controller('lessons')
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}

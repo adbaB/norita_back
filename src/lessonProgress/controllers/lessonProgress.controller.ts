@@ -1,10 +1,12 @@
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { UpdateResponse } from '../../utils/responses';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 import { LessonProgressService } from '../services/lessonProgress.service';
 
+@ApiBearerAuth()
 @Controller('lesson-progress')
 export class LessonProgressController {
   constructor(private readonly lessonProgressService: LessonProgressService) {}

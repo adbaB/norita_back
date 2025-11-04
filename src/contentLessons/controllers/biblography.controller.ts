@@ -1,10 +1,11 @@
 import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { DeleteResponse } from '../../utils/responses';
 import { BibliographyService } from '../services/biblography.service';
 
+@ApiBearerAuth()
 @Controller('bibliography')
 export class BibliographyController {
   constructor(private readonly bibliographyService: BibliographyService) {}

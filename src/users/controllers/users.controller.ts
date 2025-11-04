@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Put } from '@nestjs/common';
-import { ApiHeader, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { User } from '../decorators/user.decorator';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
@@ -10,7 +10,7 @@ import { UsersService } from '../services/users.service';
  * UsersController is a controller that handles user-related operations.
  * It uses the UsersService to interact with the database.
  */
-@ApiHeader({ name: 'Authorization', required: true })
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

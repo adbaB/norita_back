@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { FormatResponse } from '../../utils/responses';
 import { CreateCommentDto } from '../dto/comments.dto';
@@ -6,6 +7,7 @@ import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
 import { CommentsService } from '../services/comment.service';
 
+@ApiBearerAuth()
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
