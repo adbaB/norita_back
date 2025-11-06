@@ -37,7 +37,7 @@ export class UsersService {
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
-      username: rest.username ? rest.username : `user-${Date.now()}`,
+      username: rest.username ? rest.username : `user-${jwt}`,
     });
 
     if (levelUuid) {

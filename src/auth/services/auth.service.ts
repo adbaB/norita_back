@@ -95,11 +95,11 @@ export class AuthService {
 
   async createGuestUser(): Promise<CreatedResponse<User>> {
     const sessionUUID = randomUUID();
-    const guestUsername = `guest-${Date.now()}`;
+    const guestUsername = `guest-${sessionUUID}`;
     const guestUser = await this.usersService.register({
       email: `${guestUsername}@norita-app.com`,
       username: guestUsername,
-      password: 'password',
+      password: sessionUUID,
       firstLesson: false,
       firstTutorial: false,
       secondLesson: false,

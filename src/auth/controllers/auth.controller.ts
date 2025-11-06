@@ -43,9 +43,8 @@ export class AuthController {
   }
 
   /**
-   * Handle the logout request and return the response.
-   * @param userUUID {string} - The UUID of the user to be logged out.
-   * @returns {Promise<void>} - A promise that resolves when the request is done.
+   * Handle the guest user creation request and return the response.
+   * @returns {Promise<CreatedResponse<User>>} - A promise that resolves with the created guest user and access token.
    */
   @IsPublic()
   @ApiResponse({ status: 201, type: CreatedResponse<User>, description: 'success' })

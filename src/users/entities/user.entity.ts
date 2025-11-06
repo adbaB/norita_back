@@ -42,7 +42,7 @@ export class User {
   @Column({ name: 'is_guest', type: 'boolean', default: false })
   isGuest: boolean;
 
-  @ApiProperty({ description: 'name of the user', type: String })
+  @ApiProperty({ description: 'username of the user', type: String })
   @Column({ type: 'varchar', length: 255, default: null, nullable: true })
   username: string;
 
