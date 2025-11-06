@@ -25,6 +25,7 @@ export class FileController {
     type: FileUploadDto,
   })
   uploadFile(@UploadedFile() file: Express.Multer.File): FileResponse {
+    const category = file.mimetype.split('/')[0];
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo');
     }
@@ -33,9 +34,9 @@ export class FileController {
       success: true,
       message: 'Archivo subido exitosamente',
       filename: file.filename,
-      url: `/files/${file.mimetype.split('/')[0]}/${file.filename}`,
+      url: `/files/${category}/${file.filename}`,
       size: file.size,
-      category: file.mimetype.split('/')[0],
+      category,
     };
   }
 }
