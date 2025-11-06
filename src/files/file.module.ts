@@ -1,6 +1,7 @@
 import { BadRequestException, Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { FileController } from './controllers/file.controller';
@@ -13,6 +14,10 @@ import { FileController } from './controllers/file.controller';
           destination: (req, file, cb) => {
             const category = file.mimetype.split('/')[0];
             const path = `./public/files/${category}`;
+
+            if (!existsSync(path)) {
+              mkdirSync(path, { recursive: true });
+            }
             cb(null, path);
           },
           filename: (req, file, cb) => {
