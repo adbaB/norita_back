@@ -38,6 +38,14 @@ export class User {
   @Column({ name: 'sign_in_google', type: 'boolean', default: false })
   signInGoogle: boolean;
 
+  @ApiProperty({ description: 'is guest of the user', type: Boolean })
+  @Column({ name: 'is_guest', type: 'boolean', default: false })
+  isGuest: boolean;
+
+  @ApiProperty({ description: 'name of the user', type: String })
+  @Column({ type: 'varchar', length: 255, default: null, nullable: true })
+  username: string;
+
   @ApiProperty({ description: 'coin of the user', type: Number })
   @Column({ type: 'integer', default: 0 })
   coin: number;

@@ -41,4 +41,16 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto): Promise<CreatedResponse<User>> {
     return this.authService.register(registerDto);
   }
+
+  /**
+   * Handle the logout request and return the response.
+   * @param userUUID {string} - The UUID of the user to be logged out.
+   * @returns {Promise<void>} - A promise that resolves when the request is done.
+   */
+  @IsPublic()
+  @ApiResponse({ status: 201, type: CreatedResponse<User>, description: 'success' })
+  @Post('guest')
+  async guest(): Promise<CreatedResponse<User>> {
+    return this.authService.createGuestUser();
+  }
 }

@@ -33,7 +33,12 @@ export class UsersService {
     const { password, jwt, levelUuid, ...rest } = dto;
     const passwordHash = await hashPassword(password);
 
-    const user = this.userRepo.create({ password: passwordHash, deviceJWT: jwt, ...rest });
+    const user = this.userRepo.create({
+      password: passwordHash,
+      deviceJWT: jwt,
+      ...rest,
+      username: rest.username ? rest.username : `user-${Date.now()}`,
+    });
 
     if (levelUuid) {
       const levelEntity = await this.levelService.findByUUID(levelUuid);
@@ -118,8 +123,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    console.log('Current coins:', user.coin, 'Increasing by:', coins);
-    console.log('New coin total:', user.coin + coins);
+
     const result = await this.userRepo.update({ uuid }, { coin: user.coin + coins });
     return {
       affected: result.affected,
