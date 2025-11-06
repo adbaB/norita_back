@@ -14,8 +14,6 @@ import { FileResponse, FileUploadDto } from '../dto/file.dto';
 @ApiBearerAuth()
 @Controller('files')
 export class FileController {
-  constructor() {}
-
   @Post('upload')
   @Roles(RoleEnum.ADMIN)
   @UseInterceptors(FileInterceptor('file'))

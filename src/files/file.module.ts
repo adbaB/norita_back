@@ -6,6 +6,13 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { FileController } from './controllers/file.controller';
 
+const allowedMimes = {
+  image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  video: ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'],
+  audio: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3'],
+  json: ['application/json'],
+};
+
 @Module({
   imports: [
     MulterModule.registerAsync({
@@ -27,13 +34,6 @@ import { FileController } from './controllers/file.controller';
         }),
         limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
         fileFilter: (req, file, cb): void => {
-          const allowedMimes = {
-            image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-            video: ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'],
-            audio: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3'],
-            json: ['application/json'],
-          };
-
           const isValidType = Object.values(allowedMimes).flat().includes(file.mimetype);
 
           if (isValidType) {
