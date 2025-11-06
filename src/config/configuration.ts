@@ -20,5 +20,8 @@ export default registerAs('config', () => {
       client: process.env.GOOGLE_CLIENT_ID,
       secret: process.env.GOOGLE_CLIENT_SECRET,
     },
+    file: {
+      maxSize: parseInt(process.env.FILE_MAX_SIZE, 10) || 100 * 1024 * 1024,
+    },
   };
 });

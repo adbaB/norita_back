@@ -23,10 +23,10 @@ export class FileController {
     type: FileUploadDto,
   })
   uploadFile(@UploadedFile() file: Express.Multer.File): FileResponse {
-    const category = file.mimetype.split('/')[0];
     if (!file) {
       throw new BadRequestException('No se recibió ningún archivo');
     }
+    const category = file.mimetype.split('/')[0];
 
     return {
       success: true,
