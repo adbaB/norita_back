@@ -93,6 +93,40 @@ export class AuthService {
     };
   }
 
+  async createGuestUser(): Promise<CreatedResponse<User>> {
+    const sessionUUID = randomUUID();
+    const guestUsername = `guest-${sessionUUID}`;
+    const guestPassword = randomUUID();
+    const guestUser = await this.usersService.register({
+      email: `${guestUsername}@norita-app.com`,
+      username: guestUsername,
+      password: guestPassword,
+      firstLesson: false,
+      firstTutorial: false,
+      secondLesson: false,
+      secondTutorial: false,
+      isGuest: true,
+      jwt: sessionUUID,
+    });
+
+    const payload: PayloadToken = {
+      email: guestUser.email,
+      uuid: guestUser.uuid,
+      role: guestUser.role,
+      sessionUUID,
+    };
+
+    // Generate an access token
+    const accessToken = await this.generateAccessToken(payload);
+
+    return {
+      status: 201,
+      message: 'success',
+      data: guestUser,
+      accessToken,
+    };
+  }
+
   async logOut(userUUID: string): Promise<void> {
     await this.usersService.updateSession(userUUID, null);
   }

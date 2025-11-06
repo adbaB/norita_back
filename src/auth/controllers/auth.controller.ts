@@ -41,4 +41,15 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto): Promise<CreatedResponse<User>> {
     return this.authService.register(registerDto);
   }
+
+  /**
+   * Handle the guest user creation request and return the response.
+   * @returns {Promise<CreatedResponse<User>>} - A promise that resolves with the created guest user and access token.
+   */
+  @IsPublic()
+  @ApiResponse({ status: 201, type: CreatedResponse<User>, description: 'success' })
+  @Post('guest')
+  async guest(): Promise<CreatedResponse<User>> {
+    return this.authService.createGuestUser();
+  }
 }

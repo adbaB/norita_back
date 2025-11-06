@@ -69,4 +69,26 @@ export class RegisterDto {
   @IsUUID('4')
   @IsOptional()
   levelUuid?: string;
+
+  @ApiProperty({
+    description: 'image of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  @ApiProperty({
+    description: 'username of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  username?: string;
+
+  isGuest?: boolean;
 }
