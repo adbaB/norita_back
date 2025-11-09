@@ -101,10 +101,10 @@ export class AuthService {
       email: `${guestUsername}@norita-app.com`,
       username: guestUsername,
       password: guestPassword,
-      firstLesson: false,
-      firstTutorial: false,
-      secondLesson: false,
+      fistTutorial: false,
+      fistRewards: false,
       secondTutorial: false,
+      secondRewards: false,
       isGuest: true,
       jwt: sessionUUID,
     });

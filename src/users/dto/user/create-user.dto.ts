@@ -21,37 +21,37 @@ export class RegisterDto {
   jwt?: string;
 
   @ApiProperty({
-    description: 'firstLesson of the user',
+    description: 'fistRewards of the user',
     nullable: false,
     required: false,
     type: Boolean,
   })
   @IsBoolean()
   @IsOptional()
-  firstLesson: boolean;
+  fistRewards: boolean;
 
   @ApiProperty({
-    description: 'secondLesson of the user',
+    description: 'secondRewards of the user',
     nullable: false,
     required: false,
     type: Boolean,
   })
   @IsBoolean()
   @IsOptional()
-  secondLesson: boolean;
+  secondRewards: boolean;
 
   @ApiProperty({
-    description: 'firstTutorial of the user',
+    description: 'fistTutorial of the user',
     nullable: false,
     required: false,
     type: Boolean,
   })
   @IsBoolean()
   @IsOptional()
-  firstTutorial: boolean;
+  fistTutorial: boolean;
 
   @ApiProperty({
-    description: 'firstTutorial of the user',
+    description: 'secondTutorial of the user',
     nullable: false,
     required: false,
     type: Boolean,

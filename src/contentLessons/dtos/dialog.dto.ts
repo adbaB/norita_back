@@ -58,6 +58,16 @@ export class DialogDTO {
   audio: string;
 
   @ApiProperty({
+    description: 'Final Lottie animation',
+    type: String,
+    nullable: true,
+    required: false,
+  })
+  @IsOptional({ message: 'lottieAnimationFinal is optional' })
+  @IsString({ message: 'lottieAnimationFinal must be a string' })
+  lottieAnimationFinal: string;
+
+  @ApiProperty({
     description: 'Content',
     type: Object,
     nullable: false,

@@ -63,12 +63,12 @@ export class User {
   secondTutorial: boolean;
 
   @ApiProperty({ description: 'first lesson of the user', type: Boolean })
-  @Column({ name: 'first_lesson', type: 'boolean', default: false })
-  firstLesson: boolean;
+  @Column({ name: 'first_rewards', type: 'boolean', default: false })
+  fistRewards: boolean;
 
   @ApiProperty({ description: 'second lesson of the user', type: Boolean })
-  @Column({ name: 'second_lesson', type: 'boolean', default: false })
-  secondLesson: boolean;
+  @Column({ name: 'second_rewards', type: 'boolean', default: false })
+  secondRewards: boolean;
 
   @Exclude({ toPlainOnly: true })
   @Column({ name: 'device_jwt', type: 'varchar', length: 255, default: '' })
