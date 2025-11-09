@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class RegisterDto {
@@ -92,3 +92,10 @@ export class RegisterDto {
 
   isGuest?: boolean;
 }
+
+export class RegisterGuestDTO extends OmitType(RegisterDto, [
+  'email',
+  'password',
+  'image',
+  'username',
+] as const) {}
