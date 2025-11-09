@@ -61,20 +61,36 @@ export class SectionService {
     if (!section) {
       throw new Error('Section not found');
     }
-    const sections = await this.sectionRepository.find({
-      where: { order: MoreThanOrEqual(updateData.order) },
-    });
+    if (updateData?.order) {
+      const sections = await this.sectionRepository.find({
+        where: { order: MoreThanOrEqual(updateData.order) },
+      });
 
-    for (const sec of sections) {
-      if (sec.uuid !== uuid) {
-        sec.order += 1;
-        await this.sectionRepository.save(sec);
+      for (const sec of sections) {
+        if (sec.uuid !== uuid) {
+          sec.order += 1;
+          await this.sectionRepository.save(sec);
+        }
       }
     }
     return this.sectionRepository.save({ ...section, ...updateData });
   }
 
   async remove(uuid: string): Promise<void> {
+    const section = await this.sectionRepository.findOne({ where: { uuid } });
+    if (!section) {
+      throw new Error('Section not found');
+    }
+
+    const sections = await this.sectionRepository.find({
+      where: { order: MoreThanOrEqual(section.order + 1) },
+    });
+
+    for (const sec of sections) {
+      sec.order -= 1;
+      await this.sectionRepository.save(sec);
+    }
+
     await this.sectionRepository.delete(uuid);
   }
 }
