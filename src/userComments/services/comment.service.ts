@@ -1,28 +1,42 @@
+import { UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 import { formatResponse, getSkip } from '../../utils/functions';
 import { FormatResponse } from '../../utils/responses';
 import { CreateCommentDto, findComment } from '../dto/comments.dto';
 import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
+import { UserLikesService } from './userLikes.service';
 
 export class CommentsService {
   constructor(
     @InjectRepository(Comments) private readonly commentsRepository: Repository<Comments>,
+    private readonly userLikesService: UserLikesService,
   ) {}
 
+  @Transactional()
   async create(dto: CreateCommentDto, userUuid: string): Promise<Comments> {
-    const { comment, rating, lessonUuid } = dto;
+    try {
+      const { comment, rating, lessonUuid } = dto;
 
-    const newComment = this.commentsRepository.create({
-      comment,
-      rating,
-      user: { uuid: userUuid },
-      lesson: { uuid: lessonUuid },
-    });
-    return this.commentsRepository.save(newComment);
+      const newComment = this.commentsRepository.create({
+        comment,
+        rating,
+        user: { uuid: userUuid },
+        lesson: { uuid: lessonUuid },
+      });
+
+      if (dto.userLikes && dto.userLikes.length > 0) {
+        await this.userLikesService.likeComment(userUuid, dto.userLikes);
+      }
+      return this.commentsRepository.save(newComment);
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new UnprocessableEntityException(e.detail);
+      }
+    }
   }
-
   async findAll(dto: findComment): Promise<FormatResponse<Comments>> {
     const { limit, page, lessonUuid } = dto;
     const skip = getSkip(limit, page);
