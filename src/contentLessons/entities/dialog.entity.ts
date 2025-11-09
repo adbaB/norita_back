@@ -70,6 +70,10 @@ export class Dialog {
   @JoinColumn({ name: 'lesson_content_uuid' })
   lessonContent: Content;
 
+  @ApiProperty({ description: 'Final Lottie animation', type: String, maxLength: 255 })
+  @Column({ type: 'varchar', length: 255, name: 'lottie_animation_final', nullable: true })
+  lottieAnimationFinal: string;
+
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
     name: 'created_at',

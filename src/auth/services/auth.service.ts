@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { PayloadToken } from '../../libs/Auth/token';
 import { CreatedResponse, LoginResponse } from '../../utils/responses';
 
-import { RegisterDto } from '../../users/dto/user/create-user.dto';
+import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
@@ -93,7 +93,8 @@ export class AuthService {
     };
   }
 
-  async createGuestUser(): Promise<CreatedResponse<User>> {
+  async createGuestUser(dto: RegisterGuestDTO): Promise<CreatedResponse<User>> {
+    const { fistRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
     const sessionUUID = randomUUID();
     const guestUsername = `guest-${sessionUUID}`;
     const guestPassword = randomUUID();
@@ -101,12 +102,13 @@ export class AuthService {
       email: `${guestUsername}@norita-app.com`,
       username: guestUsername,
       password: guestPassword,
-      firstLesson: false,
-      firstTutorial: false,
-      secondLesson: false,
-      secondTutorial: false,
+      fistRewards,
+      fistTutorial,
+      secondRewards,
+      secondTutorial,
       isGuest: true,
       jwt: sessionUUID,
+      levelUuid,
     });
 
     const payload: PayloadToken = {

@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 
 import { ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Response } from 'express';
-import { RegisterDto } from '../../users/dto/user/create-user.dto';
+import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { CreatedResponse, LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
@@ -49,7 +49,7 @@ export class AuthController {
   @IsPublic()
   @ApiResponse({ status: 201, type: CreatedResponse<User>, description: 'success' })
   @Post('guest')
-  async guest(): Promise<CreatedResponse<User>> {
-    return this.authService.createGuestUser();
+  async guest(@Body() registerDto: RegisterGuestDTO): Promise<CreatedResponse<User>> {
+    return this.authService.createGuestUser(registerDto);
   }
 }
