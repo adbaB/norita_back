@@ -9,7 +9,7 @@ type DatabaseError = {
   sqlMessage?: string;
 };
 
-@Catch()
+@Catch(QueryFailedError, EntityNotFoundError, CannotCreateEntityIdMapError)
 export class TypeormFilterCatch implements ExceptionFilter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   catch(exception: any, host: ArgumentsHost): void {
