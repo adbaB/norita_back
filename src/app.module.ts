@@ -8,6 +8,7 @@ import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
+import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 
 @Module({
   imports: [
@@ -22,9 +23,14 @@ import { UsersModule } from './users/users.module';
   ],
   controllers: [],
   providers: [
+    TypeormFilterCatch,
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: 'APP_FILTER',
+      useClass: TypeormFilterCatch,
     },
   ],
 })
