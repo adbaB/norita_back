@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThan, QueryFailedError, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
+import { TypeFileEnum } from '../../files/enums/type-file.enum';
+import { FileService } from '../../files/services/file.service';
 import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
@@ -15,6 +17,7 @@ export class LessonsService {
     @InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>,
     private readonly sectionService: SectionService,
     private readonly contentService: ContentService,
+    private readonly fileService: FileService,
   ) {}
 
   @Transactional()
@@ -81,8 +84,31 @@ export class LessonsService {
         { userUUID },
       );
     }
+    const lesson = await queryBuilder.getOne();
 
-    return queryBuilder.getOne();
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
+    if (lesson?.lessonContent) {
+      lesson.lessonContent.audioPopups = await this.fileService
+        .getFileByTypeRandom(TypeFileEnum.AUDIO_POPUPS)
+        .then((file) => file.file);
+
+      lesson.lessonContent.audioRewards = await this.fileService
+        .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS)
+        .then((file) => file.file);
+
+      lesson.lessonContent.audioRewardsClaimed = await this.fileService
+        .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_CLAIMED)
+        .then((file) => file.file);
+
+      lesson.lessonContent.audioRewardsDisqualified = await this.fileService
+        .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_DISQUALIFIED)
+        .then((file) => file.file);
+    }
+
+    return lesson;
   }
 
   async getFirstLesson(): Promise<Lesson | null> {
