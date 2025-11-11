@@ -14,7 +14,7 @@ import { FileService } from './services/file.service';
 const allowedMimes = {
   image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   video: ['video/mp4', 'video/x-matroska', 'video/avi', 'video/quicktime'],
-  audio: ['audio/mpeg', 'audio/wav', 'audio/wave', 'audio/ogg'],
+  audio: ['audio/mpeg', 'audio/wav', 'audio/wave', 'audio/ogg', 'audio/x-wav'],
   json: ['application/json'],
 };
 
