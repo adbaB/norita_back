@@ -1,7 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ConfigType } from '@nestjs/config';
+import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
@@ -22,6 +24,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly levelService: LevelService,
     private readonly lessonProgressService: LessonProgressService,
+    @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
   /**
@@ -46,6 +49,13 @@ export class UsersService {
         throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
       }
       user.level = levelEntity;
+    }
+    if (dto.fistRewards) {
+      user.coin += this.configService.coins.tutorial;
+    }
+
+    if (dto.secondRewards) {
+      user.coin += this.configService.coins.tutorial;
     }
 
     const userCreated = await this.userRepo.save(user);
@@ -171,6 +181,21 @@ export class UsersService {
       const levelEntity = await this.levelService.findByUUID(levelUuid);
       user.level = levelEntity;
     }
+
+    if (dto.fistRewards && user.fistRewards) {
+      throw new ConflictException('First rewards already claimed');
+    }
+    if (dto.secondRewards && user.secondRewards) {
+      throw new ConflictException('Second rewards already claimed');
+    }
+
+    if (dto.fistRewards) {
+      user.coin += this.configService.coins.tutorial;
+    }
+    if (dto.secondRewards) {
+      user.coin += this.configService.coins.tutorial;
+    }
+
     const result = await this.userRepo.update({ uuid }, user);
 
     return {
