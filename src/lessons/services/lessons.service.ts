@@ -93,19 +93,19 @@ export class LessonsService {
     if (lesson?.lessonContent) {
       lesson.lessonContent.audioPopups = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_POPUPS)
-        .then((file) => file.file);
+        .then((file) => file?.file || null);
 
       lesson.lessonContent.audioRewards = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS)
-        .then((file) => file.file);
+        .then((file) => file?.file || null);
 
       lesson.lessonContent.audioRewardsClaimed = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_CLAIMED)
-        .then((file) => file.file);
+        .then((file) => file?.file || null);
 
       lesson.lessonContent.audioRewardsDisqualified = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_DISQUALIFIED)
-        .then((file) => file.file);
+        .then((file) => file?.file || null);
     }
 
     return lesson;
