@@ -1,4 +1,4 @@
-import { UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
@@ -17,25 +17,26 @@ export class CommentsService {
 
   @Transactional()
   async create(dto: CreateCommentDto, userUuid: string): Promise<Comments> {
-    try {
-      const { comment, rating, lessonUuid } = dto;
+    const { comment, rating, lessonUuid } = dto;
 
-      const newComment = this.commentsRepository.create({
-        comment,
-        rating,
-        user: { uuid: userUuid },
-        lesson: { uuid: lessonUuid },
-      });
-
-      if (dto.userLikes && dto.userLikes.length > 0) {
-        await this.userLikesService.likeComment(userUuid, dto.userLikes);
-      }
-      return this.commentsRepository.save(newComment);
-    } catch (e) {
-      if (e.code === '23505') {
-        throw new UnprocessableEntityException(e.detail);
-      }
+    const existingComment = await this.commentsRepository.findOne({
+      where: { lesson: { uuid: lessonUuid }, user: { uuid: userUuid } },
+    });
+    if (existingComment) {
+      throw new ConflictException('User has already commented on this lesson');
     }
+
+    const newComment = this.commentsRepository.create({
+      comment,
+      rating,
+      user: { uuid: userUuid },
+      lesson: { uuid: lessonUuid },
+    });
+
+    if (dto.userLikes && dto.userLikes.length > 0) {
+      await this.userLikesService.likeComment(userUuid, dto.userLikes);
+    }
+    return this.commentsRepository.save(newComment);
   }
   async findAll(dto: findComment): Promise<FormatResponse<Comments>> {
     const { limit, page, lessonUuid } = dto;
@@ -68,6 +69,6 @@ export class CommentsService {
   }
 
   async delete(uuid: string, userUuid: string): Promise<void> {
-    await this.commentsRepository.delete({ uuid, user: { uuid: userUuid } });
+    await this.commentsRepository.softDelete({ uuid, user: { uuid: userUuid } });
   }
 }
