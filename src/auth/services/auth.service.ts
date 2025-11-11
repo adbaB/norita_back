@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
-import { PayloadToken } from '../../libs/Auth/token';
+import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { CreatedResponse, LoginResponse } from '../../utils/responses';
 
+import { ConfigType } from '@nestjs/config';
+import configuration from '../../config/configuration';
 import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
@@ -15,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
   ) {}
 
   /**
@@ -47,12 +50,14 @@ export class AuthService {
 
     await this.usersService.updateSession(user.uuid, sessionUUID);
     const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
 
     return {
       status: 200,
       message: 'success',
       data: {
         accessToken: accessToken,
+        refreshToken,
       },
     };
   }
@@ -85,11 +90,14 @@ export class AuthService {
 
     // Generate an access token
     const accessToken = await this.generateAccessToken(payload);
+
+    const refreshToken = await this.generateRefreshToken(payload);
     return {
       status: 201,
       message: 'success',
       data: createdUser,
       accessToken,
+      refreshToken,
     };
   }
 
@@ -120,13 +128,26 @@ export class AuthService {
 
     // Generate an access token
     const accessToken = await this.generateAccessToken(payload);
-
+    const refreshToken = await this.generateRefreshToken(payload);
     return {
       status: 201,
       message: 'success',
       data: guestUser,
       accessToken,
+      refreshToken,
     };
+  }
+
+  async renewAccessToken(payload: JwtTokenPayload): Promise<{ accessToken: string }> {
+    const { email, sessionUUID, uuid, role } = payload;
+    const accessToken = await this.generateAccessToken({
+      email,
+      uuid,
+      role,
+      sessionUUID,
+    });
+
+    return { accessToken };
   }
 
   async logOut(userUUID: string): Promise<void> {
@@ -135,5 +156,12 @@ export class AuthService {
 
   private async generateAccessToken(payload: PayloadToken): Promise<string> {
     return this.jwtService.signAsync(payload);
+  }
+
+  private async generateRefreshToken(payload: PayloadToken): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      expiresIn: this.configService.jwtRefresh.expiresIn,
+      secret: this.configService.jwtRefresh.secret,
+    });
   }
 }

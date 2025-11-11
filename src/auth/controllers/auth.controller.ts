@@ -1,14 +1,16 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { AuthService } from '../services/auth.service';
 
-import { ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { Response } from 'express';
+import { ApiHeader, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Request, Response } from 'express';
+import { JwtTokenPayload } from '../../libs/Auth/token';
 import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 import { CreatedResponse, LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
 import { LoginDto } from '../dto/logIn.dto';
+import { JwtRefreshGuard } from '../guards/jwtRefresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -40,6 +42,17 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<CreatedResponse<User>> {
     return this.authService.register(registerDto);
+  }
+
+  @ApiHeader({ name: 'x-refresh-token', required: true, description: 'Refresh token' })
+  @Post('/renew-access-token')
+  @UseGuards(JwtRefreshGuard)
+  async renewAccessToken(@Req() req: Request): Promise<{ accessToken: string }> {
+    const refreshToken = req.headers['x-refresh-token'] as string;
+    if (!refreshToken) {
+      throw new NotFoundException('Refresh token is missing');
+    }
+    return this.authService.renewAccessToken(req.user as JwtTokenPayload);
   }
 
   /**

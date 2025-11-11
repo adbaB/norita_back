@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -101,7 +102,7 @@ export class LessonDTO {
     type: Number,
   })
   @IsOptional()
-  @IsString({ message: 'requirements must be a string' })
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'time must be a string' })
   time: number;
 
   @ApiProperty({
@@ -247,7 +248,7 @@ export class UpdateLessonDTO {
     type: Number,
   })
   @IsOptional()
-  @IsString({ message: 'requirements must be a string' })
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'time must be a number' })
   time: number;
 
   @ApiProperty({
