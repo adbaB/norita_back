@@ -29,6 +29,12 @@ export class LessonProgress {
   @Column({ name: 'date_completed', type: 'timestamptz', nullable: true })
   dateCompleted: Date | null;
 
+  @Column({ name: 'reward_claimed', type: 'boolean', default: false })
+  rewardClaimed: boolean;
+
+  @Column({ name: 'date_reward_claimed', type: 'timestamptz', nullable: true })
+  dateRewardClaimed: Date | null;
+
   @ManyToOne(() => User, (user) => user.lessonProgress, {
     onDelete: 'CASCADE',
   })
@@ -37,6 +43,7 @@ export class LessonProgress {
 
   @ManyToOne(() => Lesson, (lesson) => lesson.lessonProgress, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'lesson_uuid' })
   lesson: Lesson;

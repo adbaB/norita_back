@@ -13,4 +13,13 @@ export class updateLessonProgressDTO {
   @IsNumber()
   @Min(0)
   lastLineSeen: number;
+
+  @ApiProperty({
+    description: 'Reward claimed',
+    nullable: true,
+    required: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  rewardClaimed: boolean;
 }

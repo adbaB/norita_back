@@ -16,6 +16,7 @@ import { LessonsService } from '../../lessons/services/lessons.service';
 import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { UpdateResponse } from '../../utils/responses';
+import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 
 @Injectable()
@@ -48,16 +49,26 @@ export class LessonProgressService {
   async updateLessonProgress(
     userUUID: string,
     lessonUUID: string,
-    lastLineSeen: number,
+    dto: updateLessonProgressDTO,
   ): Promise<UpdateResponse> {
     const lessonProgress = await this.lessonProgressRepo.findOne({
       where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
+      relations: {
+        lesson: true,
+      },
     });
     if (!lessonProgress) {
       throw new NotFoundException('No lesson progress found');
     }
 
-    lessonProgress.lastLineSeen = lastLineSeen;
+    lessonProgress.lastLineSeen = dto.lastLineSeen;
+
+    if (dto.rewardClaimed && !lessonProgress.rewardClaimed) {
+      lessonProgress.rewardClaimed = true;
+      lessonProgress.dateRewardClaimed = new Date();
+      await this.usersService.increaseCoins(userUUID, lessonProgress?.lesson?.reward);
+    }
+
     await this.lessonProgressRepo.save(lessonProgress);
 
     return {
@@ -82,7 +93,7 @@ export class LessonProgressService {
     }
     lessonProgress.completed = true;
     lessonProgress.dateCompleted = new Date();
-    await this.usersService.increaseCoins(userUUID, lesson.reward);
+
     await this.unlockNextLesson(userUUID, lessonUUID);
     await this.lessonProgressRepo.save(lessonProgress);
     return {
