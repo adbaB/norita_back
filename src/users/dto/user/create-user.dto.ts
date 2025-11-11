@@ -28,7 +28,7 @@ export class RegisterDto {
   })
   @IsBoolean()
   @IsOptional()
-  fistRewards: boolean;
+  firstRewards: boolean;
 
   @ApiProperty({
     description: 'secondRewards of the user',

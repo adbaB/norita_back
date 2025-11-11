@@ -1,7 +1,10 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ConfigType } from '@nestjs/config';
+import { Transactional } from 'typeorm-transactional';
+import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
@@ -22,6 +25,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly levelService: LevelService,
     private readonly lessonProgressService: LessonProgressService,
+    @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
   /**
@@ -29,14 +33,29 @@ export class UsersService {
    * @param {RegisterDto} dto - The request body containing the user's information.
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
+  @Transactional()
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, ...rest } = dto;
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    // Inicializar monedas y recompensas
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
     const passwordHash = await hashPassword(password);
 
     const user = this.userRepo.create({
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
       username: rest.username ? rest.username : `user-${jwt}`,
     });
 
@@ -154,13 +173,39 @@ export class UsersService {
    * @param {UpdateUserDto} dto - The request body containing the user's updated information.
    * @returns {Promise<UpdateResponse>} - A promise that resolves with an UpdateResponse object containing the result of the update.
    */
+
+  @Transactional()
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { levelUuid, password, ...updateData } = dto;
+    const { levelUuid, password, firstRewards, secondRewards, ...updateData } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    let coinsToAdd = 0;
+
+    if (firstRewards !== undefined) {
+      if (firstRewards && user.firstRewards) {
+        throw new ConflictException('First rewards already claimed, cannot update this field');
+      }
+      if (firstRewards && !user.firstRewards) {
+        coinsToAdd += this.configService.coins.tutorial;
+        user.firstRewards = true;
+      }
+    }
+
+    if (secondRewards !== undefined) {
+      if (secondRewards && user.secondRewards) {
+        throw new ConflictException('Second rewards already claimed, cannot update this field');
+      }
+      if (secondRewards && !user.secondRewards) {
+        coinsToAdd += this.configService.coins.tutorial;
+        user.secondRewards = true;
+      }
+    }
+
     user = { ...user, ...updateData };
     if (password) {
       const hashedPassword = await hashPassword(password);
@@ -171,6 +216,9 @@ export class UsersService {
       const levelEntity = await this.levelService.findByUUID(levelUuid);
       user.level = levelEntity;
     }
+
+    user.coin += coinsToAdd;
+
     const result = await this.userRepo.update({ uuid }, user);
 
     return {

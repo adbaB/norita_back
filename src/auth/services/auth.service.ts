@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async createGuestUser(dto: RegisterGuestDTO): Promise<CreatedResponse<User>> {
-    const { fistRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
+    const { firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
     const sessionUUID = randomUUID();
     const guestUsername = `guest-${sessionUUID}`;
     const guestPassword = randomUUID();
@@ -110,7 +110,7 @@ export class AuthService {
       email: `${guestUsername}@norita-app.com`,
       username: guestUsername,
       password: guestPassword,
-      fistRewards,
+      firstRewards,
       fistTutorial,
       secondRewards,
       secondTutorial,
