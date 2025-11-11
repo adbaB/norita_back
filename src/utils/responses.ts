@@ -12,6 +12,9 @@ export class CreatedResponse<E> {
 
   @ApiProperty({ description: 'access token', type: String })
   accessToken?: string;
+
+  @ApiProperty({ description: 'refresh token', type: String })
+  refreshToken?: string;
 }
 
 export class LoginResponse {
@@ -24,6 +27,7 @@ export class LoginResponse {
   @ApiProperty({ description: 'json data', type: Object })
   data: {
     accessToken: string;
+    refreshToken: string;
   };
 }
 

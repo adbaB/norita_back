@@ -6,9 +6,11 @@ import configuration from '../config/configuration';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { JwtGuard } from './guards/jwt.guard';
+import { JwtRefreshGuard } from './guards/jwtRefresh.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategys/jwt.strategy';
+import { JwtRefreshStrategy } from './strategys/refresh.strategy';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { JwtStrategy } from './strategys/jwt.strategy';
   providers: [
     AuthService,
     JwtStrategy,
+    JwtRefreshGuard,
+    JwtRefreshStrategy,
     { provide: APP_GUARD, useClass: JwtGuard },
     {
       provide: APP_GUARD,

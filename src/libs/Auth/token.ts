@@ -8,6 +8,7 @@ export class PayloadToken {
 export class JwtTokenPayload {
   readonly uuid: string;
   readonly email: string;
+  readonly role: string;
   readonly sessionUUID: string;
   readonly iat: number;
   readonly exp: number;
