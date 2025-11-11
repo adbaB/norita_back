@@ -64,7 +64,7 @@ export class User {
 
   @ApiProperty({ description: 'first lesson of the user', type: Boolean })
   @Column({ name: 'first_rewards', type: 'boolean', default: false })
-  fistRewards: boolean;
+  firstRewards: boolean;
 
   @ApiProperty({ description: 'second lesson of the user', type: Boolean })
   @Column({ name: 'second_rewards', type: 'boolean', default: false })

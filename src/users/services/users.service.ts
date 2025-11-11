@@ -40,6 +40,7 @@ export class UsersService {
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
+      coin: 0,
       username: rest.username ? rest.username : `user-${jwt}`,
     });
 
@@ -50,7 +51,7 @@ export class UsersService {
       }
       user.level = levelEntity;
     }
-    if (dto.fistRewards) {
+    if (dto.firstRewards) {
       user.coin += this.configService.coins.tutorial;
     }
 
@@ -168,9 +169,18 @@ export class UsersService {
     const { levelUuid, password, ...updateData } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    if (user.firstRewards) {
+      throw new ConflictException('First rewards already claimed, cannot update this field');
+    }
+    if (user.secondRewards) {
+      throw new ConflictException('Second rewards already claimed, cannot update this field');
+    }
+
     user = { ...user, ...updateData };
     if (password) {
       const hashedPassword = await hashPassword(password);
@@ -182,14 +192,7 @@ export class UsersService {
       user.level = levelEntity;
     }
 
-    if (dto.fistRewards && user.fistRewards) {
-      throw new ConflictException('First rewards already claimed');
-    }
-    if (dto.secondRewards && user.secondRewards) {
-      throw new ConflictException('Second rewards already claimed');
-    }
-
-    if (dto.fistRewards) {
+    if (dto.firstRewards) {
       user.coin += this.configService.coins.tutorial;
     }
     if (dto.secondRewards) {
