@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigType } from '@nestjs/config';
+import { Transactional } from 'typeorm-transactional';
 import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
@@ -32,15 +33,29 @@ export class UsersService {
    * @param {RegisterDto} dto - The request body containing the user's information.
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
+  @Transactional()
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, ...rest } = dto;
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    // Inicializar monedas y recompensas
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
     const passwordHash = await hashPassword(password);
 
     const user = this.userRepo.create({
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
-      coin: 0,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
       username: rest.username ? rest.username : `user-${jwt}`,
     });
 
@@ -50,13 +65,6 @@ export class UsersService {
         throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
       }
       user.level = levelEntity;
-    }
-    if (dto.firstRewards) {
-      user.coin += this.configService.coins.tutorial;
-    }
-
-    if (dto.secondRewards) {
-      user.coin += this.configService.coins.tutorial;
     }
 
     const userCreated = await this.userRepo.save(user);
@@ -165,8 +173,10 @@ export class UsersService {
    * @param {UpdateUserDto} dto - The request body containing the user's updated information.
    * @returns {Promise<UpdateResponse>} - A promise that resolves with an UpdateResponse object containing the result of the update.
    */
+
+  @Transactional()
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { levelUuid, password, ...updateData } = dto;
+    const { levelUuid, password, firstRewards, secondRewards, ...updateData } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
 
@@ -174,11 +184,26 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.firstRewards) {
-      throw new ConflictException('First rewards already claimed, cannot update this field');
+    let coinsToAdd = 0;
+
+    if (firstRewards !== undefined) {
+      if (firstRewards && user.firstRewards) {
+        throw new ConflictException('First rewards already claimed, cannot update this field');
+      }
+      if (firstRewards && !user.firstRewards) {
+        coinsToAdd += this.configService.coins.tutorial;
+        user.firstRewards = true;
+      }
     }
-    if (user.secondRewards) {
-      throw new ConflictException('Second rewards already claimed, cannot update this field');
+
+    if (secondRewards !== undefined) {
+      if (secondRewards && user.secondRewards) {
+        throw new ConflictException('Second rewards already claimed, cannot update this field');
+      }
+      if (secondRewards && !user.secondRewards) {
+        coinsToAdd += this.configService.coins.tutorial;
+        user.secondRewards = true;
+      }
     }
 
     user = { ...user, ...updateData };
@@ -192,12 +217,7 @@ export class UsersService {
       user.level = levelEntity;
     }
 
-    if (dto.firstRewards) {
-      user.coin += this.configService.coins.tutorial;
-    }
-    if (dto.secondRewards) {
-      user.coin += this.configService.coins.tutorial;
-    }
+    user.coin += coinsToAdd;
 
     const result = await this.userRepo.update({ uuid }, user);
 
