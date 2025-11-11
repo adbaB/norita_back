@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -82,4 +82,16 @@ export class Content {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ name: 'audio_popups' })
+  audioPopups: string;
+
+  @Expose({ name: 'audio_rewards_claimed' })
+  audioRewardsClaimed: string;
+
+  @Expose({ name: 'audio_rewards_disqualified' })
+  audioRewardsDisqualified: string;
+
+  @Expose({ name: 'audio_rewards' })
+  audioRewards: string;
 }

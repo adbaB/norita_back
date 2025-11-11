@@ -2,11 +2,14 @@ import { BadRequestException, Module } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import config from 'src/config/configuration';
 import { FileController } from './controllers/file.controller';
+import { FileRandom } from './entities/fileRandom.entity';
+import { FileService } from './services/file.service';
 
 const allowedMimes = {
   image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -17,6 +20,7 @@ const allowedMimes = {
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([FileRandom]),
     MulterModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configService: ConfigType<typeof config>) => ({
@@ -59,6 +63,7 @@ const allowedMimes = {
     }),
   ],
   controllers: [FileController],
-  providers: [],
+  providers: [FileService],
+  exports: [FileService],
 })
 export class FileModule {}
