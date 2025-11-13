@@ -107,6 +107,11 @@ export class LessonsService {
         .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_DISQUALIFIED)
         .then((file) => file?.file || null);
     }
+    if (lesson?.lessonContent?.dialogs?.length > 0) {
+      lesson.lessonContent.dialogs = lesson.lessonContent.dialogs.sort(
+        (a, b) => a?.order - b?.order,
+      );
+    }
 
     return lesson;
   }

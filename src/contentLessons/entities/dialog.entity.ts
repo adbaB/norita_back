@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { StoryStructureEnum } from '../enums/story-structure.enum';
@@ -24,6 +25,7 @@ export class ContentJSON {
 }
 
 @Entity('dialog')
+@Unique(['lessonContent', 'order'])
 export class Dialog {
   @ApiProperty({ description: 'UUID of the dialog', type: String })
   @PrimaryGeneratedColumn('uuid')
@@ -41,6 +43,10 @@ export class Dialog {
     comment: '1: beginning, 2: middle, 3: end',
   })
   storyStructure: StoryStructureEnum;
+
+  @ApiProperty({ description: 'Order of the dialog', type: Number })
+  @Column({ type: 'integer', name: 'order', nullable: true })
+  order: number;
 
   @ApiProperty({ description: 'Type structure', enum: TypeStructureEnum })
   @Column({
