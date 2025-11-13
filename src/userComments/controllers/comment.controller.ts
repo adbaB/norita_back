@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
-import { FormatResponse } from '../../utils/responses';
+import { FormatResponse, PaginatedResponse } from '../../utils/responses';
 import { CreateCommentDto } from '../dto/comments.dto';
 import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
@@ -28,7 +28,13 @@ export class CommentsController {
     @Query('page', ParseIntPipe) page: number,
     @Param('uuid') uuid: string,
   ): Promise<FormatResponse<Comments>> {
-    return this.commentsService.findAll({ lessonUuid: uuid, limit, page });
+    const comments = await this.commentsService.findAll({ lessonUuid: uuid, limit, page });
+    return new PaginatedResponse(
+      true,
+      'Comments fetched successfully',
+      comments.data,
+      comments.info,
+    );
   }
 
   @Delete('/:uuid')

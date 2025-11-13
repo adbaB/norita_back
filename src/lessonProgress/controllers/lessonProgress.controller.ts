@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
-import { UpdateResponse } from '../../utils/responses';
+import { ApiResponse, UpdateResponse } from '../../utils/responses';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 import { LessonProgressService } from '../services/lessonProgress.service';
@@ -42,8 +42,9 @@ export class LessonProgressController {
   async completeLesson(
     @User() userUUID: string,
     @Param('uuid') lessonUUID: string,
-  ): Promise<UpdateResponse> {
-    return this.lessonProgressService.completeLesson(userUUID, lessonUUID);
+  ): Promise<ApiResponse<UpdateResponse>> {
+    const response = await this.lessonProgressService.completeLesson(userUUID, lessonUUID);
+    return new ApiResponse(true, 'Lesson completed successfully', response);
   }
 
   @ApiProperty({
@@ -54,7 +55,8 @@ export class LessonProgressController {
   async unlockLesson(
     @User() userUUID: string,
     @Param('uuid') lessonUUID: string,
-  ): Promise<LessonProgress> {
-    return this.lessonProgressService.unlockLesson(userUUID, lessonUUID);
+  ): Promise<ApiResponse<LessonProgress>> {
+    const lessonProgress = await this.lessonProgressService.unlockLesson(userUUID, lessonUUID);
+    return new ApiResponse(true, 'Lesson unlocked successfully', lessonProgress);
   }
 }

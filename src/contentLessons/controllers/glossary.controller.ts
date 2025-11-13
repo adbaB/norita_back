@@ -5,12 +5,14 @@ import { RoleEnum } from '../../users/enum/role.enum';
 import { DeleteResponse } from '../../utils/responses';
 import { GlossaryService } from '../services/glossary.service';
 
+import { ApiResponse as ClassApiResponse } from '../../utils/responses';
+
 @ApiBearerAuth()
 @Controller('glossary')
 export class GlossaryController {
   constructor(private readonly glossaryService: GlossaryService) {}
 
-  @ApiResponse({ status: 200, type: DeleteResponse, description: 'Success' })
+  @ApiResponse({ status: 200, type: ClassApiResponse, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Glossary not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })

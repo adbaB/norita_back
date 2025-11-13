@@ -2,7 +2,7 @@ import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
-import { DeleteResponse } from '../../utils/responses';
+import { ApiResponse as ClassApiResponse, DeleteResponse } from '../../utils/responses';
 import { DialogService } from '../services/dialog.service';
 
 @ApiBearerAuth()
@@ -10,7 +10,7 @@ import { DialogService } from '../services/dialog.service';
 export class DialogController {
   constructor(private readonly dialogService: DialogService) {}
 
-  @ApiResponse({ status: 200, type: DeleteResponse, description: 'Success' })
+  @ApiResponse({ status: 200, type: ClassApiResponse, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Dialog not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GlossaryDTO } from '../dtos/glossary.dto';
@@ -34,8 +34,10 @@ export class GlossaryService {
   async delete(uuid: string): Promise<DeleteResponse> {
     const deleted = await this.glossaryRepo.delete({ uuid });
 
+    if (deleted.affected === 0) {
+      throw new NotFoundException('Glossary not found');
+    }
     return {
-      message: 'Glossary deleted successfully',
       affected: deleted.affected,
       status: 200,
     };

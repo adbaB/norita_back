@@ -35,21 +35,15 @@ export class UpdateResponse {
   @ApiProperty({ description: 'status code', type: Number })
   status: number;
 
-  @ApiProperty({ description: 'message', type: String })
-  message: string;
-
   @ApiProperty({ description: 'number of records affected' })
   affected: number;
 }
 
 export class DeleteResponse {
-  @ApiProperty({ description: 'status code', type: Number })
+  @ApiProperty({ description: 'status code', type: Number, example: 200 })
   status: number;
 
-  @ApiProperty({ description: 'message', type: String })
-  message: string;
-
-  @ApiProperty({ description: 'number of records affected' })
+  @ApiProperty({ description: 'number of records affected', example: 1 })
   affected: number;
 }
 
@@ -64,4 +58,41 @@ interface infoFormat {
 export interface FormatResponse<T> {
   info: infoFormat | object;
   data: T[] | T | null;
+}
+
+export class ApiResponse<T> {
+  @ApiProperty({ example: true, description: 'Indicates if the request was successful' })
+  public success: boolean;
+
+  @ApiProperty({ example: 'Success', description: 'Response message' })
+  public message: string;
+
+  @ApiProperty({ description: 'Response data', type: Object })
+  public data: T;
+
+  @ApiProperty({ example: new Date().toISOString(), description: 'Timestamp of the response' })
+  public timestamp: string = new Date().toISOString();
+
+  constructor(
+    success: boolean,
+    message: string,
+    data: T,
+    timestamp: string = new Date().toISOString(),
+  ) {
+    this.success = success;
+    this.message = message;
+    this.data = data;
+    this.timestamp = timestamp;
+  }
+}
+
+export class PaginatedResponse<T> extends ApiResponse<T> {
+  constructor(
+    success: boolean,
+    message: string,
+    data: T,
+    public info: infoFormat | object,
+  ) {
+    super(success, message, data);
+  }
 }

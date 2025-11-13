@@ -73,7 +73,6 @@ export class LessonProgressService {
 
     return {
       affected: 1,
-      message: 'Lesson progress updated successfully',
       status: 200,
     };
   }
@@ -98,7 +97,6 @@ export class LessonProgressService {
     await this.lessonProgressRepo.save(lessonProgress);
     return {
       affected: 1,
-      message: 'Lesson completed successfully',
       status: 200,
     };
   }
