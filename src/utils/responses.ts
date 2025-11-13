@@ -91,13 +91,7 @@ export class PaginatedResponse<T> extends ApiResponse<T> {
     success: boolean,
     message: string,
     data: T,
-    public info: {
-      total: number;
-      currentPage: number;
-      nextPage: number | null;
-      prevPage: number | null;
-      lastPage: number;
-    },
+    public info: infoFormat | object,
   ) {
     super(success, message, data);
   }
