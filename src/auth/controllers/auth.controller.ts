@@ -65,13 +65,16 @@ export class AuthController {
   @Post('/renew-access-token')
   @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
-  async renewAccessToken(@Req() req: Request): Promise<ClassApiResponse<{ accessToken: string }>> {
+  async renewAccessToken(
+    @Req() req: Request,
+  ): Promise<ClassApiResponse<{ accessToken: string; refreshToken: string }>> {
     const refreshToken = req.headers['x-refresh-token'] as string;
     if (!refreshToken) {
       throw new NotFoundException('Refresh token is missing');
     }
     const refreshTokenResponse = await this.authService.renewAccessToken(
       req.user as JwtTokenPayload,
+      refreshToken,
     );
     return new ClassApiResponse(true, 'Access token renewed successfully', refreshTokenResponse);
   }
