@@ -4,7 +4,11 @@ import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
-import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
+import {
+  ApiResponse as ClassApiResponse,
+  DeleteResponse,
+  UpdateResponse,
+} from '../../utils/responses';
 import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
 import { Section } from '../entities/section.entity';
 import { SectionService } from '../services/section.service';
@@ -16,8 +20,9 @@ export class SectionController {
 
   @Post()
   @Roles(RoleEnum.ADMIN)
-  async create(@Body() dto: CreateSectionDto): Promise<CreatedResponse<Section>> {
-    return this.sectionService.create(dto);
+  async create(@Body() dto: CreateSectionDto): Promise<ClassApiResponse<Section>> {
+    const section = await this.sectionService.create(dto);
+    return new ClassApiResponse(true, 'Section created successfully', section);
   }
 
   @ApiResponse({ status: 200, type: [Section], description: 'Success' })

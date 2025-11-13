@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
+import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
 import { Section } from '../entities/section.entity';
 
@@ -11,7 +11,7 @@ export class SectionService {
   constructor(@InjectRepository(Section) private sectionRepository: Repository<Section>) {}
 
   @Transactional()
-  async create(section: CreateSectionDto): Promise<CreatedResponse<Section>> {
+  async create(section: CreateSectionDto): Promise<Section> {
     const sections = await this.sectionRepository.find({
       where: { order: MoreThanOrEqual(section.order) },
     });
@@ -23,11 +23,7 @@ export class SectionService {
 
     const newSection = await this.sectionRepository.save(section);
 
-    return {
-      status: 201,
-      message: 'Section created successfully',
-      data: newSection,
-    };
+    return newSection;
   }
 
   async findAll(userUUID?: string): Promise<Section[]> {
