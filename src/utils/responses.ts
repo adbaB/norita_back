@@ -35,18 +35,15 @@ export class UpdateResponse {
   @ApiProperty({ description: 'status code', type: Number })
   status: number;
 
-  @ApiProperty({ description: 'message', type: String })
-  message: string;
-
   @ApiProperty({ description: 'number of records affected' })
   affected: number;
 }
 
 export class DeleteResponse {
-  @ApiProperty({ description: 'status code', type: Number })
+  @ApiProperty({ description: 'status code', type: Number, example: 200 })
   status: number;
 
-  @ApiProperty({ description: 'number of records affected' })
+  @ApiProperty({ description: 'number of records affected', example: 1 })
   affected: number;
 }
 
@@ -70,7 +67,7 @@ export class ApiResponse<T> {
   @ApiProperty({ example: 'Success', description: 'Response message' })
   public message: string;
 
-  @ApiProperty({ description: 'Response data' })
+  @ApiProperty({ description: 'Response data', type: Object })
   public data: T;
 
   @ApiProperty({ example: new Date().toISOString(), description: 'Timestamp of the response' })
