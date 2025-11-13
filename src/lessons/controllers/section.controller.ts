@@ -4,7 +4,7 @@ import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
-import { CreatedResponse } from '../../utils/responses';
+import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
 import { Section } from '../entities/section.entity';
 import { SectionService } from '../services/section.service';
@@ -33,13 +33,13 @@ export class SectionController {
   async update(
     @Param('uuid') uuid: string,
     @Body() updateData: UpdateSectionDTO,
-  ): Promise<Section> {
+  ): Promise<UpdateResponse> {
     return this.sectionService.update(uuid, updateData);
   }
 
   @Delete('/:uuid')
   @Roles(RoleEnum.ADMIN)
-  async remove(@Param('uuid') uuid: string): Promise<void> {
+  async remove(@Param('uuid') uuid: string): Promise<DeleteResponse> {
     return this.sectionService.remove(uuid);
   }
 }

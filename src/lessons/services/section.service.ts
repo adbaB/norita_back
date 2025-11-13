@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
-import { CreatedResponse } from '../../utils/responses';
-import { CreateSectionDto } from '../dto/section.dto';
+import { Transactional } from 'typeorm-transactional';
+import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
+import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
 import { Section } from '../entities/section.entity';
 
 @Injectable()
 export class SectionService {
   constructor(@InjectRepository(Section) private sectionRepository: Repository<Section>) {}
 
+  @Transactional()
   async create(section: CreateSectionDto): Promise<CreatedResponse<Section>> {
     const sections = await this.sectionRepository.find({
       where: { order: MoreThanOrEqual(section.order) },
@@ -55,7 +57,8 @@ export class SectionService {
     return this.sectionRepository.findOne({ where: { uuid: uuid } });
   }
 
-  async update(uuid: string, updateData: Partial<Section>): Promise<Section> {
+  @Transactional()
+  async update(uuid: string, updateData: UpdateSectionDTO): Promise<UpdateResponse> {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
 
     if (!section) {
@@ -73,10 +76,15 @@ export class SectionService {
         }
       }
     }
-    return this.sectionRepository.save({ ...section, ...updateData });
+    await this.sectionRepository.save({ ...section, ...updateData });
+    return {
+      status: 200,
+      affected: 1,
+    };
   }
 
-  async remove(uuid: string): Promise<void> {
+  @Transactional()
+  async remove(uuid: string): Promise<DeleteResponse> {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
     if (!section) {
       throw new Error('Section not found');
@@ -91,6 +99,10 @@ export class SectionService {
       await this.sectionRepository.save(sec);
     }
 
-    await this.sectionRepository.delete(uuid);
+    const deleted = await this.sectionRepository.delete(uuid);
+    return {
+      status: 200,
+      affected: deleted.affected || 0,
+    };
   }
 }
