@@ -134,7 +134,10 @@ export class AuthService {
     };
   }
 
-  async renewAccessToken(payload: JwtTokenPayload): Promise<{ accessToken: string }> {
+  async renewAccessToken(
+    payload: JwtTokenPayload,
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, sessionUUID, uuid, role } = payload;
     const accessToken = await this.generateAccessToken({
       email,
@@ -143,7 +146,20 @@ export class AuthService {
       sessionUUID,
     });
 
-    return { accessToken };
+    const decodedRefreshToken = this.jwtService.decode(refreshToken) as JwtTokenPayload;
+
+    if (decodedRefreshToken.sessionUUID !== sessionUUID) {
+      throw new UnauthorizedException('Invalid refresh token session');
+    }
+
+    const newRefreshToken = await this.generateRefreshToken({
+      email: decodedRefreshToken.email,
+      uuid: decodedRefreshToken.uuid,
+      role: decodedRefreshToken.role,
+      sessionUUID: decodedRefreshToken.sessionUUID,
+    });
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   async logOut(userUUID: string): Promise<void> {
