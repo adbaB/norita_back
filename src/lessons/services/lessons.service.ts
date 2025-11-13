@@ -5,7 +5,7 @@ import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { TypeFileEnum } from '../../files/enums/type-file.enum';
 import { FileService } from '../../files/services/file.service';
-import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
+import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
@@ -21,7 +21,7 @@ export class LessonsService {
   ) {}
 
   @Transactional()
-  async create(lesson: LessonDTO): Promise<CreatedResponse<Lesson>> {
+  async create(lesson: LessonDTO): Promise<Lesson> {
     try {
       let order = Number(await this.lessonRepo.maximum('order')) + 1;
       const { sectionUuid, contentLesson, nextLessonUuid, ...rest } = lesson;
@@ -54,11 +54,7 @@ export class LessonsService {
 
       const newLesson = await this.lessonRepo.save(lessonEntity);
       await this.contentService.create(newLesson, contentLesson);
-      return {
-        data: newLesson,
-        message: 'Lesson created successfully',
-        status: 201,
-      };
+      return newLesson;
     } catch (error) {
       if (error instanceof QueryFailedError) {
         throw new ConflictException(error.message);
@@ -183,7 +179,6 @@ export class LessonsService {
     }
     return {
       affected: 1,
-      message: 'Lesson updated successfully',
       status: 200,
     };
   }
@@ -194,10 +189,9 @@ export class LessonsService {
       throw new NotFoundException('Lesson not found ');
     }
 
-    await this.lessonRepo.delete({ uuid });
+    const deleted = await this.lessonRepo.delete({ uuid });
     return {
-      affected: 1,
-      message: 'Lesson deleted successfully',
+      affected: deleted.affected,
       status: 200,
     };
   }
