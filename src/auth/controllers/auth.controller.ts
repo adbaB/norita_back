@@ -2,7 +2,7 @@ import { Body, Controller, NotFoundException, Post, Req, Res, UseGuards } from '
 
 import { AuthService } from '../services/auth.service';
 
-import { ApiHeader, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiHeader, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtTokenPayload } from '../../libs/Auth/token';
 import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
@@ -46,6 +46,7 @@ export class AuthController {
 
   @ApiHeader({ name: 'x-refresh-token', required: true, description: 'Refresh token' })
   @Post('/renew-access-token')
+  @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
   async renewAccessToken(@Req() req: Request): Promise<{ accessToken: string }> {
     const refreshToken = req.headers['x-refresh-token'] as string;
