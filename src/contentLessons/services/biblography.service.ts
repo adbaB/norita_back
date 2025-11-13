@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeleteResponse } from '../../utils/responses';
@@ -37,8 +37,13 @@ export class BibliographyService {
   async delete(uuid: string): Promise<DeleteResponse> {
     const deleted = await this.bibliographyRepo.delete({ uuid });
 
+    if (deleted.affected === 0) {
+      throw new NotFoundException('Bibliography not found');
+    }
+
+    console.log(deleted.affected);
+
     return {
-      message: 'Bibliography deleted successfully',
       affected: deleted.affected,
       status: 200,
     };
