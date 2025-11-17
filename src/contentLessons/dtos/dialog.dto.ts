@@ -94,7 +94,7 @@ export class DialogDTO {
   @IsNotEmpty({ message: 'order should not be empty' })
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
-    { message: 'order must be a string' },
+    { message: 'order must be a number' },
   )
   order: number;
 }

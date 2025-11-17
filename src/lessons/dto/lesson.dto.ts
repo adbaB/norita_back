@@ -149,14 +149,17 @@ export class LessonDTO {
   contentLesson: ContentDTO;
 
   @ApiProperty({
-    description: 'UUID of the next lesson',
+    description: 'order of the lesson',
     nullable: true,
     required: false,
-    type: String,
+    type: Number,
   })
-  @IsOptional()
-  @IsUUID(4, { message: 'nextLessonUuid must be a string' })
-  nextLessonUuid?: string;
+  @IsNotEmpty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }
 
 export class UpdateLessonDTO {
@@ -295,12 +298,15 @@ export class UpdateLessonDTO {
   contentLesson: UpdateContentDTO;
 
   @ApiProperty({
-    description: 'UUID of the next lesson',
+    description: 'order of the lesson',
     nullable: true,
     required: false,
-    type: String,
+    type: Number,
   })
   @IsOptional()
-  @IsUUID(4, { message: 'nextLessonUuid must be a string' })
-  nextLessonUuid?: string;
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }

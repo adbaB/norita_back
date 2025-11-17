@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
@@ -27,7 +26,6 @@ export class SectionController {
 
   @ApiResponse({ status: 200, type: [Section], description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
-  @IsPublic()
   @Get()
   async findAll(@User() userUUID: string): Promise<Section[]> {
     return this.sectionService.findAll(userUUID);

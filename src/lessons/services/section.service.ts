@@ -27,8 +27,6 @@ export class SectionService {
   }
 
   async findAll(userUUID?: string): Promise<Section[]> {
-    // return this.sectionRepository.find({ order: { order: 'ASC' }, relations: ['lessons'] });
-
     const query = this.sectionRepository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.lessons', 'lesson')
@@ -42,7 +40,7 @@ export class SectionService {
         { userUUID },
       );
     }
-    return query.printSql().getMany();
+    return query.getMany();
   }
 
   async findOne(uuid: string): Promise<Section | null> {

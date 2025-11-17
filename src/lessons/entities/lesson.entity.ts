@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -16,11 +15,12 @@ import {
 import { Content } from '../../contentLessons/entities/content.entity';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
+import { IOrder } from '../../utils/interfaces/order.interface';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
 import { Section } from './section.entity';
 
 @Entity('lessons')
-export class Lesson {
+export class Lesson implements IOrder {
   @ApiProperty({ description: 'UUID of the lesson', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
@@ -92,8 +92,10 @@ export class Lesson {
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
   lessonProgress: LessonProgress;
 
+  @OneToOne(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
+  progress: LessonProgress;
+
   @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
-  @Index({ unique: true })
   @Column({ name: 'order', type: 'decimal', precision: 10, scale: 2 })
   order: number;
 
