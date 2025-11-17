@@ -11,6 +11,7 @@ import { Lesson } from '../../lessons/entities/lesson.entity';
 import { User } from '../../users/entities/user.entity';
 
 import * as moment from 'moment';
+import { TypeUnlockEnum } from '../enums/type-unlock.enum';
 
 @Entity('lesson_progress')
 export class LessonProgress {
@@ -34,6 +35,15 @@ export class LessonProgress {
 
   @Column({ name: 'date_reward_claimed', type: 'timestamptz', nullable: true })
   dateRewardClaimed: Date | null;
+
+  @Column({
+    name: 'type_unlock',
+    type: 'enum',
+    enum: TypeUnlockEnum,
+    default: null,
+    nullable: true,
+  })
+  typeUnlock: TypeUnlockEnum | null;
 
   @ManyToOne(() => User, (user) => user.lessonProgress, {
     onDelete: 'CASCADE',

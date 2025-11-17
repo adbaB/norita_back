@@ -18,6 +18,7 @@ import { UsersService } from '../../users/services/users.service';
 import { UpdateResponse } from '../../utils/responses';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
+import { TypeUnlockEnum } from '../enums/type-unlock.enum';
 
 @Injectable()
 export class LessonProgressService {
@@ -117,10 +118,7 @@ export class LessonProgressService {
     if (!user) {
       throw new NotFoundException('No user found');
     }
-    let unlockedAt = moment().add(nextLesson.timeToUnlock, 'hour').toDate();
-    if (!user.isPremiun) {
-      unlockedAt = new Date();
-    }
+    const unlockedAt = moment().add(nextLesson.timeToUnlock, 'hour').toDate();
 
     const newLessonProgress = this.lessonProgressRepo.create({
       user: { uuid: userUUID },
@@ -134,9 +132,12 @@ export class LessonProgressService {
   }
 
   @Transactional()
-  async unlockLesson(userUUID: string, lessonUUID: string): Promise<LessonProgress> {
+  async unlockLesson(
+    userUUID: string,
+    lessonUUID: string,
+    unlockType: TypeUnlockEnum,
+  ): Promise<LessonProgress> {
     const lesson = await this.lessonsService.findByUUID(lessonUUID);
-
     if (!lesson) {
       throw new NotFoundException('No lesson found');
     }
@@ -149,29 +150,60 @@ export class LessonProgressService {
     const existingProgress = await this.lessonProgressRepo.findOne({
       where: { user: { uuid: userUUID }, lesson: { uuid: lessonUUID } },
     });
-    if (existingProgress && existingProgress.isUnlocked()) {
-      throw new ConflictException('Lesson already unlocked');
+
+    let coinsToDecrease = 0;
+    let newLessonProgress: LessonProgress | null = null;
+
+    switch (unlockType) {
+      case TypeUnlockEnum.BASIC:
+        if (!existingProgress) {
+          throw new ConflictException('cannot unlock a lesson that is not started');
+        }
+        if (!existingProgress.isUnlocked) {
+          throw new ConflictException('Lesson is already locked');
+        }
+        coinsToDecrease = lesson.coinsNeededUnlockWithRequirements;
+        existingProgress.typeUnlock = TypeUnlockEnum.BASIC;
+        break;
+      case TypeUnlockEnum.GEMS:
+        if (existingProgress) {
+          newLessonProgress = existingProgress;
+        }
+        coinsToDecrease = lesson.coinsNeededUnlockWithoutRequirements;
+        newLessonProgress.typeUnlock = TypeUnlockEnum.GEMS;
+        newLessonProgress.unlockedAt = new Date();
+        break;
+      case TypeUnlockEnum.PREMIUM:
+        if (!user.isPremiun) {
+          throw new ConflictException('User is not premium');
+        }
+        if (existingProgress) {
+          newLessonProgress = existingProgress;
+        }
+        coinsToDecrease = 0;
+        newLessonProgress.typeUnlock = TypeUnlockEnum.PREMIUM;
+        newLessonProgress.unlockedAt = new Date();
+        break;
     }
-    if (!user.isPremiun) {
-      await this.usersService.decreaseCoins(
-        userUUID,
-        existingProgress
-          ? lesson.coinsNeededUnlockWithRequirements
-          : lesson.coinsNeededUnlockWithoutRequirements,
-      );
-    }
-    if (existingProgress) {
-      existingProgress.unlockedAt = new Date();
+
+    await this.usersService.decreaseCoins(userUUID, coinsToDecrease);
+
+    if (unlockType === TypeUnlockEnum.BASIC) {
       return this.lessonProgressRepo.save(existingProgress);
     }
-    const lessonProgress = this.lessonProgressRepo.create({
-      user,
-      lesson,
-      completed: false,
-      dateCompleted: null,
-      lastLineSeen: 0,
-      unlockedAt: new Date(),
-    });
-    return this.lessonProgressRepo.save(lessonProgress);
+    if (unlockType === TypeUnlockEnum.PREMIUM || unlockType === TypeUnlockEnum.GEMS) {
+      if (!newLessonProgress) {
+        newLessonProgress = this.lessonProgressRepo.create({
+          user,
+          lesson,
+          completed: false,
+          dateCompleted: null,
+          lastLineSeen: 0,
+          unlockedAt: new Date(),
+          typeUnlock: unlockType,
+        });
+      }
+      return this.lessonProgressRepo.save(newLessonProgress);
+    }
   }
 }
