@@ -1,10 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, MoreThan, QueryFailedError, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { TypeFileEnum } from '../../files/enums/type-file.enum';
 import { FileService } from '../../files/services/file.service';
+import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
@@ -22,44 +23,29 @@ export class LessonsService {
 
   @Transactional()
   async create(lesson: LessonDTO): Promise<Lesson> {
-    try {
-      let order = Number(await this.lessonRepo.maximum('order')) + 1;
-      const { sectionUuid, contentLesson, nextLessonUuid, ...rest } = lesson;
-      const section = await this.sectionService.findByUUID(sectionUuid);
+    const { sectionUuid, contentLesson, order, ...rest } = lesson;
+    const section = await this.sectionService.findByUUID(sectionUuid);
+    const lessons = await this.lessonRepo.find();
 
-      if (nextLessonUuid) {
-        const nextLesson = await this.lessonRepo.findOne({
-          where: { uuid: nextLessonUuid },
-        });
-        if (!nextLesson) {
-          throw new NotFoundException('Next lesson not found ');
-        }
-        const previusLesson = await this.lessonRepo.findOne({
-          where: { order: LessThan(nextLesson.order) },
-          order: { order: 'DESC' },
-        });
-        order = Number(previusLesson.order) + 0.01;
-      }
-
-      if (!section) {
-        throw new NotFoundException('Section not found ');
-      }
-
-      const lessonEntity = this.lessonRepo.create({
-        ...rest,
-        type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
-        section,
-        order,
-      });
-
-      const newLesson = await this.lessonRepo.save(lessonEntity);
-      await this.contentService.create(newLesson, contentLesson);
-      return newLesson;
-    } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new ConflictException(error.message);
-      }
+    if (!section) {
+      throw new NotFoundException('Section not found ');
     }
+
+    const lessonEntity = this.lessonRepo.create({
+      ...rest,
+      type: TypeLessonEnum[lesson.type as unknown as keyof typeof TypeLessonEnum],
+      section,
+      order,
+    });
+
+    const newLessons = insertItem(lessons, lessonEntity, order);
+
+    await Promise.all([
+      this.lessonRepo.save(newLessons),
+      this.contentService.create(lessonEntity, contentLesson),
+    ]);
+
+    return lessonEntity;
   }
 
   async findByUUID(uuid: string, userUUID?: string): Promise<Lesson | null> {
@@ -86,6 +72,9 @@ export class LessonsService {
       throw new NotFoundException('Lesson not found ');
     }
 
+    if (lesson.lessonProgress) {
+      lesson['progress'] = lesson.lessonProgress[0];
+    }
     if (lesson?.lessonContent) {
       lesson.lessonContent.audioPopups = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_POPUPS)
@@ -102,6 +91,27 @@ export class LessonsService {
       lesson.lessonContent.audioRewardsDisqualified = await this.fileService
         .getFileByTypeRandom(TypeFileEnum.AUDIO_REWARDS_DISQUALIFIED)
         .then((file) => file?.file || null);
+    }
+    if (lesson?.lessonContent?.dialogs?.length > 0) {
+      lesson.lessonContent.dialogs = lesson.lessonContent.dialogs.sort(
+        (a, b) => a?.order - b?.order,
+      );
+    }
+
+    if (lesson?.lessonContent?.notes?.length > 0) {
+      lesson.lessonContent.notes = lesson.lessonContent.notes.sort((a, b) => a?.order - b?.order);
+    }
+
+    if (lesson?.lessonContent?.bibliographies?.length > 0) {
+      lesson.lessonContent.bibliographies = lesson.lessonContent.bibliographies.sort(
+        (a, b) => a?.order - b?.order,
+      );
+    }
+
+    if (lesson?.lessonContent?.glossaries?.length > 0) {
+      lesson.lessonContent.glossaries = lesson.lessonContent.glossaries.sort(
+        (a, b) => a?.order - b?.order,
+      );
     }
 
     return lesson;
@@ -135,7 +145,7 @@ export class LessonsService {
 
   @Transactional()
   async update(uuid: string, lesson: UpdateLessonDTO): Promise<UpdateResponse> {
-    const { sectionUuid, nextLessonUuid, ...rest } = lesson;
+    const { sectionUuid, order, ...rest } = lesson;
 
     const lessonFound = await this.lessonRepo.findOne({
       where: { uuid },
@@ -156,25 +166,16 @@ export class LessonsService {
       ...rest,
       section,
     });
+    await this.lessonRepo.save(lessonEntity);
 
-    if (nextLessonUuid) {
-      const nextLesson = await this.lessonRepo.findOne({
-        where: { uuid: nextLessonUuid },
-      });
-      if (!nextLesson) {
-        throw new NotFoundException('Next lesson not found ');
-      }
-      const previusLesson = await this.lessonRepo.findOne({
-        where: { order: LessThan(nextLesson.order) },
-        order: { order: 'DESC' },
-      });
-      if (previusLesson.uuid !== uuid) {
-        lessonEntity.order = Number(previusLesson.order) + 0.01;
-      }
+    if (order && lessonFound.order !== order) {
+      const lessons = await this.lessonRepo.find();
+      const newLessons = moveItem(lessons, lessonFound.order, order);
+      // console.log(newLessons);
+      await this.lessonRepo.save(newLessons);
     }
 
-    await this.lessonRepo.save(lessonEntity);
-    if (lessonFound?.lessonContent.uuid) {
+    if (lessonFound?.lessonContent?.uuid) {
       await this.contentService.update(lessonFound?.lessonContent?.uuid, lesson.contentLesson);
     }
     return {
@@ -188,8 +189,12 @@ export class LessonsService {
     if (!lessonFound) {
       throw new NotFoundException('Lesson not found ');
     }
+    const lessons = await this.lessonRepo.find();
+
+    const newLessons = removeItem(lessons, lessonFound.order);
 
     const deleted = await this.lessonRepo.delete({ uuid });
+    await this.lessonRepo.save(newLessons);
     return {
       affected: deleted.affected,
       status: 200,

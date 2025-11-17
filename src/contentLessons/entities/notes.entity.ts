@@ -26,6 +26,10 @@ export class Notes {
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
+  @ApiProperty({ description: 'Order of the notes', type: Number })
+  @Column({ type: 'integer', name: 'order', nullable: true })
+  order: number;
+
   @ManyToOne(() => Content, (content) => content.notes, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

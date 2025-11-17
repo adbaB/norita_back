@@ -41,8 +41,6 @@ export class BibliographyService {
       throw new NotFoundException('Bibliography not found');
     }
 
-    console.log(deleted.affected);
-
     return {
       affected: deleted.affected,
       status: 200,

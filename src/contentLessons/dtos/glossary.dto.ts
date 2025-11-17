@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GlossaryDTO {
   @ApiProperty({
@@ -51,4 +51,17 @@ export class GlossaryDTO {
   @IsOptional()
   @IsString({ message: 'audio must be a string' })
   audio: string;
+
+  @ApiProperty({
+    description: 'Order of the glossary',
+    nullable: false,
+    required: true,
+    type: Number,
+  })
+  @IsNotEmpty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }

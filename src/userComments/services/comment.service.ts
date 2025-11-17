@@ -42,8 +42,15 @@ export class CommentsService {
     const { limit, page, lessonUuid } = dto;
     const skip = getSkip(limit, page);
     const [comments, total] = await this.commentsRepository.findAndCount({
-      relations: { Userlikes: true },
+      relations: { Userlikes: true, user: true },
       where: { lesson: { uuid: lessonUuid } },
+      select: {
+        user: {
+          uuid: true,
+          username: true,
+          image: true,
+        },
+      },
       take: limit,
       skip,
     });
@@ -53,18 +60,17 @@ export class CommentsService {
   async findStats(uuid: string): Promise<StatsResponse> {
     const average = await this.commentsRepository
       .createQueryBuilder('comment')
-      .select('AVG(comment.rating)', 'rating')
+      .select('ROUND(AVG(comment.rating),2)', 'rating')
       .where('comment.lesson_uuid = :uuid', { uuid })
       .getRawOne();
 
     const rating = await this.commentsRepository
       .createQueryBuilder('comment')
-      .select('comment.rating, COUNT(comment.rating)', 'count')
+      .select('comment.rating, ROUND(COUNT(comment.rating))', 'count')
       .where('comment.lesson_uuid = :uuid', { uuid })
       .groupBy('comment.rating')
       .getRawMany();
-    console.log(rating);
-    console.log('average', average);
+
     return { average: average.rating, rating };
   }
 

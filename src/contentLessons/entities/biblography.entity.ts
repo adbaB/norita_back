@@ -26,6 +26,10 @@ export class Bibliography {
   @Column({ type: 'varchar', length: 255, nullable: true })
   audio: string;
 
+  @ApiProperty({ description: 'Order of the bibliography', type: Number })
+  @Column({ type: 'integer', name: 'order', nullable: true })
+  order: number;
+
   @ManyToOne(() => Content, (content) => content.bibliographies, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

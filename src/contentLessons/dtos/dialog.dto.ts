@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ContentJSON } from '../entities/dialog.entity';
 import { StoryStructureEnum } from '../enums/story-structure.enum';
 import { TypeStructureEnum } from '../enums/type-structure.enum';
@@ -76,4 +84,17 @@ export class DialogDTO {
   @IsNotEmpty({ message: 'content should not be empty' })
   @IsObject({ message: 'content must be a valid JSON object' })
   content: ContentJSON;
+
+  @ApiProperty({
+    description: 'Order',
+    type: Number,
+    nullable: false,
+    required: true,
+  })
+  @IsNotEmpty({ message: 'order should not be empty' })
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }
