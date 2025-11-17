@@ -98,6 +98,22 @@ export class LessonsService {
       );
     }
 
+    if (lesson?.lessonContent?.notes?.length > 0) {
+      lesson.lessonContent.notes = lesson.lessonContent.notes.sort((a, b) => a?.order - b?.order);
+    }
+
+    if (lesson?.lessonContent?.bibliographies?.length > 0) {
+      lesson.lessonContent.bibliographies = lesson.lessonContent.bibliographies.sort(
+        (a, b) => a?.order - b?.order,
+      );
+    }
+
+    if (lesson?.lessonContent?.glossaries?.length > 0) {
+      lesson.lessonContent.glossaries = lesson.lessonContent.glossaries.sort(
+        (a, b) => a?.order - b?.order,
+      );
+    }
+
     return lesson;
   }
 

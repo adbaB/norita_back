@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class BibliographyDTO {
   @ApiProperty({
@@ -21,4 +21,17 @@ export class BibliographyDTO {
   @IsOptional()
   @IsString({ message: 'audio must be a string' })
   audio?: string;
+
+  @ApiProperty({
+    description: 'Order of the bibliography',
+    nullable: false,
+    required: true,
+    type: Number,
+  })
+  @IsNotEmpty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }

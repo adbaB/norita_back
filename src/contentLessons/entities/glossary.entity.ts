@@ -38,6 +38,10 @@ export class Glossary {
   @Column({ type: 'varchar', nullable: true, length: 255 })
   audio: string;
 
+  @ApiProperty({ description: 'Order of the glossary', type: Number })
+  @Column({ type: 'integer', name: 'order', nullable: true })
+  order: number;
+
   @ManyToOne(() => Content, (content) => content.glossaries, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
