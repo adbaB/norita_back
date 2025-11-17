@@ -2,15 +2,15 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
-import { CreatedResponse, LoginResponse } from '../../utils/responses';
+import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
 import configuration from '../../config/configuration';
 import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
-import { User } from '../../users/entities/user.entity';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
+import { RegisterInterface } from '../interfaces/register.interface';
 
 @Injectable()
 export class AuthService {
@@ -67,7 +67,7 @@ export class AuthService {
    * @param registerDto {RegisterDto} - The request body
    * @returns {Promise<CreatedResponse<User>>} - A promise that resolves with the response
    */
-  async register(registerDto: RegisterDto): Promise<CreatedResponse<User>> {
+  async register(registerDto: RegisterDto): Promise<RegisterInterface> {
     const user = await this.usersService.findByEmail(registerDto.email);
     if (user) {
       // If the user already exists, throw a BadRequestException
@@ -93,15 +93,13 @@ export class AuthService {
 
     const refreshToken = await this.generateRefreshToken(payload);
     return {
-      status: 201,
-      message: 'success',
-      data: createdUser,
+      user: createdUser,
       accessToken,
       refreshToken,
     };
   }
 
-  async createGuestUser(dto: RegisterGuestDTO): Promise<CreatedResponse<User>> {
+  async createGuestUser(dto: RegisterGuestDTO): Promise<RegisterInterface> {
     const { firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
     const sessionUUID = randomUUID();
     const guestUsername = `guest-${sessionUUID}`;
@@ -130,15 +128,16 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(payload);
     const refreshToken = await this.generateRefreshToken(payload);
     return {
-      status: 201,
-      message: 'success',
-      data: guestUser,
+      user: guestUser,
       accessToken,
       refreshToken,
     };
   }
 
-  async renewAccessToken(payload: JwtTokenPayload): Promise<{ accessToken: string }> {
+  async renewAccessToken(
+    payload: JwtTokenPayload,
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, sessionUUID, uuid, role } = payload;
     const accessToken = await this.generateAccessToken({
       email,
@@ -147,7 +146,20 @@ export class AuthService {
       sessionUUID,
     });
 
-    return { accessToken };
+    const decodedRefreshToken = this.jwtService.decode(refreshToken) as JwtTokenPayload;
+
+    if (decodedRefreshToken.sessionUUID !== sessionUUID) {
+      throw new UnauthorizedException('Invalid refresh token session');
+    }
+
+    const newRefreshToken = await this.generateRefreshToken({
+      email: decodedRefreshToken.email,
+      uuid: decodedRefreshToken.uuid,
+      role: decodedRefreshToken.role,
+      sessionUUID: decodedRefreshToken.sessionUUID,
+    });
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   async logOut(userUUID: string): Promise<void> {

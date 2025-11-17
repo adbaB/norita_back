@@ -147,7 +147,6 @@ export class UsersService {
     return {
       affected: result.affected,
       status: result.affected === 0 ? 204 : 200,
-      message: result.affected === 0 ? 'not content' : 'success',
     };
   }
 
@@ -163,7 +162,6 @@ export class UsersService {
     return {
       affected: result.affected,
       status: result.affected === 0 ? 204 : 200,
-      message: result.affected === 0 ? 'not content' : 'success',
     };
   }
 
@@ -224,7 +222,6 @@ export class UsersService {
     return {
       affected: result.affected,
       status: result.affected === 0 ? 204 : 200,
-      message: result.affected === 0 ? 'not content' : 'success',
     };
   }
 
@@ -236,10 +233,13 @@ export class UsersService {
   async delete(uuid: string): Promise<DeleteResponse> {
     const user = await this.userRepo.delete({ uuid });
 
+    if (user.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+
     return {
       affected: user.affected,
       status: 200,
-      message: 'success',
     };
   }
 }

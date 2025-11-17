@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FileResponse {
-  @ApiProperty({ example: true, description: 'Indicates if the upload was successful' })
-  success: boolean;
-  @ApiProperty({ example: 'Archivo subido exitosamente', description: 'Response message' })
-  message: string;
   @ApiProperty({ example: '1699281234567-123456789.jpg', description: 'Stored filename' })
   filename: string;
   @ApiProperty({

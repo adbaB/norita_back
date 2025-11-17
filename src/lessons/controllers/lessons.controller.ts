@@ -4,7 +4,12 @@ import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
-import { CreatedResponse, DeleteResponse, UpdateResponse } from '../../utils/responses';
+import {
+  ApiResponse as ClassApiResponse,
+  CreatedResponse,
+  DeleteResponse,
+  UpdateResponse,
+} from '../../utils/responses';
 import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { LessonsService } from '../services/lessons.service';
@@ -30,8 +35,9 @@ export class LessonsController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
   @Post()
-  async create(@Body() lesson: LessonDTO): Promise<CreatedResponse<Lesson>> {
-    return this.lessonsService.create(lesson);
+  async create(@Body() lesson: LessonDTO): Promise<ClassApiResponse<Lesson>> {
+    const lessonCreated = await this.lessonsService.create(lesson);
+    return new ClassApiResponse(true, 'Lesson created successfully', lessonCreated);
   }
 
   @ApiResponse({ status: 200, type: UpdateResponse, description: 'Success' })

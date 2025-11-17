@@ -36,7 +36,8 @@ const allowedMimes = {
           },
           filename: (req, file, cb) => {
             const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, `${uniqueName}${extname(file.originalname)}`);
+            const fileName = file.originalname.split('.')[0];
+            cb(null, `${fileName}-${uniqueName}${extname(file.originalname)}`);
           },
         }),
         limits: { fileSize: configService.file.maxSize }, // 100 MB
