@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { CannotCreateEntityIdMapError, EntityNotFoundError, QueryFailedError } from 'typeorm';
+import { ApiResponse } from '../responses';
 
 type DatabaseError = {
   code?: string;
@@ -15,7 +16,6 @@ export class TypeormFilterCatch implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Database error';
     let errorCode: string | undefined;
@@ -54,11 +54,16 @@ export class TypeormFilterCatch implements ExceptionFilter {
       message = 'Invalid entity data';
     }
 
-    response.status(status).json({
-      statusCode: status,
-      message,
-      ...(errorCode && { errorCode }),
-      timestamp: new Date().toISOString(),
-    });
+    response.status(status).json(
+      new ApiResponse(
+        false,
+        message,
+        {
+          statusCode: status,
+          ...(errorCode && { errorCode }),
+        },
+        new Date().toISOString(),
+      ),
+    );
   }
 }
