@@ -36,11 +36,11 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     },
     {
       provide: APP_FILTER,
-      useClass: TypeormFilterCatch,
+      useClass: HttpExceptionFilter,
     },
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      useClass: TypeormFilterCatch,
     },
   ],
 })
