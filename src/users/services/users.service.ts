@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ConfigType } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 import { Transactional } from 'typeorm-transactional';
 import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
@@ -19,8 +20,6 @@ import { LevelService } from './level.service';
  */
 @Injectable()
 export class UsersService {
-  private INITIAL_LEVEL = 0;
-
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly levelService: LevelService,
@@ -174,12 +173,17 @@ export class UsersService {
 
   @Transactional()
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { levelUuid, password, firstRewards, secondRewards, ...updateData } = dto;
+    const { levelUuid, password, firstRewards, secondRewards, isGuest, ...updateData } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    if (!isGuest && user.isGuest) {
+      user.isGuest = false;
+      user.username = `user-${randomUUID()}`;
     }
 
     let coinsToAdd = 0;

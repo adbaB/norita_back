@@ -16,4 +16,14 @@ export class UpdateUserDto extends PartialType(RegisterDto) {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({
+    description: 'isGuest of the user',
+    nullable: true,
+    required: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isGuest?: boolean;
 }
