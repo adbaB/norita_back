@@ -16,7 +16,6 @@ export class TypeormFilterCatch implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    console.error(exception);
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Database error';
     let errorCode: string | undefined;
