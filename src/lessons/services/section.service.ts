@@ -30,7 +30,8 @@ export class SectionService {
     const query = this.sectionRepository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.lessons', 'lesson')
-      .orderBy('section.order', 'ASC');
+      .orderBy('section.order', 'ASC')
+      .addOrderBy('lesson.order', 'ASC');
 
     if (userUUID) {
       query.leftJoinAndSelect(

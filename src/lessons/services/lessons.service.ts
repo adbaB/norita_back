@@ -140,6 +140,9 @@ export class LessonsService {
       where: {
         order: MoreThan(lesson.order),
       },
+      order: {
+        order: 'ASC',
+      },
     });
   }
 

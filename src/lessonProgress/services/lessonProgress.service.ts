@@ -42,6 +42,7 @@ export class LessonProgressService {
       dateCompleted: null,
       lastLineSeen: 0,
       unlockedAt: new Date(),
+      isUnlocked: true,
     });
 
     await this.lessonProgressRepo.save(lessonProgress);
@@ -60,6 +61,9 @@ export class LessonProgressService {
     });
     if (!lessonProgress) {
       throw new NotFoundException('No lesson progress found');
+    }
+    if (!lessonProgress.isUnlocked) {
+      throw new ConflictException('Lesson is not unlocked');
     }
 
     lessonProgress.lastLineSeen = dto.lastLineSeen;
@@ -91,10 +95,19 @@ export class LessonProgressService {
     if (!lesson) {
       throw new NotFoundException('No lesson found');
     }
+
+    if (lessonProgress.completed) {
+      throw new ConflictException('Lesson already completed');
+    }
+
+    if (!lessonProgress.isUnlocked) {
+      throw new ConflictException('cannot complete a locked lesson');
+    }
+
     lessonProgress.completed = true;
     lessonProgress.dateCompleted = new Date();
 
-    await this.unlockNextLesson(userUUID, lessonUUID);
+    await this.addNextLesson(userUUID, lessonUUID);
     await this.lessonProgressRepo.save(lessonProgress);
     return {
       affected: 1,
@@ -102,7 +115,7 @@ export class LessonProgressService {
     };
   }
 
-  private async unlockNextLesson(userUUID: string, lessonUUID: string): Promise<void> {
+  private async addNextLesson(userUUID: string, lessonUUID: string): Promise<void> {
     const nextLesson = await this.lessonsService.getNextLesson(lessonUUID);
     if (!nextLesson) {
       throw new NotFoundException('No next lesson found');
@@ -159,11 +172,12 @@ export class LessonProgressService {
         if (!existingProgress) {
           throw new ConflictException('cannot unlock a lesson that is not started');
         }
-        if (!existingProgress.isUnlocked) {
+        if (!existingProgress.canUnlock()) {
           throw new ConflictException('Lesson is already locked');
         }
         coinsToDecrease = lesson.coinsNeededUnlockWithRequirements;
         existingProgress.typeUnlock = TypeUnlockEnum.BASIC;
+        existingProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.GEMS:
         if (existingProgress) {
@@ -172,6 +186,7 @@ export class LessonProgressService {
         coinsToDecrease = lesson.coinsNeededUnlockWithoutRequirements;
         newLessonProgress.typeUnlock = TypeUnlockEnum.GEMS;
         newLessonProgress.unlockedAt = new Date();
+        newLessonProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.PREMIUM:
         if (!user.isPremiun) {
@@ -183,6 +198,7 @@ export class LessonProgressService {
         coinsToDecrease = 0;
         newLessonProgress.typeUnlock = TypeUnlockEnum.PREMIUM;
         newLessonProgress.unlockedAt = new Date();
+        newLessonProgress.isUnlocked = true;
         break;
     }
 
@@ -201,6 +217,7 @@ export class LessonProgressService {
           lastLineSeen: 0,
           unlockedAt: new Date(),
           typeUnlock: unlockType,
+          isUnlocked: true,
         });
       }
       return this.lessonProgressRepo.save(newLessonProgress);
