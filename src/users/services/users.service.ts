@@ -27,6 +27,50 @@ export class UsersService {
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
+  @Transactional()
+  async registerWithGoogle(dto: RegisterDto): Promise<User> {
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    // Inicializar monedas y recompensas
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    const user = this.userRepo.create({
+      password: passwordHash,
+      deviceJWT: jwt,
+      ...rest,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
+      username: rest.username ? rest.username : `user-${jwt}`,
+      signInGoogle: true,
+      isGuest: false,
+      isActive: true,
+    });
+
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      if (!levelEntity) {
+        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
+      }
+      user.level = levelEntity;
+    }
+
+    const userCreated = await this.userRepo.save(user);
+
+    await this.lessonProgressService.addInitialProgress(userCreated);
+
+    return userCreated;
+  }
+
   /**
    * Registers a new user.
    * @param {RegisterDto} dto - The request body containing the user's information.

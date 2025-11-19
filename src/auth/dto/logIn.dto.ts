@@ -17,3 +17,10 @@ export class LoginDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class LoginWithGoogleDTO {
+  @ApiProperty({ description: 'Google OAuth token', nullable: false, required: true, type: String })
+  @IsNotEmpty()
+  @IsString()
+  token: string;
+}
