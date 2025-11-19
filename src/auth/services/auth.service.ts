@@ -79,6 +79,11 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Email not found');
     }
+
+    if (!user.isActive) {
+      throw new BadRequestException('User is inactive');
+    }
+
     if (!user.signInGoogle) {
       throw new BadRequestException('User not registered with Google');
     }
