@@ -9,16 +9,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { IOrder } from '../../utils/interfaces/order.interface';
 import { Lesson } from './lesson.entity';
 
 @Entity('sections')
-export class Section {
+export class Section implements IOrder {
   @ApiProperty({ description: 'UUID of the section', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
   @ApiProperty({ description: 'Name of the section', type: String, maxLength: 255 })
-  @Column({ name: 'name', type: 'varchar', length: 255 })
+  @Column({ name: 'name', type: 'varchar', length: 255, unique: true })
   name: string;
 
   @ApiProperty({ description: 'Order of the section', type: Number })

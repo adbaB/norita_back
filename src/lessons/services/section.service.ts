@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
 import { Section } from '../entities/section.entity';
@@ -12,16 +13,13 @@ export class SectionService {
 
   @Transactional()
   async create(section: CreateSectionDto): Promise<Section> {
-    const sections = await this.sectionRepository.find({
-      where: { order: MoreThanOrEqual(section.order) },
-    });
+    const sections = await this.sectionRepository.find();
 
-    for (const sec of sections) {
-      sec.order += 1;
-      await this.sectionRepository.save(sec);
-    }
+    const newSection = this.sectionRepository.create(section);
 
-    const newSection = await this.sectionRepository.save(section);
+    const newSections = insertItem(sections, newSection, newSection.order);
+
+    await this.sectionRepository.save(newSections);
 
     return newSection;
   }
@@ -53,24 +51,25 @@ export class SectionService {
 
   @Transactional()
   async update(uuid: string, updateData: UpdateSectionDTO): Promise<UpdateResponse> {
+    const { order, ...rest } = updateData;
     const section = await this.sectionRepository.findOne({ where: { uuid } });
 
     if (!section) {
       throw new Error('Section not found');
     }
-    if (updateData?.order) {
-      const sections = await this.sectionRepository.find({
-        where: { order: MoreThanOrEqual(updateData.order) },
-      });
 
-      for (const sec of sections) {
-        if (sec.uuid !== uuid) {
-          sec.order += 1;
-          await this.sectionRepository.save(sec);
-        }
-      }
+    const sectionEntity = this.sectionRepository.merge(section, rest);
+
+    await this.sectionRepository.save(sectionEntity);
+
+    if (Number.isInteger(order)) {
+      const sections = await this.sectionRepository.find();
+
+      const newSections = moveItem(sections, sectionEntity.order, order);
+
+      await this.sectionRepository.save(newSections);
     }
-    await this.sectionRepository.save({ ...section, ...updateData });
+
     return {
       status: 200,
       affected: 1,
@@ -81,19 +80,16 @@ export class SectionService {
   async remove(uuid: string): Promise<DeleteResponse> {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
     if (!section) {
-      throw new Error('Section not found');
+      throw new NotFoundException('Section not found');
     }
 
-    const sections = await this.sectionRepository.find({
-      where: { order: MoreThanOrEqual(section.order + 1) },
-    });
+    const sections = await this.sectionRepository.find();
 
-    for (const sec of sections) {
-      sec.order -= 1;
-      await this.sectionRepository.save(sec);
-    }
+    const newSections = removeItem(sections, section.order);
 
     const deleted = await this.sectionRepository.delete(uuid);
+
+    await this.sectionRepository.save(newSections);
     return {
       status: 200,
       affected: deleted.affected || 0,
