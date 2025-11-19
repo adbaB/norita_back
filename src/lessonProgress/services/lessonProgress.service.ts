@@ -170,7 +170,7 @@ export class LessonProgressService {
     switch (unlockType) {
       case TypeUnlockEnum.BASIC:
         if (!existingProgress) {
-          throw new ConflictException('cannot unlock a lesson that is not started');
+          throw new ConflictException('Cannot unlock a lesson that is not started');
         }
         if (!existingProgress.canUnlock()) {
           throw new ConflictException('Lesson is already locked');
@@ -180,46 +180,49 @@ export class LessonProgressService {
         existingProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.GEMS:
-        if (existingProgress) {
+        if (!existingProgress) {
+          newLessonProgress = this.lessonProgressRepo.create({
+            user,
+            lesson,
+            completed: false,
+            dateCompleted: null,
+            lastLineSeen: 0,
+            unlockedAt: new Date(),
+            typeUnlock: TypeUnlockEnum.GEMS,
+            isUnlocked: true,
+          });
+        } else {
           newLessonProgress = existingProgress;
         }
         coinsToDecrease = lesson.coinsNeededUnlockWithoutRequirements;
-        newLessonProgress.typeUnlock = TypeUnlockEnum.GEMS;
-        newLessonProgress.unlockedAt = new Date();
-        newLessonProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.PREMIUM:
         if (!user.isPremiun) {
           throw new ConflictException('User is not premium');
         }
-        if (existingProgress) {
+        if (!existingProgress) {
+          newLessonProgress = this.lessonProgressRepo.create({
+            user,
+            lesson,
+            completed: false,
+            dateCompleted: null,
+            lastLineSeen: 0,
+            unlockedAt: new Date(),
+            typeUnlock: TypeUnlockEnum.PREMIUM,
+            isUnlocked: true,
+          });
+        } else {
           newLessonProgress = existingProgress;
         }
         coinsToDecrease = 0;
-        newLessonProgress.typeUnlock = TypeUnlockEnum.PREMIUM;
-        newLessonProgress.unlockedAt = new Date();
-        newLessonProgress.isUnlocked = true;
         break;
     }
 
     await this.usersService.decreaseCoins(userUUID, coinsToDecrease);
-
     if (unlockType === TypeUnlockEnum.BASIC) {
       return this.lessonProgressRepo.save(existingProgress);
     }
     if (unlockType === TypeUnlockEnum.PREMIUM || unlockType === TypeUnlockEnum.GEMS) {
-      if (!newLessonProgress) {
-        newLessonProgress = this.lessonProgressRepo.create({
-          user,
-          lesson,
-          completed: false,
-          dateCompleted: null,
-          lastLineSeen: 0,
-          unlockedAt: new Date(),
-          typeUnlock: unlockType,
-          isUnlocked: true,
-        });
-      }
       return this.lessonProgressRepo.save(newLessonProgress);
     }
   }
