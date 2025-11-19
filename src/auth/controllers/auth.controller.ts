@@ -12,7 +12,7 @@ import {
 } from '../../users/dto/user/create-user.dto';
 import { LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
-import { LoginDto } from '../dto/logIn.dto';
+import { LoginDto, LoginWithGoogleDTO } from '../dto/logIn.dto';
 import { JwtRefreshGuard } from '../guards/jwtRefresh.guard';
 import { RegisterInterface } from '../interfaces/register.interface';
 import { ApiResponse as ClassApiResponse } from './../../utils/responses';
@@ -109,7 +109,11 @@ export class AuthController {
 
   @Post('login-with-google')
   @IsPublic()
-  async loginWithGoogle(@Body() body: { token: string }): Promise<LoginResponse> {
-    return this.authService.signInWithGoogle(body.token);
+  async loginWithGoogle(
+    @Body() body: LoginWithGoogleDTO,
+  ): Promise<ClassApiResponse<LoginResponse>> {
+    const login = await this.authService.signInWithGoogle(body.token);
+
+    return new ClassApiResponse(true, 'Login successful', login);
   }
 }

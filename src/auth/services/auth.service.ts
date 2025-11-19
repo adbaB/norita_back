@@ -5,7 +5,7 @@ import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import configuration from '../../config/configuration';
 import {
   RegisterDto,
@@ -74,16 +74,7 @@ export class AuthService {
   }
 
   async signInWithGoogle(token: string): Promise<LoginResponse> {
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: token,
-    });
-
-    const payloadGoogle = ticket.getPayload();
-
-    if (!payloadGoogle || !payloadGoogle.email_verified) {
-      throw new BadRequestException('Invalid Google token');
-    }
-
+    const payloadGoogle = await this.verifyGoogleToken(token);
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (!user) {
       throw new BadRequestException('Email not found');
@@ -117,15 +108,8 @@ export class AuthService {
 
   async registerWithGoogle(dto: RegisterWithGoogleDTO): Promise<RegisterInterface> {
     const { token, firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: token,
-    });
 
-    const payloadGoogle = ticket.getPayload();
-
-    if (!payloadGoogle || !payloadGoogle.email_verified) {
-      throw new BadRequestException('Invalid Google token');
-    }
+    const payloadGoogle = await this.verifyGoogleToken(token);
 
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (user) {
@@ -271,5 +255,17 @@ export class AuthService {
       expiresIn: this.configService.jwtRefresh.expiresIn,
       secret: this.configService.jwtRefresh.secret,
     });
+  }
+
+  private async verifyGoogleToken(token: string): Promise<TokenPayload> {
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: token,
+      audience: this.configService.google.client,
+    });
+    const payloadGoogle = ticket.getPayload();
+    if (!payloadGoogle || !payloadGoogle.email_verified) {
+      throw new BadRequestException('Invalid Google token');
+    }
+    return payloadGoogle;
   }
 }
