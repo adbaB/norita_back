@@ -28,7 +28,8 @@ export class SectionService {
     const query = this.sectionRepository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.lessons', 'lesson')
-      .orderBy('section.order', 'ASC');
+      .orderBy('section.order', 'ASC')
+      .addOrderBy('lesson.order', 'ASC');
 
     if (userUUID) {
       query.leftJoinAndSelect(
@@ -55,7 +56,7 @@ export class SectionService {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
 
     if (!section) {
-      throw new Error('Section not found');
+      throw new NotFoundException('Section not found');
     }
 
     const sectionEntity = this.sectionRepository.merge(section, rest);

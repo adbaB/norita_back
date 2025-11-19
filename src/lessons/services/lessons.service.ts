@@ -140,6 +140,9 @@ export class LessonsService {
       where: {
         order: MoreThan(lesson.order),
       },
+      order: {
+        order: 'ASC',
+      },
     });
   }
 
@@ -171,7 +174,6 @@ export class LessonsService {
     if (order && lessonFound.order !== order) {
       const lessons = await this.lessonRepo.find();
       const newLessons = moveItem(lessons, lessonFound.order, order);
-      // console.log(newLessons);
       await this.lessonRepo.save(newLessons);
     }
 
