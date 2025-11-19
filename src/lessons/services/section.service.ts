@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
@@ -57,7 +57,7 @@ export class SectionService {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
 
     if (!section) {
-      throw new Error('Section not found');
+      throw new NotFoundException('Section not found');
     }
     if (updateData?.order) {
       const sections = await this.sectionRepository.find({
@@ -82,7 +82,7 @@ export class SectionService {
   async remove(uuid: string): Promise<DeleteResponse> {
     const section = await this.sectionRepository.findOne({ where: { uuid } });
     if (!section) {
-      throw new Error('Section not found');
+      throw new NotFoundException('Section not found');
     }
 
     const sections = await this.sectionRepository.find({

@@ -1,4 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSectionDto {
@@ -19,6 +20,7 @@ export class CreateSectionDto {
     type: Number,
   })
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   order: number;
 }
