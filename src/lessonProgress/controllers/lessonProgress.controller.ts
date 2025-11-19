@@ -2,7 +2,7 @@ import { Body, Controller, Param, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { ApiResponse, UpdateResponse } from '../../utils/responses';
-import { unlockLessonDTO } from '../dto/unlock.dto';
+import { UnlockLessonDTO } from '../dto/unlock.dto';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 import { LessonProgressService } from '../services/lessonProgress.service';
@@ -56,7 +56,7 @@ export class LessonProgressController {
   async unlockLesson(
     @User() userUUID: string,
     @Param('uuid') lessonUUID: string,
-    @Body() dto: unlockLessonDTO,
+    @Body() dto: UnlockLessonDTO,
   ): Promise<ApiResponse<LessonProgress>> {
     const lessonProgress = await this.lessonProgressService.unlockLesson(
       userUUID,

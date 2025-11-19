@@ -173,7 +173,7 @@ export class LessonProgressService {
           throw new ConflictException('Cannot unlock a lesson that is not started');
         }
         if (!existingProgress.canUnlock()) {
-          throw new ConflictException('Lesson is already locked');
+          throw new ConflictException('Lesson cannot be unlocked yet');
         }
         coinsToDecrease = lesson.coinsNeededUnlockWithRequirements;
         existingProgress.typeUnlock = TypeUnlockEnum.BASIC;
@@ -195,6 +195,8 @@ export class LessonProgressService {
           newLessonProgress = existingProgress;
         }
         coinsToDecrease = lesson.coinsNeededUnlockWithoutRequirements;
+        newLessonProgress.typeUnlock = TypeUnlockEnum.GEMS;
+        newLessonProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.PREMIUM:
         if (!user.isPremiun) {
@@ -215,10 +217,17 @@ export class LessonProgressService {
           newLessonProgress = existingProgress;
         }
         coinsToDecrease = 0;
+        newLessonProgress.typeUnlock = TypeUnlockEnum.PREMIUM;
+        newLessonProgress.isUnlocked = true;
         break;
     }
 
-    await this.usersService.decreaseCoins(userUUID, coinsToDecrease);
+    if (coinsToDecrease > 0) {
+      if (user.coin < coinsToDecrease) {
+        throw new ConflictException('Insufficient coins to unlock lesson');
+      }
+      await this.usersService.decreaseCoins(userUUID, coinsToDecrease);
+    }
     if (unlockType === TypeUnlockEnum.BASIC) {
       return this.lessonProgressRepo.save(existingProgress);
     }
