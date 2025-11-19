@@ -119,9 +119,3 @@ export class RegisterWithGoogleDTO extends OmitType(RegisterDto, [
 
   signInGoogle: boolean;
 }
-
-export class createUserWithGoogle extends OmitType(RegisterDto, [
-  'image',
-  'isGuest',
-  'password',
-] as const) {}

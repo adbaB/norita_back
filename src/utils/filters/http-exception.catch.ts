@@ -21,7 +21,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exceptionResponse
           : (exceptionResponse as any).message || exception.message;
     }
-    console.log(exception);
     response.status(status).json(new ApiResponse(false, message, null, new Date().toISOString()));
   }
 }
