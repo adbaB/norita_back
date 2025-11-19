@@ -5,8 +5,13 @@ import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
 import configuration from '../../config/configuration';
-import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
+import {
+  RegisterDto,
+  RegisterGuestDTO,
+  RegisterWithGoogleDTO,
+} from '../../users/dto/user/create-user.dto';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
@@ -14,11 +19,17 @@ import { RegisterInterface } from '../interfaces/register.interface';
 
 @Injectable()
 export class AuthService {
+  private googleClient: OAuth2Client;
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
-  ) {}
+  ) {
+    this.googleClient = new OAuth2Client({
+      clientId: this.configService.google.client,
+      clientSecret: this.configService.google.secret,
+    });
+  }
 
   /**
    * Sign in with the provided credentials.
@@ -60,6 +71,91 @@ export class AuthService {
         refreshToken,
       },
     };
+  }
+
+  async signInWithGoogle(token: string): Promise<LoginResponse> {
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: token,
+    });
+
+    const payloadGoogle = ticket.getPayload();
+
+    if (!payloadGoogle || !payloadGoogle.email_verified) {
+      throw new BadRequestException('Invalid Google token');
+    }
+
+    const user = await this.usersService.findByEmail(payloadGoogle.email);
+    if (!user) {
+      throw new BadRequestException('Email not found');
+    }
+    if (!user.signInGoogle) {
+      throw new BadRequestException('User not registered with Google');
+    }
+
+    const sessionUUID = randomUUID();
+
+    const payload: PayloadToken = {
+      email: user.email,
+      uuid: user.uuid,
+      role: user.role,
+      sessionUUID,
+    };
+
+    await this.usersService.updateSession(user.uuid, sessionUUID);
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return {
+      data: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      message: 'success',
+      status: 200,
+    };
+  }
+
+  async registerWithGoogle(dto: RegisterWithGoogleDTO): Promise<RegisterInterface> {
+    const { token, firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: token,
+    });
+
+    const payloadGoogle = ticket.getPayload();
+
+    if (!payloadGoogle || !payloadGoogle.email_verified) {
+      throw new BadRequestException('Invalid Google token');
+    }
+
+    const user = await this.usersService.findByEmail(payloadGoogle.email);
+    if (user) {
+      throw new BadRequestException('Email already exists');
+    }
+    const sessionUUID = randomUUID();
+    const userCreated = await this.usersService.registerWithGoogle({
+      email: payloadGoogle.email,
+      username: payloadGoogle.name,
+      firstRewards,
+      fistTutorial,
+      secondRewards,
+      secondTutorial,
+      levelUuid,
+      jwt: sessionUUID,
+      password: randomUUID(),
+    });
+    const payload: PayloadToken = {
+      email: userCreated.email,
+      uuid: userCreated.uuid,
+      role: userCreated.role,
+      sessionUUID,
+    };
+
+    // Generate an access token
+    const accessToken = await this.generateAccessToken(payload);
+
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return { accessToken: accessToken, refreshToken: refreshToken, user: userCreated };
   }
 
   /**

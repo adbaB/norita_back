@@ -99,3 +99,29 @@ export class RegisterGuestDTO extends OmitType(RegisterDto, [
   'image',
   'username',
 ] as const) {}
+
+export class RegisterWithGoogleDTO extends OmitType(RegisterDto, [
+  'email',
+  'password',
+  'image',
+  'username',
+  'isGuest',
+] as const) {
+  @ApiProperty({
+    description: 'token of the google user',
+    nullable: false,
+    required: true,
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  token: string;
+
+  signInGoogle: boolean;
+}
+
+export class createUserWithGoogle extends OmitType(RegisterDto, [
+  'image',
+  'isGuest',
+  'password',
+] as const) {}

@@ -5,7 +5,11 @@ import { AuthService } from '../services/auth.service';
 import { ApiBearerAuth, ApiHeader, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtTokenPayload } from '../../libs/Auth/token';
-import { RegisterDto, RegisterGuestDTO } from '../../users/dto/user/create-user.dto';
+import {
+  RegisterDto,
+  RegisterGuestDTO,
+  RegisterWithGoogleDTO,
+} from '../../users/dto/user/create-user.dto';
 import { LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
 import { LoginDto } from '../dto/logIn.dto';
@@ -90,5 +94,22 @@ export class AuthController {
     const user = await this.authService.createGuestUser(registerDto);
 
     return new ClassApiResponse(true, 'Guest user created successfully', user);
+  }
+
+  @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
+  @IsPublic()
+  @Post('register-with-google')
+  async registerWithGoogle(
+    @Body() body: RegisterWithGoogleDTO,
+  ): Promise<ClassApiResponse<RegisterInterface>> {
+    const user = await this.authService.registerWithGoogle(body);
+
+    return new ClassApiResponse(true, 'User created successfully', user);
+  }
+
+  @Post('login-with-google')
+  @IsPublic()
+  async loginWithGoogle(@Body() body: { token: string }): Promise<LoginResponse> {
+    return this.authService.signInWithGoogle(body.token);
   }
 }

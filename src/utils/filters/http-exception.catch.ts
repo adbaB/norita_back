@@ -9,8 +9,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Error interno del servidor';
+    let status = HttpStatus.UNPROCESSABLE_ENTITY;
+    let message = 'Unprocessable entity';
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exceptionResponse
           : (exceptionResponse as any).message || exception.message;
     }
-
+    console.log(exception);
     response.status(status).json(new ApiResponse(false, message, null, new Date().toISOString()));
   }
 }
