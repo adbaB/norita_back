@@ -89,6 +89,7 @@ export class Lesson implements IOrder {
   @OneToOne(() => Content, (content) => content.lesson)
   lessonContent: Content;
 
+  @Exclude({ toPlainOnly: true })
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
   lessonProgress: LessonProgress;
 
