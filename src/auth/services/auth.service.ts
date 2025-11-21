@@ -112,7 +112,7 @@ export class AuthService {
   }
 
   async registerWithGoogle(dto: RegisterWithGoogleDTO): Promise<RegisterInterface> {
-    const { token, firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
+    const { token, firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } = dto;
 
     const payloadGoogle = await this.verifyGoogleToken(token);
 
@@ -125,7 +125,7 @@ export class AuthService {
       email: payloadGoogle.email,
       username: payloadGoogle.name,
       firstRewards,
-      fistTutorial,
+      firstTutorial,
       secondRewards,
       secondTutorial,
       levelUuid,
@@ -185,7 +185,7 @@ export class AuthService {
   }
 
   async createGuestUser(dto: RegisterGuestDTO): Promise<RegisterInterface> {
-    const { firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
+    const { firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } = dto;
     const sessionUUID = randomUUID();
     const guestUsername = `guest-${sessionUUID}`;
     const guestPassword = randomUUID();
@@ -194,7 +194,7 @@ export class AuthService {
       username: guestUsername,
       password: guestPassword,
       firstRewards,
-      fistTutorial,
+      firstTutorial,
       secondRewards,
       secondTutorial,
       isGuest: true,
