@@ -39,7 +39,16 @@ export class SectionService {
         { userUUID },
       );
     }
-    return query.getMany();
+    const sections = await query.getMany();
+
+    for (const section of sections) {
+      section.lessons.forEach((lesson) => {
+        if (lesson.lessonProgress) {
+          lesson.progress = lesson.lessonProgress[0] ?? null;
+        }
+      });
+    }
+    return sections;
   }
 
   async findOne(uuid: string): Promise<Section | null> {
