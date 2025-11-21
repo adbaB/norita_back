@@ -41,14 +41,14 @@ export class RegisterDto {
   secondRewards: boolean;
 
   @ApiProperty({
-    description: 'fistTutorial of the user',
+    description: 'firstTutorial of the user',
     nullable: false,
     required: false,
     type: Boolean,
   })
   @IsBoolean()
   @IsOptional()
-  fistTutorial: boolean;
+  firstTutorial: boolean;
 
   @ApiProperty({
     description: 'secondTutorial of the user',

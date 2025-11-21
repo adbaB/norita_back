@@ -100,7 +100,7 @@ export class AuthService {
   }
 
   async createGuestUser(dto: RegisterGuestDTO): Promise<RegisterInterface> {
-    const { firstRewards, fistTutorial, secondRewards, secondTutorial, levelUuid } = dto;
+    const { firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } = dto;
     const sessionUUID = randomUUID();
     const guestUsername = `guest-${sessionUUID}`;
     const guestPassword = randomUUID();
@@ -109,7 +109,7 @@ export class AuthService {
       username: guestUsername,
       password: guestPassword,
       firstRewards,
-      fistTutorial,
+      firstTutorial,
       secondRewards,
       secondTutorial,
       isGuest: true,
