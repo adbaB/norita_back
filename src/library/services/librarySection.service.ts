@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
 import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { UpdateResponse } from '../../utils/responses';
 import { CreateLibrarySectionDTO, UpdateLibrarySectionDTO } from '../dto/librarySection.dto';
@@ -17,10 +17,10 @@ export class LibrarySectionService {
     private readonly libraryService: LibraryService,
   ) {}
 
-  @Transactional()
+  @Transactional({ isolationLevel: IsolationLevel.SERIALIZABLE })
   async create(libraryUuid: string, dto: CreateLibrarySectionDTO[]): Promise<LibrarySection[]> {
     if (!Array.isArray(dto) || dto.length <= 0) {
-      throw new NotFoundException('Invalid data format');
+      throw new BadRequestException('Invalid data provided');
     }
 
     const library = await this.libraryService.findOne(libraryUuid);
@@ -29,12 +29,13 @@ export class LibrarySectionService {
       throw new NotFoundException('Library not found');
     }
 
-    const promises = dto.map(async (sectionDto) => {
-      const { order, ...rest } = sectionDto;
+    let response = null;
+    const sections = await this.librarySectionRepo.find({
+      where: { library: { uuid: libraryUuid } },
+    });
 
-      const sections = await this.librarySectionRepo.find({
-        where: { library: { uuid: libraryUuid } },
-      });
+    for (const sectionDto of dto) {
+      const { order, ...rest } = sectionDto;
 
       const newLibrarySection = this.librarySectionRepo.create(rest);
 
@@ -42,13 +43,11 @@ export class LibrarySectionService {
 
       const newSections = insertItem(sections, newLibrarySection, order);
 
-      await this.librarySectionRepo.save(newSections);
+      response = await this.librarySectionRepo.save(newSections);
+      sections.push(newLibrarySection);
+    }
 
-      return newLibrarySection;
-    });
-    const createdSections = await Promise.all(promises);
-
-    return createdSections;
+    return response;
   }
 
   @Transactional()

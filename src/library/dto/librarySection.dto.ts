@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateLibrarySectionDTO {
   @IsNotEmpty({ message: 'Title romanji is required' })
@@ -26,7 +26,7 @@ export class CreateLibrarySectionDTO {
 }
 
 export class UpdateLibrarySectionDTO extends PartialType(CreateLibrarySectionDTO) {
-  @IsNotEmpty({ message: 'Library UUID is required' })
+  @IsOptional({ message: 'Library UUID is required' })
   @IsString({ message: 'Library UUID must be a string' })
   libraryUuid: string;
 }

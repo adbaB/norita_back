@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { IOrder } from '../../utils/interfaces/order.interface';
@@ -15,7 +16,7 @@ import { LibraryItem } from './libraryItem.entity';
 
 @Entity('library_section')
 export class LibrarySection implements IOrder {
-  @Column({ type: 'uuid', primary: true })
+  @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
   @Column({ name: 'title_romaji', type: 'varchar', length: 255, nullable: false })
