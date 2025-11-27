@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   Column,
@@ -16,18 +17,23 @@ import { LibraryItem } from './libraryItem.entity';
 
 @Entity('library_section')
 export class LibrarySection implements IOrder {
+  @ApiProperty({ description: 'UUID of the library section', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
+  @ApiProperty({ description: 'Title romanji of the library section', type: String })
   @Column({ name: 'title_romaji', type: 'varchar', length: 255, nullable: false })
   titleRomanji: string;
 
+  @ApiProperty({ description: 'Title kanji of the library section', type: String })
   @Column({ name: 'title_kanji', type: 'varchar', length: 255, nullable: false })
   titleKanji: string;
 
+  @ApiProperty({ description: 'Coins needed to access the library section', type: Number })
   @Column({ name: 'coins_needed', type: 'int', default: 0 })
   coinsNeeded: number;
 
+  @ApiProperty({ description: 'Order of the library section', type: Number })
   @Column({ type: 'int', nullable: false })
   order: number;
 
@@ -35,6 +41,7 @@ export class LibrarySection implements IOrder {
   @JoinColumn({ name: 'library_uuid' })
   library: Library;
 
+  @ApiProperty({ description: 'Items in the library section', type: [LibraryItem] })
   @OneToMany(() => LibraryItem, (item) => item.section, {
     cascade: true,
     onDelete: 'CASCADE',

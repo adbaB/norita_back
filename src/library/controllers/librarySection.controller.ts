@@ -9,7 +9,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiResponse as ClassApiResponse, UpdateResponse } from '../../utils/responses';
+import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiResponse as ClassApiResponse,
+  DeleteResponse,
+  UpdateResponse,
+} from '../../utils/responses';
 import { CreateLibrarySectionDTO, UpdateLibrarySectionDTO } from '../dto/librarySection.dto';
 import { LibrarySection } from '../entities/librarySection.entity';
 import { LibrarySectionService } from '../services/librarySection.service';
@@ -18,6 +23,14 @@ import { LibrarySectionService } from '../services/librarySection.service';
 export class LibrarySectionController {
   constructor(private readonly librarySectionService: LibrarySectionService) {}
 
+  @ApiParam({ name: 'uuid', type: 'string', format: 'uuid', description: 'Library UUID' })
+  @ApiBody({ isArray: true, type: [CreateLibrarySectionDTO] })
+  @ApiResponse({
+    status: 201,
+    type: [LibrarySection],
+    isArray: true,
+    description: 'Library sections created successfully',
+  })
   @Post(':uuid')
   async create(
     @Param('uuid', ParseUUIDPipe) libraryUuid: string,
@@ -37,6 +50,13 @@ export class LibrarySectionController {
     );
   }
 
+  @ApiParam({ name: 'uuid', type: 'string', format: 'uuid', description: 'Library Section UUID' })
+  @ApiBody({ type: UpdateLibrarySectionDTO })
+  @ApiResponse({
+    status: 200,
+    type: UpdateResponse,
+    description: 'Library section updated successfully',
+  })
   @Put(':uuid')
   async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -49,6 +69,12 @@ export class LibrarySectionController {
     );
   }
 
+  @ApiParam({ name: 'uuid', type: 'string', format: 'uuid', description: 'Library Section UUID' })
+  @ApiResponse({
+    status: 200,
+    type: LibrarySection,
+    description: 'Library section found successfully',
+  })
   @Get(':uuid')
   async findOne(
     @Param('uuid', ParseUUIDPipe) sectionUuid: string,
@@ -60,6 +86,17 @@ export class LibrarySectionController {
     );
   }
 
+  @ApiResponse({
+    status: 200,
+    type: DeleteResponse,
+    description: 'Library sections found successfully',
+  })
+  @ApiParam({ name: 'uuid', type: 'string', format: 'uuid', description: 'Library Section UUID' })
+  @ApiResponse({
+    status: 200,
+    type: UpdateResponse,
+    description: 'Library section deleted successfully',
+  })
   @Delete(':uuid')
   async delete(
     @Param('uuid', ParseUUIDPipe) uuid: string,
