@@ -1,16 +1,31 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
-import { FormatResponse, PaginatedResponse } from '../../utils/responses';
+import { FormatResponse, PaginatedResponse, UpdateResponse } from '../../utils/responses';
 import { CreateCommentDto } from '../dto/comments.dto';
+import { LikesDto } from '../dto/likes.dto';
 import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
 import { CommentsService } from '../services/comment.service';
+import { UserLikesService } from '../services/userLikes.service';
 
 @ApiBearerAuth()
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(
+    private readonly commentsService: CommentsService,
+    private readonly userLikesService: UserLikesService,
+  ) {}
 
   @Post('/')
   async create(@User('uuid') userUuid: string, @Body() dto: CreateCommentDto): Promise<Comments> {
@@ -35,6 +50,16 @@ export class CommentsController {
       comments.data,
       comments.info,
     );
+  }
+
+  @ApiResponse({ status: 200, type: UpdateResponse })
+  @ApiBody({ type: [LikesDto] })
+  @Put('/like')
+  async updateLikes(
+    @User('uuid') userUuid: string,
+    @Body() userLikes: LikesDto[],
+  ): Promise<UpdateResponse> {
+    return this.userLikesService.updateLikes(userUuid, userLikes);
   }
 
   @Delete('/:uuid')

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
+import { UpdateResponse } from '../../utils/responses';
 import { UserLike } from '../dto/comments.dto';
+import { LikesDto } from '../dto/likes.dto';
 import { UserLikes } from '../entities/userLikes.entity';
 
 @Injectable()
@@ -17,5 +20,31 @@ export class UserLikesService {
       });
     });
     return this.userLikesRepo.save(likes);
+  }
+  @Transactional()
+  async updateLikes(userUuid: string, userLikes: LikesDto[]): Promise<UpdateResponse> {
+    const likes: UserLikes[] = [];
+    for (const like of userLikes) {
+      const existingLike = await this.userLikesRepo.findOne({
+        where: { user: { uuid: userUuid }, comment: { uuid: like.commentUuid } },
+      });
+      if (existingLike) {
+        existingLike.isLike = like.like;
+        await this.userLikesRepo.save(existingLike);
+      } else {
+        const newLike = this.userLikesRepo.create({
+          user: { uuid: userUuid },
+          comment: { uuid: like.commentUuid },
+          isLike: like.like,
+        });
+        likes.push(newLike);
+      }
+    }
+    await this.userLikesRepo.save(likes);
+
+    return {
+      affected: likes.length,
+      status: 200,
+    };
   }
 }

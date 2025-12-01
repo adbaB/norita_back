@@ -16,7 +16,7 @@ export class UserLikes {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true, nullable: true })
   isLike: boolean;
 
   @ManyToOne(() => User, (user) => user.likes)
