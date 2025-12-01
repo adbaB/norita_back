@@ -17,7 +17,7 @@ export class UserLikes {
   uuid: string;
 
   @Column({ type: 'boolean', default: true, nullable: true })
-  isLike: boolean;
+  isLike: boolean | null;
 
   @ManyToOne(() => User, (user) => user.likes)
   @JoinColumn({ name: 'user_uuid' })

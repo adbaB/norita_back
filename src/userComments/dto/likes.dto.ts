@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
 export class LikesDto {
   @ApiProperty({
@@ -14,8 +14,9 @@ export class LikesDto {
     description:
       'Indicates whether the comment is liked (true) or disliked (false) or null (neutral)',
     example: true,
+    nullable: true,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   like?: boolean;
 }

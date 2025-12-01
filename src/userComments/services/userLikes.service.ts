@@ -43,7 +43,7 @@ export class UserLikesService {
     await this.userLikesRepo.save(likes);
 
     return {
-      affected: likes.length,
+      affected: userLikes.length,
       status: 200,
     };
   }
