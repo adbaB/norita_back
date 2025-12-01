@@ -60,7 +60,7 @@ export class CommentsService {
   async findStats(uuid: string): Promise<StatsResponse> {
     const average = await this.commentsRepository
       .createQueryBuilder('comment')
-      .select('ROUND(AVG(comment.rating),2)', 'rating')
+      .select('ROUND(AVG(comment.rating),1)', 'rating')
       .where('comment.lesson_uuid = :uuid', { uuid })
       .getRawOne();
 
@@ -71,7 +71,8 @@ export class CommentsService {
       .groupBy('comment.rating')
       .getRawMany();
 
-    return { average: average.rating, rating };
+    const total = await this.commentsRepository.count({ where: { lesson: { uuid } } });
+    return { average: average.rating, rating, total };
   }
 
   async delete(uuid: string, userUuid: string): Promise<void> {
