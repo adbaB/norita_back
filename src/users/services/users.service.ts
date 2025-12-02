@@ -225,7 +225,7 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (!isGuest && user.isGuest) {
+    if (user.isGuest && isGuest === false) {
       user.isGuest = false;
       user.username = `user-${randomUUID()}`;
     }

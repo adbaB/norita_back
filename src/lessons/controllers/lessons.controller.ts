@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { IsPublic } from '../../auth/decorators/isPublic.decorator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
@@ -21,7 +20,6 @@ export class LessonsController {
 
   @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
   @Get('/:uuid')
-  @IsPublic()
   async findByUUID(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @User() user: string,
