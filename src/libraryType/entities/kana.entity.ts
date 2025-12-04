@@ -1,8 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { LibraryItem } from '../../library/entities/libraryItem.entity';
+
 import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { ErrorItem } from '../interfaces/commons/error.interface';
 import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
 import { StepImage } from '../interfaces/commons/stepImage.interface';
+
+import { ConsonantItem } from '../interfaces/kana/consonant.interface';
 import { Romanji } from '../interfaces/kana/romanji.interface';
 
 @Entity('library_item_kana')
@@ -14,7 +19,7 @@ export class Kana {
   audio: LibraryAudio;
 
   @Column({ type: 'jsonb', default: [] })
-  consonant: string[]; // TODO: define consonant interface if needed
+  consonant: ConsonantItem[];
 
   @Column({ type: 'jsonb', default: [] })
   error: ErrorItem[];
@@ -39,4 +44,8 @@ export class Kana {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   word: string;
+
+  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.kana)
+  @JoinColumn({ name: 'library_item_uuid' })
+  libraryItem: LibraryItem;
 }

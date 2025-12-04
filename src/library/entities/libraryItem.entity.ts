@@ -6,10 +6,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Kana } from '../../libraryType/entities/kana.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
+import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 import { LibrarySection } from './librarySection.entity';
 
@@ -18,7 +21,10 @@ export class LibraryItem implements IOrder {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'enum', enum: LibraryItemTypeEnum, nullable: false })
+  type: LibraryItemTypeEnum;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
   package: string;
 
   @Column({ type: 'jsonb', default: [] })
@@ -30,6 +36,16 @@ export class LibraryItem implements IOrder {
   @ManyToOne(() => LibrarySection, (section) => section.items)
   @JoinColumn({ name: 'library_section_uuid' })
   section: LibrarySection;
+
+  // aditional information
+  @OneToOne(() => Kana, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: true,
+    eager: true,
+  })
+  kana: Kana;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
