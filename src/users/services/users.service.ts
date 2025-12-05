@@ -229,9 +229,11 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const emailExists = await this.userRepo.findOne({ where: { email: updateData.email } });
-    if (emailExists && emailExists.uuid !== uuid) {
-      throw new ConflictException('Email already exists');
+    if (updateData.email) {
+      const emailExists = await this.userRepo.findOne({ where: { email: updateData.email } });
+      if (emailExists && emailExists.uuid !== uuid) {
+        throw new ConflictException('Email already exists');
+      }
     }
 
     if (user.isGuest && isGuest === false) {
