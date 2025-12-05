@@ -80,6 +80,10 @@ export class UsersService {
   async register(dto: RegisterDto): Promise<User> {
     const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
 
+    const userFound = await this.userRepo.findOne({ where: { email: rest.email } });
+    if (userFound) {
+      throw new ConflictException('Email already exists');
+    }
     // Inicializar monedas y recompensas
     let initialCoins = 0;
 
@@ -223,6 +227,13 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    if (updateData.email) {
+      const emailExists = await this.userRepo.findOne({ where: { email: updateData.email } });
+      if (emailExists && emailExists.uuid !== uuid) {
+        throw new ConflictException('Email already exists');
+      }
     }
 
     if (user.isGuest && isGuest === false) {
