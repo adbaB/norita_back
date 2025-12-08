@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Kana } from '../../libraryType/entities/kana.entity';
+import { Kanji } from '../../libraryType/entities/kanji.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
@@ -46,6 +47,15 @@ export class LibraryItem implements IOrder {
     eager: true,
   })
   kana: Kana;
+
+  @OneToOne(() => Kanji, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: true,
+    eager: true,
+  })
+  kanji: Kanji;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
