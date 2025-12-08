@@ -7,7 +7,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Kunyomi } from '../interfaces/commons/kunyomi.interface';
 import { Name } from '../interfaces/commons/name.interface';
 import { Note } from '../interfaces/commons/note.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
@@ -15,6 +14,8 @@ import { Word } from '../interfaces/commons/word.interface';
 import { Kind } from '../interfaces/kanji/kind.interface';
 import { Level } from '../interfaces/kanji/level.interface';
 import { StepImageDTO } from './commons/StepImage.dto';
+import { KunyomiDTO } from './commons/kunyomi.dto';
+import { OnyomiDTO } from './commons/onyomi.dto';
 
 export class KindDTO implements Kind {
   @IsString()
@@ -32,24 +33,6 @@ export class KindDTO implements Kind {
   @IsString()
   @IsOptional()
   shinjitai: string;
-}
-
-export class KunyomiDTO implements Kunyomi {
-  @IsString()
-  @IsNotEmpty()
-  kana: string;
-
-  @IsString()
-  @IsNotEmpty()
-  romaji: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty()
-  order: number;
 }
 
 export class LevelDTO implements Level {
@@ -84,24 +67,6 @@ export class NoteDTO implements Note {
   @IsString()
   @IsNotEmpty()
   note: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty()
-  order: number;
-}
-
-export class OnyomiDTO implements Kunyomi {
-  @IsString()
-  @IsNotEmpty()
-  kana: string;
-
-  @IsString()
-  @IsNotEmpty()
-  romaji: string;
 
   @IsNumber({
     allowInfinity: false,
@@ -171,7 +136,7 @@ export class KanjiDto {
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'notes must be an array' })
-  notes: Note;
+  notes: NoteDTO[];
 
   @Type(() => OnyomiDTO)
   @ValidateNested({ each: true })
@@ -208,12 +173,4 @@ export class KanjiDto {
   @IsString()
   @IsNotEmpty()
   radicalKey: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty({ message: 'order is required' })
-  order: number;
 }

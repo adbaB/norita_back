@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { KanaDTO } from '../../libraryType/dto/kana.dto';
 import { KanjiDto } from '../../libraryType/dto/kanji.dto';
+import { NumbersDTO } from '../../libraryType/dto/numbers.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 
@@ -51,13 +52,23 @@ export class CreateLibraryItemDTO {
 
   @ValidateIf((o) => o.type === LibraryItemTypeEnum.KANA)
   @Type(() => KanaDTO)
+  @IsNotEmpty({ message: 'kana cannot be empty' })
   @ValidateNested()
-  kana: KanaDTO;
+  kana?: KanaDTO;
 
   @ValidateIf((o) => o.type === LibraryItemTypeEnum.KANJI)
   @Type(() => KanjiDto)
+  @IsNotEmpty({ message: 'kanji cannot be empty' })
   @ValidateNested()
-  kanji: KanjiDto;
+  kanji?: KanjiDto;
+
+  @ValidateIf(
+    (o) => o.type === LibraryItemTypeEnum.NUMBER || o.type === LibraryItemTypeEnum.NUMBERS,
+  )
+  @IsNotEmpty({ message: 'numbers cannot be empty' })
+  @Type(() => NumbersDTO)
+  @ValidateNested()
+  numbers?: NumbersDTO;
 }
 
 export class UpdateLibraryItemDTO extends PartialType(CreateLibraryItemDTO) {

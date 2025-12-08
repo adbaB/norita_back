@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { LibraryItem } from '../../library/entities/libraryItem.entity';
 import { Kunyomi } from '../interfaces/commons/kunyomi.interface';
 import { Name } from '../interfaces/commons/name.interface';
 import { Note } from '../interfaces/commons/note.interface';
@@ -52,6 +53,10 @@ export class Kanji {
 
   @Column({ name: 'radical_key', type: 'varchar', length: 255, nullable: true })
   radicalKey: string;
+
+  @OneToOne(() => LibraryItem, (library) => library.kanji)
+  @JoinColumn({ name: 'library_item_uuid' })
+  libraryItem: LibraryItem;
 
   steps(): number {
     return this.images.length;

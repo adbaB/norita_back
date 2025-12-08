@@ -7,22 +7,12 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { ErrorItem } from '../interfaces/commons/error.interface';
 import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
 import { ConsonantItem } from '../interfaces/kana/consonant.interface';
 import { Romanji } from '../interfaces/kana/romanji.interface';
 import { StepImageDTO } from './commons/StepImage.dto';
-
-export class AudioDTO implements LibraryAudio {
-  @IsString({ message: 'male Audio must be a string' })
-  @IsOptional()
-  male: string;
-
-  @IsString({ message: 'female Audio must be a string' })
-  @IsOptional()
-  female: string;
-}
+import { AudioDTO } from './commons/audio.dto';
 
 export class ConsonantDTO implements ConsonantItem {
   order: number;
