@@ -1,0 +1,63 @@
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IOrder } from '../../utils/interfaces/order.interface';
+import { Kunyomi } from '../interfaces/commons/kunyomi.interface';
+import { Name } from '../interfaces/commons/name.interface';
+import { Note } from '../interfaces/commons/note.interface';
+import { Onyomi } from '../interfaces/commons/onyomi.interface';
+import { StepImage } from '../interfaces/commons/stepImage.interface';
+import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
+import { Word } from '../interfaces/commons/word.interface';
+import { Kind } from '../interfaces/kanji/kind.interface';
+import { Level } from '../interfaces/kanji/level.interface';
+
+@Entity('library_item_kanji')
+export class Kanji implements IOrder {
+  @PrimaryGeneratedColumn('uuid')
+  uuid: string;
+
+  @Column({ type: 'jsonb', default: { hyougai: '', jinmeiyou: '', kyuujitai: '', shinjitai: '' } })
+  kind: Kind;
+
+  @Column({ type: 'jsonb', default: [] })
+  kunyomi: Kunyomi[];
+
+  @Column({ type: 'jsonb', default: { jouyou: '', jlpt: '' } })
+  level: Level;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  lottie: string;
+
+  @Column({ type: 'jsonb', default: [] })
+  name: Name[];
+
+  @Column({ type: 'jsonb', default: [] })
+  notes: Note[];
+
+  @Column({ type: 'jsonb', default: [] })
+  onyomi: Onyomi[];
+
+  @Column({ type: 'varchar', length: 255 })
+  package: string;
+
+  @Column({ type: 'jsonb', default: [] })
+  images: StepImage[];
+
+  @Column({ type: 'jsonb', default: [] })
+  traductionsSpanish: TraductionSpanish[];
+
+  @Column({ type: 'jsonb', default: [] })
+  word: Word[];
+
+  @Column({ name: 'radical_element', type: 'varchar', length: 255, nullable: true })
+  radicalElement: string;
+
+  @Column({ name: 'radical_key', type: 'varchar', length: 255, nullable: true })
+  radicalKey: string;
+
+  @Column({ type: 'integer' })
+  order: number;
+
+  steps(): number {
+    return this.images.length;
+  }
+}
