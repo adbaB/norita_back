@@ -1,5 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { IOrder } from '../../utils/interfaces/order.interface';
 import { Kunyomi } from '../interfaces/commons/kunyomi.interface';
 import { Name } from '../interfaces/commons/name.interface';
 import { Note } from '../interfaces/commons/note.interface';
@@ -11,7 +10,7 @@ import { Kind } from '../interfaces/kanji/kind.interface';
 import { Level } from '../interfaces/kanji/level.interface';
 
 @Entity('library_item_kanji')
-export class Kanji implements IOrder {
+export class Kanji {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
@@ -53,9 +52,6 @@ export class Kanji implements IOrder {
 
   @Column({ name: 'radical_key', type: 'varchar', length: 255, nullable: true })
   radicalKey: string;
-
-  @Column({ type: 'integer' })
-  order: number;
 
   steps(): number {
     return this.images.length;
