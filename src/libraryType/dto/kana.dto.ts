@@ -10,9 +10,9 @@ import {
 import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { ErrorItem } from '../interfaces/commons/error.interface';
 import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
-import { StepImage } from '../interfaces/commons/stepImage.interface';
 import { ConsonantItem } from '../interfaces/kana/consonant.interface';
 import { Romanji } from '../interfaces/kana/romanji.interface';
+import { StepImageDTO } from './commons/StepImage.dto';
 
 export class AudioDTO implements LibraryAudio {
   @IsString({ message: 'male Audio must be a string' })
@@ -71,18 +71,6 @@ export class RomanjiDTO implements Romanji {
   nihonshiki: string;
 }
 
-export class StepImageDTO implements StepImage {
-  @IsNumber(
-    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
-    { message: 'step must be a number' },
-  )
-  @IsNotEmpty()
-  step: number;
-
-  @IsString({ message: 'image must be a string' })
-  @IsNotEmpty()
-  image: string;
-}
 export class KanaDTO {
   @Type(() => AudioDTO)
   @ValidateNested()
