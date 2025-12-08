@@ -32,7 +32,7 @@ export class LibraryItemService {
     }
 
     const promises = libraryItem.map(async (item) => {
-      const { order, ...rest } = item;
+      const { order, kanji, kana, ...rest } = item;
 
       const items = await this.libraryItemRepo.find({
         where: { section: { uuid: librarySectionUuid } },
@@ -54,7 +54,7 @@ export class LibraryItemService {
   }
 
   async update(uuid: string, libraryItem: UpdateLibraryItemDTO): Promise<UpdateResponse> {
-    const { order, sectionUuid, ...rest } = libraryItem;
+    const { order, sectionUuid, kana, kanji, ...rest } = libraryItem;
 
     const existingLibraryItem = await this.libraryItemRepo.findOne({
       where: { uuid },

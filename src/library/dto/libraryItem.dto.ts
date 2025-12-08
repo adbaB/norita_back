@@ -11,6 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { KanaDTO } from '../../libraryType/dto/kana.dto';
+import { KanjiDto } from '../../libraryType/dto/kanji.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 
@@ -52,6 +53,11 @@ export class CreateLibraryItemDTO {
   @Type(() => KanaDTO)
   @ValidateNested()
   kana: KanaDTO;
+
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.KANJI)
+  @Type(() => KanjiDto)
+  @ValidateNested()
+  kanji: KanjiDto;
 }
 
 export class UpdateLibraryItemDTO extends PartialType(CreateLibraryItemDTO) {

@@ -55,7 +55,7 @@ export class LibraryItem implements IOrder {
     nullable: true,
     eager: true,
   })
-  kanji: Kanji;
+  kanji?: Kanji;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
