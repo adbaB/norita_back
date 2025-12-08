@@ -36,9 +36,6 @@ export class Kana {
   @Column({ type: 'jsonb', default: [] })
   images: StepImage[];
 
-  @Column({ type: 'varchar', length: 250, nullable: true })
-  steps: string;
-
   @Column({ name: 'final_image', type: 'varchar', length: 255, nullable: true })
   finalImage: string;
 
@@ -48,4 +45,8 @@ export class Kana {
   @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.kana)
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
+
+  steps(): number {
+    return this.images.length;
+  }
 }
