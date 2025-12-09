@@ -10,6 +10,7 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { CountersDTO } from '../../libraryType/dto/counters.dto';
 import { KanaDTO } from '../../libraryType/dto/kana.dto';
 import { KanjiDto } from '../../libraryType/dto/kanji.dto';
 import { NumbersDTO } from '../../libraryType/dto/numbers.dto';
@@ -69,6 +70,12 @@ export class CreateLibraryItemDTO {
   @Type(() => NumbersDTO)
   @ValidateNested()
   numbers?: NumbersDTO;
+
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.COUNTER)
+  @IsNotEmpty({ message: 'counters cannot be empty' })
+  @Type(() => CountersDTO)
+  @ValidateNested()
+  counters?: CountersDTO;
 }
 
 export class UpdateLibraryItemDTO extends PartialType(CreateLibraryItemDTO) {

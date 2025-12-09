@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Counters } from '../../libraryType/entities/counters.entity';
 import { Kana } from '../../libraryType/entities/kana.entity';
 import { Kanji } from '../../libraryType/entities/kanji.entity';
 import { Numbers } from '../../libraryType/entities/numbers.entity';
@@ -66,6 +67,15 @@ export class LibraryItem implements IOrder {
     eager: true,
   })
   numbers?: Numbers;
+
+  @OneToOne(() => Counters, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: true,
+    eager: true,
+  })
+  counters?: Counters;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

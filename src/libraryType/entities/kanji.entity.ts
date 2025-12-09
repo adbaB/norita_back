@@ -36,9 +36,6 @@ export class Kanji {
   @Column({ type: 'jsonb', default: [] })
   onyomi: Onyomi[];
 
-  @Column({ type: 'varchar', length: 255 })
-  package: string;
-
   @Column({ type: 'jsonb', default: [] })
   images: StepImage[];
 

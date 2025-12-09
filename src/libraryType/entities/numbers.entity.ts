@@ -25,9 +25,6 @@ export class Numbers {
   @Column({ type: 'jsonb', default: [] })
   onyomi: Onyomi[];
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  package: string;
-
   @Column({ type: 'varchar', length: 50, nullable: false })
   romanNumber: string;
 

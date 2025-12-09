@@ -8,14 +8,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Name } from '../interfaces/commons/name.interface';
-import { Note } from '../interfaces/commons/note.interface';
-import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
-import { Word } from '../interfaces/commons/word.interface';
 import { Kind } from '../interfaces/kanji/kind.interface';
 import { Level } from '../interfaces/kanji/level.interface';
 import { StepImageDTO } from './commons/StepImage.dto';
 import { KunyomiDTO } from './commons/kunyomi.dto';
+import { NoteDTO } from './commons/note.dto';
 import { OnyomiDTO } from './commons/onyomi.dto';
+import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
+import { WordDTO } from './commons/word.dto';
 
 export class KindDTO implements Kind {
   @IsString()
@@ -53,48 +53,6 @@ export class NameDTO implements Name {
   @IsString()
   @IsNotEmpty()
   romaji: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty()
-  order: number;
-}
-
-export class NoteDTO implements Note {
-  @IsString()
-  @IsNotEmpty()
-  note: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty()
-  order: number;
-}
-
-export class TraductionSpanishDTO implements TraductionSpanish {
-  @IsString()
-  @IsNotEmpty()
-  traduction: string;
-
-  @IsNumber({
-    allowInfinity: false,
-    allowNaN: false,
-    maxDecimalPlaces: 0,
-  })
-  @IsNotEmpty()
-  order: number;
-}
-
-export class WordDTO implements Word {
-  @IsString()
-  @IsNotEmpty()
-  word: string;
 
   @IsNumber({
     allowInfinity: false,
@@ -143,10 +101,6 @@ export class KanjiDto {
   @IsOptional()
   @IsArray({ message: 'onyomi must be an array' })
   onyomi: OnyomiDTO[];
-
-  @IsString()
-  @IsNotEmpty()
-  package: string;
 
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })

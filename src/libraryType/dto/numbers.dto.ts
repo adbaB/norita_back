@@ -33,10 +33,6 @@ export class NumbersDTO {
 
   @IsNotEmpty()
   @IsString()
-  package: string;
-
-  @IsNotEmpty()
-  @IsString()
   romanNumber: string;
 
   @Type(() => StepImageDTO)
