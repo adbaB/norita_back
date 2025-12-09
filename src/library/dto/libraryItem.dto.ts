@@ -14,6 +14,9 @@ import { CountersDTO } from '../../libraryType/dto/counters.dto';
 import { KanaDTO } from '../../libraryType/dto/kana.dto';
 import { KanjiDto } from '../../libraryType/dto/kanji.dto';
 import { NumbersDTO } from '../../libraryType/dto/numbers.dto';
+import { AdjectivesDTO } from '../../libraryType/dto/adjectives.dto';
+import { OnomatopoeiaDTO } from '../../libraryType/dto/onomatopoeia.dto';
+import { RadicalsDTO } from '../../libraryType/dto/radicals.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 
@@ -76,6 +79,24 @@ export class CreateLibraryItemDTO {
   @Type(() => CountersDTO)
   @ValidateNested()
   counters?: CountersDTO;
+
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.ADJECTIVE)
+  @IsNotEmpty({ message: 'adjectives cannot be empty' })
+  @Type(() => AdjectivesDTO)
+  @ValidateNested()
+  adjectives?: AdjectivesDTO;
+
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.ONOMATOPOEIA)
+  @IsNotEmpty({ message: 'onomatopoeia cannot be empty' })
+  @Type(() => OnomatopoeiaDTO)
+  @ValidateNested()
+  onomatopoeia?: OnomatopoeiaDTO;
+
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.RADICAL)
+  @IsNotEmpty({ message: 'radicals cannot be empty' })
+  @Type(() => RadicalsDTO)
+  @ValidateNested()
+  radicals?: RadicalsDTO;
 }
 
 export class UpdateLibraryItemDTO extends PartialType(CreateLibraryItemDTO) {
