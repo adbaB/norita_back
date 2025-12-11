@@ -44,66 +44,59 @@ export class LibraryItem implements IOrder {
   section: LibrarySection;
 
   // aditional information
-  @OneToOne(() => Kana, {
+  @OneToOne(() => Kana, (kana) => kana.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   kana?: Kana;
 
-  @OneToOne(() => Kanji, {
+  @OneToOne(() => Kanji, (kanji) => kanji.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   kanji?: Kanji;
 
-  @OneToOne(() => Numbers, {
+  @OneToOne(() => Numbers, (numbers) => numbers.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   numbers?: Numbers;
 
-  @OneToOne(() => Counters, {
+  @OneToOne(() => Counters, (counters) => counters.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   counters?: Counters;
 
-  @OneToOne(() => Adjectives, {
+  @OneToOne(() => Adjectives, (adjectives) => adjectives.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   adjectives?: Adjectives;
 
-  @OneToOne(() => Onomatopoeia, {
+  @OneToOne(() => Onomatopoeia, (onomatopoeia) => onomatopoeia.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   onomatopoeia?: Onomatopoeia;
 
-  @OneToOne(() => Radicals, {
+  @OneToOne(() => Radicals, (radicals) => radicals.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     nullable: true,
-    eager: true,
   })
   radicals?: Radicals;
 

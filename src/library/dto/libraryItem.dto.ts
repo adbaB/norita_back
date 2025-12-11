@@ -10,11 +10,11 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { AdjectivesDTO } from '../../libraryType/dto/adjectives.dto';
 import { CountersDTO } from '../../libraryType/dto/counters.dto';
 import { KanaDTO } from '../../libraryType/dto/kana.dto';
 import { KanjiDto } from '../../libraryType/dto/kanji.dto';
 import { NumbersDTO } from '../../libraryType/dto/numbers.dto';
-import { AdjectivesDTO } from '../../libraryType/dto/adjectives.dto';
 import { OnomatopoeiaDTO } from '../../libraryType/dto/onomatopoeia.dto';
 import { RadicalsDTO } from '../../libraryType/dto/radicals.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
@@ -38,7 +38,7 @@ export class CreateLibraryItemDTO {
   type: LibraryItemTypeEnum;
 
   @IsString({ message: 'package must be a string' })
-  @IsOptional()
+  @IsNotEmpty()
   package: string;
 
   @Type(() => WordTypeDTO)

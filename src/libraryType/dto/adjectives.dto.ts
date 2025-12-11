@@ -7,10 +7,16 @@ import { FormValue } from '../interfaces/adjectives/common/formValue.interface';
 import { Conditionals } from '../interfaces/adjectives/conditionals.interface';
 import { Conjugations } from '../interfaces/adjectives/conjugations.interface';
 import { Termination } from '../interfaces/adjectives/termination.interface';
+import { Word } from '../interfaces/commons/word.interface';
+import { WordHiragana } from '../interfaces/commons/wordHiragana.interface';
+import { WordRomaji } from '../interfaces/commons/wordRomaji.interface';
 import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
+import { WordDTO } from './commons/word.dto';
+import { WordHiraganaDTO } from './commons/wordHiragana.dto';
+import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class FormValueDTO implements FormValue {
   @ApiProperty()
@@ -57,27 +63,32 @@ export class ConjugationsDTO implements Conjugations {
   @ApiProperty({ type: () => ConjugationPairDTO })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
+  @IsNotEmpty()
   pastDictionary: ConjugationPairDTO;
 
   @ApiProperty({ type: () => ConjugationPairDTO })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
+  @IsNotEmpty()
   pastFormal: ConjugationPairDTO;
 
   @ApiProperty({ type: () => ConjugationPairDTO })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
+  @IsNotEmpty()
   presentFutureDictionary: ConjugationPairDTO;
 
   @ApiProperty({ type: () => ConjugationPairDTO })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
+  @IsNotEmpty()
   presentFutureFormal: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
-  @Type(() => ConjugationPairDTO)
+  @ApiProperty({ type: () => FormValueDTO })
+  @Type(() => FormValueDTO)
   @ValidateNested()
-  teForm: ConjugationPairDTO;
+  @IsNotEmpty()
+  teForm: FormValueDTO;
 }
 
 export class TerminationDTO implements Termination {
@@ -107,18 +118,36 @@ export class AdjectiveBaseDTO implements AdjectiveBase {
   @IsString({ message: 'baseRomaji must be a string' })
   @IsNotEmpty()
   baseRomaji: string;
+
+  @ApiProperty({ type: () => [WordDTO] })
+  @Type(() => WordDTO)
+  @ValidateNested()
+  @IsNotEmpty()
+  word: Word[];
+
+  @ApiProperty({ type: () => [WordHiraganaDTO] })
+  @Type(() => WordHiraganaDTO)
+  @ValidateNested()
+  @IsNotEmpty()
+  wordHiragana: WordHiragana[];
+
+  @ApiProperty({ type: () => [WordRomajiDTO] })
+  @Type(() => WordRomajiDTO)
+  @ValidateNested()
+  @IsNotEmpty()
+  wordRomaji: WordRomaji[];
 }
 
 export class AdjectivesDTO {
   @ApiPropertyOptional({ type: () => AdjectiveBaseDTO })
   @Type(() => AdjectiveBaseDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   adjective: AdjectiveBaseDTO;
 
   @ApiPropertyOptional()
   @IsString({ message: 'adjectiveType must be a string' })
-  @IsOptional()
+  @IsNotEmpty()
   adjectiveType: string;
 
   @ApiPropertyOptional({ type: () => AudioDTO })
@@ -130,13 +159,13 @@ export class AdjectivesDTO {
   @ApiPropertyOptional({ type: () => ConditionalsDTO })
   @Type(() => ConditionalsDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   conditionals: ConditionalsDTO;
 
   @ApiPropertyOptional({ type: () => ConjugationsDTO })
   @Type(() => ConjugationsDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   conjugations: ConjugationsDTO;
 
   @ApiPropertyOptional({ type: () => ExampleDTO, isArray: true })
@@ -148,7 +177,7 @@ export class AdjectivesDTO {
 
   @ApiPropertyOptional()
   @IsString({ message: 'jltp must be a string' })
-  @IsOptional()
+  @IsNotEmpty()
   jltp: string;
 
   @ApiPropertyOptional({ type: () => NoteDTO, isArray: true })
@@ -161,13 +190,13 @@ export class AdjectivesDTO {
   @ApiPropertyOptional({ type: () => TerminationDTO })
   @Type(() => TerminationDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   termination: TerminationDTO;
 
   @ApiPropertyOptional({ type: () => TraductionSpanishDTO, isArray: true })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 }

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
+import { IsolationLevel, Transactional } from 'typeorm-transactional';
+import { LibraryTypeService } from '../../libraryType/services/libraryType.service';
 import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.dto';
@@ -14,9 +15,10 @@ export class LibraryItemService {
     @InjectRepository(LibraryItem)
     private readonly libraryItemRepo: Repository<LibraryItem>,
     private readonly librarySectionService: LibrarySectionService,
+    private readonly libraryTypeService: LibraryTypeService,
   ) {}
 
-  @Transactional()
+  @Transactional({ isolationLevel: IsolationLevel.SERIALIZABLE })
   async create(
     librarySectionUuid: string,
     libraryItem: CreateLibraryItemDTO[],
@@ -31,26 +33,26 @@ export class LibraryItemService {
       throw new NotFoundException('Library section not found');
     }
 
-    const promises = libraryItem.map(async (item) => {
-      const { order, ...rest } = item;
+    const response = null;
+    const items = await this.libraryItemRepo.find({
+      where: { section: { uuid: librarySectionUuid } },
+    });
 
-      const items = await this.libraryItemRepo.find({
-        where: { section: { uuid: librarySectionUuid } },
-      });
+    for (const itemDTO of libraryItem) {
+      const { order, ...rest } = itemDTO;
 
       const newLibraryItem = this.libraryItemRepo.create(rest);
 
       newLibraryItem.section = librarySection;
+      // this.libraryTypeService.create(itemDTO.type, newLibraryItem);
 
       const newItems = insertItem(items, newLibraryItem, order);
 
       await this.libraryItemRepo.save(newItems);
+      items.push(newLibraryItem);
+    }
 
-      return newLibraryItem;
-    });
-    const createdItems = await Promise.all(promises);
-
-    return createdItems;
+    return response;
   }
 
   async update(uuid: string, libraryItem: UpdateLibraryItemDTO): Promise<UpdateResponse> {

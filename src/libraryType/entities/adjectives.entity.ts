@@ -1,13 +1,13 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { LibraryItem } from '../../library/entities/libraryItem.entity';
-import { LibraryAudio } from '../interfaces/commons/audio.interface';
-import { Example } from '../interfaces/commons/example.interface';
-import { Note } from '../interfaces/commons/note.interface';
-import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 import { AdjectiveBase } from '../interfaces/adjectives/adjective.interface';
 import { Conditionals } from '../interfaces/adjectives/conditionals.interface';
 import { Conjugations } from '../interfaces/adjectives/conjugations.interface';
 import { Termination } from '../interfaces/adjectives/termination.interface';
+import { LibraryAudio } from '../interfaces/commons/audio.interface';
+import { Example } from '../interfaces/commons/example.interface';
+import { Note } from '../interfaces/commons/note.interface';
+import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 
 @Entity('library_item_adjectives')
 export class Adjectives {
@@ -33,7 +33,7 @@ export class Adjectives {
   example: Example[];
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  jltp: string; // Updated from jltp to jlpt if it was a typo, but keeping source name 'jltp' from DataAdjective.swift to be safe or mapping it? Swift says 'jltp'.
+  jltp: string;
 
   @Column({ type: 'jsonb', default: [] })
   note: Note[];
