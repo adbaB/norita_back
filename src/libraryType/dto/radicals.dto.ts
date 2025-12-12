@@ -21,6 +21,14 @@ export class PositionDTO implements Position {
   @IsString({ message: 'position must be a string' })
   @IsNotEmpty()
   position: string;
+
+  @ApiProperty()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  @IsNotEmpty()
+  order: number;
 }
 
 export class VariantPositionDTO implements VariantPosition {
@@ -75,7 +83,7 @@ export class RadicalsDTO {
   @ApiPropertyOptional({ type: () => PositionDTO, isArray: true })
   @Type(() => PositionDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'position must be an array' })
   position: PositionDTO[];
 
@@ -84,13 +92,13 @@ export class RadicalsDTO {
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
     { message: 'stepsInteger must be a number' },
   )
-  @IsOptional()
+  @IsNotEmpty()
   stepsInteger: number;
 
   @ApiPropertyOptional({ type: () => TraductionSpanishDTO, isArray: true })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
@@ -104,21 +112,21 @@ export class RadicalsDTO {
   @ApiPropertyOptional({ type: () => WordDTO, isArray: true })
   @Type(() => WordDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'word must be an array' })
   word: WordDTO[];
 
   @ApiPropertyOptional({ type: () => WordHiraganaDTO, isArray: true })
   @Type(() => WordHiraganaDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'wordHiragana must be an array' })
   wordHiragana: WordHiraganaDTO[];
 
   @ApiPropertyOptional({ type: () => WordRomajiDTO, isArray: true })
   @Type(() => WordRomajiDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'wordRomaji must be an array' })
   wordRomaji: WordRomajiDTO[];
 }

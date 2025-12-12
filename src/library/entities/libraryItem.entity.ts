@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -44,6 +44,8 @@ export class LibraryItem implements IOrder {
   section: LibrarySection;
 
   // aditional information
+
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Kana, (kana) => kana.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -52,6 +54,7 @@ export class LibraryItem implements IOrder {
   })
   kana?: Kana;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Kanji, (kanji) => kanji.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -60,6 +63,7 @@ export class LibraryItem implements IOrder {
   })
   kanji?: Kanji;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Numbers, (numbers) => numbers.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -68,6 +72,7 @@ export class LibraryItem implements IOrder {
   })
   numbers?: Numbers;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Counters, (counters) => counters.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -76,6 +81,7 @@ export class LibraryItem implements IOrder {
   })
   counters?: Counters;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Adjectives, (adjectives) => adjectives.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -84,6 +90,7 @@ export class LibraryItem implements IOrder {
   })
   adjectives?: Adjectives;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Onomatopoeia, (onomatopoeia) => onomatopoeia.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -92,6 +99,7 @@ export class LibraryItem implements IOrder {
   })
   onomatopoeia?: Onomatopoeia;
 
+  @Exclude({ toPlainOnly: true })
   @OneToOne(() => Radicals, (radicals) => radicals.libraryItem, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -122,4 +130,16 @@ export class LibraryItem implements IOrder {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ toPlainOnly: true, name: 'info' })
+  info(): Adjectives | Counters | Kana | Kanji | Numbers | Onomatopoeia | Radicals {
+    if (this.type === LibraryItemTypeEnum.KANA) return this.kana;
+    if (this.type === LibraryItemTypeEnum.KANJI) return this.kanji;
+    if (this.type === LibraryItemTypeEnum.NUMBER || this.type === LibraryItemTypeEnum.NUMBERS)
+      return this.numbers;
+    if (this.type === LibraryItemTypeEnum.COUNTER) return this.counters;
+    if (this.type === LibraryItemTypeEnum.ADJECTIVE) return this.adjectives;
+    if (this.type === LibraryItemTypeEnum.ONOMATOPOEIA) return this.onomatopoeia;
+    if (this.type === LibraryItemTypeEnum.RADICAL) return this.radicals;
+  }
 }

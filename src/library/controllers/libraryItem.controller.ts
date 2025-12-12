@@ -1,6 +1,20 @@
-import { Body, Controller, Param, ParseArrayPipe, ParseUUIDPipe, Post } from '@nestjs/common';
-import { ApiResponse as ClassApiResponse } from '../../utils/responses';
-import { CreateLibraryItemDTO } from '../dto/libraryItem.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseArrayPipe,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import {
+  ApiResponse as ClassApiResponse,
+  DeleteResponse,
+  UpdateResponse,
+} from '../../utils/responses';
+import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.dto';
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibraryItemService } from '../services/libraryItem.service';
 
@@ -24,6 +38,40 @@ export class LibraryItemController {
       true,
       'Library item created successfully',
       await this.libraryItemService.create(uuid, body),
+    );
+  }
+
+  @Get(':uuid')
+  async findOne(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+  ): Promise<ClassApiResponse<LibraryItem>> {
+    return new ClassApiResponse(
+      true,
+      'Library item found successfully',
+      await this.libraryItemService.findOne(uuid),
+    );
+  }
+
+  @Put(':uuid')
+  async update(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Body() body: UpdateLibraryItemDTO,
+  ): Promise<ClassApiResponse<UpdateResponse>> {
+    return new ClassApiResponse(
+      true,
+      'Library item updated successfully',
+      await this.libraryItemService.update(uuid, body),
+    );
+  }
+
+  @Delete(':uuid')
+  async delete(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+  ): Promise<ClassApiResponse<DeleteResponse>> {
+    return new ClassApiResponse(
+      true,
+      'Library item deleted successfully',
+      await this.libraryItemService.delete(uuid),
     );
   }
 }

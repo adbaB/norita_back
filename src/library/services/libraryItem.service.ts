@@ -95,7 +95,20 @@ export class LibraryItemService {
   }
 
   async findOne(uuid: string): Promise<LibraryItem> {
-    return this.libraryItemRepo.findOne({ where: { uuid } });
+    return this.libraryItemRepo.findOne({
+      where: {
+        uuid,
+      },
+      relations: {
+        kana: true,
+        adjectives: true,
+        counters: true,
+        kanji: true,
+        numbers: true,
+        onomatopoeia: true,
+        radicals: true,
+      },
+    });
   }
 
   @Transactional()
