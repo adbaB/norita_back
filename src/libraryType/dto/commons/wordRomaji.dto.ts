@@ -3,12 +3,22 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { WordRomaji } from '../../interfaces/commons/wordRomaji.interface';
 
 export class WordRomajiDTO implements WordRomaji {
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    required: true,
+    nullable: false,
+    description: 'word',
+  })
   @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
   word: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Number,
+    required: true,
+    nullable: false,
+    description: 'order',
+  })
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
     { message: 'order must be a number' },

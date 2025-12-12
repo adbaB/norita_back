@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { AdjectiveBase } from '../interfaces/adjectives/adjective.interface';
@@ -19,72 +19,82 @@ import { WordHiraganaDTO } from './commons/wordHiragana.dto';
 import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class FormValueDTO implements FormValue {
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    required: true,
+    nullable: false,
+    description: 'hiragana',
+  })
   @IsString({ message: 'hiragana must be a string' })
   @IsNotEmpty()
   hiragana: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    required: true,
+    nullable: false,
+    description: 'romaji',
+  })
   @IsString({ message: 'romaji must be a string' })
   @IsNotEmpty()
   romaji: string;
 }
 
 export class ConjugationPairDTO implements ConjugationPair {
-  @ApiProperty({ type: () => FormValueDTO })
+  @ApiProperty({ type: () => FormValueDTO, required: true, nullable: false })
   @Type(() => FormValueDTO)
   @ValidateNested()
   positive: FormValueDTO;
 
-  @ApiProperty({ type: () => FormValueDTO })
+  @ApiProperty({ type: () => FormValueDTO, required: true, nullable: false })
   @Type(() => FormValueDTO)
   @ValidateNested()
   negative: FormValueDTO;
 }
 
 export class ConditionalsDTO implements Conditionals {
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   ba: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   tara: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   to: ConjugationPairDTO;
 }
 
 export class ConjugationsDTO implements Conjugations {
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   @IsNotEmpty()
   pastDictionary: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   @IsNotEmpty()
   pastFormal: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   @IsNotEmpty()
   presentFutureDictionary: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => ConjugationPairDTO })
+  @ApiProperty({ type: () => ConjugationPairDTO, required: true, nullable: false })
   @Type(() => ConjugationPairDTO)
   @ValidateNested()
   @IsNotEmpty()
   presentFutureFormal: ConjugationPairDTO;
 
-  @ApiProperty({ type: () => FormValueDTO })
+  @ApiProperty({ type: () => FormValueDTO, required: true, nullable: false })
   @Type(() => FormValueDTO)
   @ValidateNested()
   @IsNotEmpty()
@@ -92,46 +102,46 @@ export class ConjugationsDTO implements Conjugations {
 }
 
 export class TerminationDTO implements Termination {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'hiragana' })
   @IsString({ message: 'hiragana must be a string' })
   @IsNotEmpty()
   hiragana: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'romaji' })
   @IsString({ message: 'romaji must be a string' })
   @IsNotEmpty()
   romaji: string;
 }
 
 export class AdjectiveBaseDTO implements AdjectiveBase {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseHiragana' })
   @IsString({ message: 'baseHiragana must be a string' })
   @IsNotEmpty()
   baseHiragana: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'baseKanji' })
   @IsString({ message: 'baseKanji must be a string' })
   @IsOptional()
   baseKanji?: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseRomaji' })
   @IsString({ message: 'baseRomaji must be a string' })
   @IsNotEmpty()
   baseRomaji: string;
 
-  @ApiProperty({ type: () => [WordDTO] })
+  @ApiProperty({ type: () => [WordDTO], required: true, nullable: false })
   @Type(() => WordDTO)
   @ValidateNested()
   @IsNotEmpty()
   word: Word[];
 
-  @ApiProperty({ type: () => [WordHiraganaDTO] })
+  @ApiProperty({ type: () => [WordHiraganaDTO], required: true, nullable: false })
   @Type(() => WordHiraganaDTO)
   @ValidateNested()
   @IsNotEmpty()
   wordHiragana: WordHiragana[];
 
-  @ApiProperty({ type: () => [WordRomajiDTO] })
+  @ApiProperty({ type: () => [WordRomajiDTO], required: true, nullable: false })
   @Type(() => WordRomajiDTO)
   @ValidateNested()
   @IsNotEmpty()
@@ -139,61 +149,61 @@ export class AdjectiveBaseDTO implements AdjectiveBase {
 }
 
 export class AdjectivesDTO {
-  @ApiPropertyOptional({ type: () => AdjectiveBaseDTO })
+  @ApiProperty({ type: () => AdjectiveBaseDTO, required: true, nullable: false })
   @Type(() => AdjectiveBaseDTO)
   @ValidateNested()
   @IsNotEmpty()
   adjective: AdjectiveBaseDTO;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'adjectiveType' })
   @IsString({ message: 'adjectiveType must be a string' })
   @IsNotEmpty()
   adjectiveType: string;
 
-  @ApiPropertyOptional({ type: () => AudioDTO })
+  @ApiProperty({ type: () => AudioDTO, required: false, nullable: true })
   @Type(() => AudioDTO)
   @ValidateNested()
   @IsOptional()
   audio: AudioDTO;
 
-  @ApiPropertyOptional({ type: () => ConditionalsDTO })
+  @ApiProperty({ type: () => ConditionalsDTO, required: true, nullable: false })
   @Type(() => ConditionalsDTO)
   @ValidateNested()
   @IsNotEmpty()
   conditionals: ConditionalsDTO;
 
-  @ApiPropertyOptional({ type: () => ConjugationsDTO })
+  @ApiProperty({ type: () => ConjugationsDTO, required: true, nullable: false })
   @Type(() => ConjugationsDTO)
   @ValidateNested()
   @IsNotEmpty()
   conjugations: ConjugationsDTO;
 
-  @ApiPropertyOptional({ type: () => ExampleDTO, isArray: true })
+  @ApiProperty({ type: () => [ExampleDTO], isArray: true, required: false, nullable: true })
   @Type(() => ExampleDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'example must be an array' })
   example: ExampleDTO[];
 
-  @ApiPropertyOptional()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'jltp' })
   @IsString({ message: 'jltp must be a string' })
   @IsNotEmpty()
   jltp: string;
 
-  @ApiPropertyOptional({ type: () => NoteDTO, isArray: true })
+  @ApiProperty({ type: () => NoteDTO, isArray: true, required: false, nullable: true })
   @Type(() => NoteDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'note must be a array' })
   note: NoteDTO[];
 
-  @ApiPropertyOptional({ type: () => TerminationDTO })
+  @ApiProperty({ type: () => TerminationDTO, required: true, nullable: false })
   @Type(() => TerminationDTO)
   @ValidateNested()
   @IsNotEmpty()
   termination: TerminationDTO;
 
-  @ApiPropertyOptional({ type: () => TraductionSpanishDTO, isArray: true })
+  @ApiProperty({ type: () => TraductionSpanishDTO, isArray: true, required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -17,12 +17,12 @@ import { WordHiraganaDTO } from './commons/wordHiragana.dto';
 import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class PositionDTO implements Position {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'position' })
   @IsString({ message: 'position must be a string' })
   @IsNotEmpty()
   position: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Number, required: true, nullable: false, description: 'order' })
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
     { message: 'order must be a number' },
@@ -32,35 +32,40 @@ export class PositionDTO implements Position {
 }
 
 export class VariantPositionDTO implements VariantPosition {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'position' })
   @IsString({ message: 'position must be a string' })
   @IsNotEmpty()
   position: string;
 }
 
 export class VariantDTO implements Variant {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'variantHiragana' })
   @IsString({ message: 'variantHiragana must be a string' })
   @IsNotEmpty()
   variantHiragana: string;
 
-  @ApiProperty({ type: () => VariantPositionDTO, isArray: true })
+  @ApiProperty({ type: () => VariantPositionDTO, isArray: true, required: true, nullable: false })
   @Type(() => VariantPositionDTO)
   @ValidateNested({ each: true })
   @IsArray({ message: 'variantPosition must be an array' })
   variantPosition: VariantPositionDTO[];
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'variantRadical' })
   @IsString({ message: 'variantRadical must be a string' })
   @IsNotEmpty()
   variantRadical: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'variantRomaji' })
   @IsString({ message: 'variantRomaji must be a string' })
   @IsNotEmpty()
   variantRomaji: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Number,
+    required: true,
+    nullable: false,
+    description: 'variantStepsInteger',
+  })
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
     { message: 'variantStepsInteger must be a number' },
@@ -70,24 +75,29 @@ export class VariantDTO implements Variant {
 }
 
 export class RadicalsDTO {
-  @ApiPropertyOptional()
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'lottie' })
   @IsString({ message: 'lottie must be a string' })
   @IsOptional()
   lottie: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'note' })
   @IsString({ message: 'note must be a string' })
   @IsOptional()
   note: string;
 
-  @ApiPropertyOptional({ type: () => PositionDTO, isArray: true })
+  @ApiProperty({ type: () => PositionDTO, isArray: true, required: true, nullable: false })
   @Type(() => PositionDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'position must be an array' })
   position: PositionDTO[];
 
-  @ApiPropertyOptional()
+  @ApiProperty({
+    type: Number,
+    required: true,
+    nullable: false,
+    description: 'stepsInteger',
+  })
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
     { message: 'stepsInteger must be a number' },
@@ -95,35 +105,35 @@ export class RadicalsDTO {
   @IsNotEmpty()
   stepsInteger: number;
 
-  @ApiPropertyOptional({ type: () => TraductionSpanishDTO, isArray: true })
+  @ApiProperty({ type: () => TraductionSpanishDTO, isArray: true, required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
-  @ApiPropertyOptional({ type: () => VariantDTO, isArray: true })
+  @ApiProperty({ type: () => VariantDTO, isArray: true, required: false, nullable: true })
   @Type(() => VariantDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'variants must be an array' })
   variants: VariantDTO[];
 
-  @ApiPropertyOptional({ type: () => WordDTO, isArray: true })
+  @ApiProperty({ type: () => WordDTO, isArray: true, required: true, nullable: false })
   @Type(() => WordDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'word must be an array' })
   word: WordDTO[];
 
-  @ApiPropertyOptional({ type: () => WordHiraganaDTO, isArray: true })
+  @ApiProperty({ type: () => WordHiraganaDTO, isArray: true, required: true, nullable: false })
   @Type(() => WordHiraganaDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'wordHiragana must be an array' })
   wordHiragana: WordHiraganaDTO[];
 
-  @ApiPropertyOptional({ type: () => WordRomajiDTO, isArray: true })
+  @ApiProperty({ type: () => WordRomajiDTO, isArray: true, required: true, nullable: false })
   @Type(() => WordRomajiDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()

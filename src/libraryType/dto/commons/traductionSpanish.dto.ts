@@ -3,12 +3,22 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { TraductionSpanish } from '../../interfaces/commons/traductionSpanish.interface';
 
 export class TraductionSpanishDTO implements TraductionSpanish {
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    required: true,
+    nullable: false,
+    description: 'traduction',
+  })
   @IsString()
   @IsNotEmpty()
   traduction: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Number,
+    required: true,
+    nullable: false,
+    description: 'order',
+  })
   @IsNumber({
     allowInfinity: false,
     allowNaN: false,

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   ApiResponse as ClassApiResponse,
   DeleteResponse,
@@ -22,6 +23,9 @@ import { LibraryItemService } from '../services/libraryItem.service';
 export class LibraryItemController {
   constructor(private readonly libraryItemService: LibraryItemService) {}
 
+  @ApiBody({ type: [CreateLibraryItemDTO] })
+  @ApiResponse({ type: [LibraryItem] })
+  @ApiParam({ name: 'uuid', description: 'UUID of the library section', type: String })
   @Post(':uuid')
   async create(
     @Param('uuid', ParseUUIDPipe) uuid: string,

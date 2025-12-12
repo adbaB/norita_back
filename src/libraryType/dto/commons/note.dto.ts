@@ -3,12 +3,23 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Note } from '../../interfaces/commons/note.interface';
 
 export class NoteDTO implements Note {
-  @ApiProperty()
+  @ApiProperty({
+    type: String,
+    required: true,
+    nullable: false,
+    description: 'note',
+  })
   @IsString()
   @IsNotEmpty()
   note: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: Number,
+    required: true,
+    nullable: false,
+    description: 'order',
+    example: 1,
+  })
   @IsNumber({
     allowInfinity: false,
     allowNaN: false,
