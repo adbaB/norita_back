@@ -10,15 +10,20 @@ import {
 import { ErrorItem } from '../interfaces/commons/error.interface';
 import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
 import { ConsonantItem } from '../interfaces/kana/consonant.interface';
-import { Romanji } from '../interfaces/kana/romanji.interface';
+import { Romaji } from '../interfaces/kana/romanji.interface';
 import { StepImageDTO } from './commons/StepImage.dto';
 import { AudioDTO } from './commons/audio.dto';
 
 export class ConsonantDTO implements ConsonantItem {
-  order: number;
   @IsString({ message: 'note must be a string' })
   @IsNotEmpty()
   note: string;
+
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'order must be a number' },
+  )
+  order: number;
 }
 
 export class ErrorItemDTO implements ErrorItem {
@@ -47,7 +52,7 @@ export class PronunciationDTO implements Pronunciation {
   order: number;
 }
 
-export class RomanjiDTO implements Romanji {
+export class RomajiDTO implements Romaji {
   @IsString({ message: 'hepburn must be a string' })
   @IsNotEmpty()
   hepburn: string;
@@ -64,7 +69,7 @@ export class RomanjiDTO implements Romanji {
 export class KanaDTO {
   @Type(() => AudioDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   audio: AudioDTO;
 
   @Type(() => ConsonantDTO)
@@ -89,14 +94,14 @@ export class KanaDTO {
   @IsArray({ message: 'pronunciation must be an array' })
   pronunciation: PronunciationDTO[];
 
-  @Type(() => RomanjiDTO)
+  @Type(() => RomajiDTO)
   @ValidateNested()
-  @IsOptional()
-  romanji: RomanjiDTO;
+  @IsNotEmpty()
+  romaji: RomajiDTO;
 
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'images must be an array' })
   images: StepImageDTO[];
 

@@ -8,7 +8,7 @@ import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
 import { StepImage } from '../interfaces/commons/stepImage.interface';
 
 import { ConsonantItem } from '../interfaces/kana/consonant.interface';
-import { Romanji } from '../interfaces/kana/romanji.interface';
+import { Romaji } from '../interfaces/kana/romanji.interface';
 
 @Entity('library_item_kana')
 export class Kana {
@@ -31,7 +31,7 @@ export class Kana {
   pronunciation: Pronunciation[];
 
   @Column({ type: 'jsonb', default: { hepburn: '', kunreishiki: '', nihonshiki: '' } })
-  romanji: Romanji;
+  romaji: Romaji;
 
   @Column({ type: 'jsonb', default: [] })
   images: StepImage[];
