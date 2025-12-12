@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
@@ -13,7 +13,7 @@ export class OnomatopoeiaDTO {
   @ApiPropertyOptional({ type: () => AudioDTO })
   @Type(() => AudioDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   audio: AudioDTO;
 
   @ApiPropertyOptional({ type: () => ExampleDTO, isArray: true })
@@ -37,34 +37,34 @@ export class OnomatopoeiaDTO {
 
   @ApiPropertyOptional()
   @IsString({ message: 'onomatopoeiaType must be a string' })
-  @IsOptional()
+  @IsNotEmpty()
   onomatopoeiaType: string;
 
   @ApiPropertyOptional({ type: () => TraductionSpanishDTO, isArray: true })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
   @ApiPropertyOptional({ type: () => WordDTO, isArray: true })
   @Type(() => WordDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'word must be an array' })
   word: WordDTO[];
 
   @ApiPropertyOptional({ type: () => WordKatakanaDTO, isArray: true })
   @Type(() => WordKatakanaDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'wordKatakana must be an array' })
   wordKatakana: WordKatakanaDTO[];
 
   @ApiPropertyOptional({ type: () => WordRomajiDTO, isArray: true })
   @Type(() => WordRomajiDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'wordRomaji must be an array' })
   wordRomaji: WordRomajiDTO[];
 }
