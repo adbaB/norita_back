@@ -33,7 +33,7 @@ export class LibraryItemService {
       throw new NotFoundException('Library section not found');
     }
 
-    const response = null;
+    const response = [];
     const items = await this.libraryItemRepo.find({
       where: { section: { uuid: librarySectionUuid } },
     });
@@ -44,12 +44,12 @@ export class LibraryItemService {
       const newLibraryItem = this.libraryItemRepo.create(rest);
 
       newLibraryItem.section = librarySection;
-      // this.libraryTypeService.create(itemDTO.type, newLibraryItem);
 
       const newItems = insertItem(items, newLibraryItem, order);
 
       await this.libraryItemRepo.save(newItems);
       items.push(newLibraryItem);
+      response.push(newLibraryItem);
     }
 
     return response;

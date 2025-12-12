@@ -77,7 +77,7 @@ export class KanjiDto {
 
   @Type(() => LevelDTO)
   @ValidateNested()
-  @IsOptional()
+  @IsNotEmpty()
   level: LevelDTO;
 
   @IsString()
@@ -110,18 +110,18 @@ export class KanjiDto {
 
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'traductionsSpanish must be an array' })
   traductionsSpanish: TraductionSpanishDTO[];
 
   @Type(() => WordDTO)
   @ValidateNested({ each: true })
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'words must be an array' })
   word: WordDTO[];
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   radicalElement: string;
 
   @IsString()
