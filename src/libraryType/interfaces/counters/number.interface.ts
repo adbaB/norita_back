@@ -1,4 +1,7 @@
 export interface Number {
-  number: string;
+  roman: string;
+  kanji: string;
+  hiragana: string;
+  romaji: string;
   order: number;
 }

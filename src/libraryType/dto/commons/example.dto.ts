@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Example } from '../../interfaces/commons/example.interface';
 import { AudioDTO } from './audio.dto';
 
@@ -12,17 +12,17 @@ export class ExampleDTO implements Example {
   audio?: AudioDTO;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   kanji: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   romaji: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   traduction: string;
 }

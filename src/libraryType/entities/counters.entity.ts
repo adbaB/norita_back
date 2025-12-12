@@ -23,22 +23,13 @@ export class Counters {
   exampleSpanish: ExampleSpanish[];
 
   @Column({ type: 'jsonb', default: [] })
-  hiraganaNumber: Number[];
+  numbers: Number[];
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   jltp: string;
 
   @Column({ type: 'jsonb', default: [] })
-  kanjiNumber: Number[];
-
-  @Column({ type: 'jsonb', default: [] })
   note: Note[];
-
-  @Column({ type: 'jsonb', default: [] })
-  romajiNumber: Number[];
-
-  @Column({ type: 'jsonb', default: [] })
-  romanNumber: Number[];
 
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];

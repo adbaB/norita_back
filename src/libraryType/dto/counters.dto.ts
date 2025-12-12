@@ -31,7 +31,7 @@ export class ExampleSpanishDTO implements ExampleSpanish {
 
 export class CountersDTO {
   @Type(() => CategoryDTO)
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'category must be an array' })
   @ValidateNested({ each: true })
   category: CategoryDTO[];
@@ -49,20 +49,14 @@ export class CountersDTO {
   exampleSpanish: ExampleSpanishDTO[];
 
   @Type(() => NumberDTO)
-  @IsOptional()
-  @IsArray({ message: 'hiraganaNumber must be an array' })
+  @IsNotEmpty()
+  @IsArray({ message: 'numbers must be an array' })
   @ValidateNested({ each: true })
-  hiraganaNumber: NumberDTO[];
+  numbers: NumberDTO[];
 
   @IsString({ message: 'jlpt must be a string' })
-  @IsOptional()
+  @IsNotEmpty()
   jltp: string;
-
-  @Type(() => NumberDTO)
-  @IsOptional()
-  @IsArray({ message: 'kanjiNumber must be an array' })
-  @ValidateNested({ each: true })
-  kanjiNumber: NumberDTO[];
 
   @Type(() => NoteDTO)
   @IsOptional()
@@ -70,20 +64,8 @@ export class CountersDTO {
   @ValidateNested({ each: true })
   note: NoteDTO[];
 
-  @Type(() => NumberDTO)
-  @IsOptional()
-  @IsArray({ message: 'romajiNumber must be an array' })
-  @ValidateNested({ each: true })
-  romajiNumber: NumberDTO[];
-
-  @Type(() => NumberDTO)
-  @IsOptional()
-  @IsArray({ message: 'romanNumber must be an array' })
-  @ValidateNested({ each: true })
-  romanNumber: NumberDTO[];
-
   @Type(() => TraductionSpanishDTO)
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   @ValidateNested({ each: true })
   traductionSpanish: TraductionSpanishDTO[];
@@ -93,14 +75,14 @@ export class CountersDTO {
   word: string;
 
   @Type(() => WordDTO)
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray({ message: 'wordHiragana must be an array' })
   @ValidateNested({ each: true })
   wordHiragana: WordDTO[];
 
   @Type(() => WordDTO)
-  @IsOptional()
-  @IsArray({ message: 'wordKanji must be an array' })
+  @IsNotEmpty()
+  @IsArray({ message: 'wordRomaji must be an array' })
   @ValidateNested({ each: true })
   wordRomaji: WordDTO[];
 }
