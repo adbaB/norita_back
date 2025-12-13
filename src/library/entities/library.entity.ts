@@ -30,7 +30,7 @@ export class Library implements IOrder {
   icon: string;
 
   @ApiProperty({
-    description: 'Coins needed to unlock the library item',
+    description: 'Coins needed to unlock the library',
     type: Number,
   })
   @Column({ name: 'coins_needed', type: 'int', default: 0 })
@@ -42,10 +42,10 @@ export class Library implements IOrder {
     maxLength: 255,
   })
   @Column({ name: 'title_romaji', type: 'varchar', length: 255, nullable: false })
-  titleRomanji: string;
+  titleRomaji: string;
 
   @ApiProperty({
-    description: 'Title of the library',
+    description: 'Kanji/Japanese title of the library',
     type: String,
     maxLength: 255,
   })

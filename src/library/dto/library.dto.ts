@@ -24,14 +24,14 @@ export class CreateLibraryDTO {
   coinsNeeded: number;
 
   @ApiProperty({
-    description: 'Title romanji of the library ',
+    description: 'Title romaji of the library ',
     type: String,
     required: true,
     example: 'Kanji',
   })
-  @IsNotEmpty({ message: 'Title romanji is required' })
-  @IsString({ message: 'Title romanji must be a string' })
-  titleRomanji: string;
+  @IsNotEmpty({ message: 'Title romaji is required' })
+  @IsString({ message: 'Title romaji must be a string' })
+  titleRomaji: string;
 
   @ApiProperty({
     description: 'Title kanji of the library',
