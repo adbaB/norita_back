@@ -56,14 +56,18 @@ export class LibrarySectionService {
 
     let library: Library = null;
 
-    const existingLibrarySection = await this.librarySectionRepo.findOne({ where: { uuid } });
+    const existingLibrarySection = await this.librarySectionRepo.findOne({
+      where: { uuid },
+      relations: { library: true },
+    });
 
     if (!existingLibrarySection) {
       throw new NotFoundException('Library section not found');
     }
 
-    const updatedLibrarySection = await this.librarySectionRepo.merge(existingLibrarySection, rest);
+    const updatedLibrarySection = this.librarySectionRepo.merge(existingLibrarySection, rest);
 
+    const oldLibraryUuid = existingLibrarySection.library.uuid;
     if (libraryUuid) {
       library = await this.libraryService.findOne(libraryUuid);
 
@@ -75,13 +79,12 @@ export class LibrarySectionService {
 
     await this.librarySectionRepo.save(updatedLibrarySection);
 
-    if (order && order !== existingLibrarySection.order) {
+    const targetLibraryUuid = updatedLibrarySection.library?.uuid ?? oldLibraryUuid;
+    if (order !== undefined && order !== null && order !== existingLibrarySection.order) {
       const sections = await this.librarySectionRepo.find({
-        where: { library: { uuid: libraryUuid } },
+        where: { library: { uuid: targetLibraryUuid } },
       });
-
-      const newSections = moveItem(sections, updatedLibrarySection.order, order);
-
+      const newSections = moveItem(sections, existingLibrarySection.order, order);
       await this.librarySectionRepo.save(newSections);
     }
 
