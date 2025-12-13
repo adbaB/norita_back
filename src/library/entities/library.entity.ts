@@ -14,7 +14,7 @@ import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryTypeEnum } from '../enums/library.enum';
 import { LibrarySection } from './librarySection.entity';
 
-@Entity('Library')
+@Entity('library')
 export class Library implements IOrder {
   @ApiProperty({ description: 'UUID of the library', type: String })
   @PrimaryGeneratedColumn('uuid')
