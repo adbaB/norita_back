@@ -17,6 +17,7 @@ import { KanjiDto } from '../../libraryType/dto/kanji.dto';
 import { NumbersDTO } from '../../libraryType/dto/numbers.dto';
 import { OnomatopoeiaDTO } from '../../libraryType/dto/onomatopoeia.dto';
 import { RadicalsDTO } from '../../libraryType/dto/radicals.dto';
+import { VocabularyDTO } from '../../libraryType/dto/vocabulary.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 
@@ -116,6 +117,13 @@ export class CreateLibraryItemDTO {
   @Type(() => RadicalsDTO)
   @ValidateNested()
   radicals?: RadicalsDTO;
+
+  @ApiProperty({ type: () => VocabularyDTO, required: false, nullable: true })
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.VOCABULARY)
+  @IsNotEmpty({ message: 'vocabulary cannot be empty' })
+  @Type(() => VocabularyDTO)
+  @ValidateNested()
+  vocabulary?: VocabularyDTO;
 }
 
 export class UpdateLibraryItemDTO extends PartialType(CreateLibraryItemDTO) {

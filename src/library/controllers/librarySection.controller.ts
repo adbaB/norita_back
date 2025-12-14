@@ -9,7 +9,10 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+
 import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Roles } from '../../auth/decorators/role.decorator';
+import { RoleEnum } from '../../users/enum/role.enum';
 import {
   ApiResponse as ClassApiResponse,
   DeleteResponse,
@@ -32,6 +35,7 @@ export class LibrarySectionController {
     isArray: true,
     description: 'Library sections created successfully',
   })
+  @Roles(RoleEnum.ADMIN)
   @Post(':uuid')
   async create(
     @Param('uuid', ParseUUIDPipe) libraryUuid: string,
@@ -58,6 +62,7 @@ export class LibrarySectionController {
     type: UpdateResponse,
     description: 'Library section updated successfully',
   })
+  @Roles(RoleEnum.ADMIN)
   @Put(':uuid')
   async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -98,6 +103,7 @@ export class LibrarySectionController {
     type: UpdateResponse,
     description: 'Library section deleted successfully',
   })
+  @Roles(RoleEnum.ADMIN)
   @Delete(':uuid')
   async delete(
     @Param('uuid', ParseUUIDPipe) uuid: string,

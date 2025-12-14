@@ -56,6 +56,7 @@ export default [
       '.env',
       'eslint.config.mjs',
       'dist',
+      'src/database/migrations',
     ],
   },
   { languageOptions: { globals: globals.browser } },

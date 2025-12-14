@@ -10,6 +10,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Roles } from '../../auth/decorators/role.decorator';
+import { RoleEnum } from '../../users/enum/role.enum';
 import {
   ApiResponse as ClassApiResponse,
   DeleteResponse,
@@ -28,6 +30,7 @@ export class LibraryItemController {
   @ApiResponse({ type: [LibraryItem] })
   @ApiParam({ name: 'uuid', description: 'UUID of the library section', type: String })
   @Post(':uuid')
+  @Roles(RoleEnum.ADMIN)
   async create(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body(
@@ -58,6 +61,7 @@ export class LibraryItemController {
   }
 
   @Put(':uuid')
+  @Roles(RoleEnum.ADMIN)
   async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body() body: UpdateLibraryItemDTO,
@@ -70,6 +74,7 @@ export class LibraryItemController {
   }
 
   @Delete(':uuid')
+  @Roles(RoleEnum.ADMIN)
   async delete(
     @Param('uuid', ParseUUIDPipe) uuid: string,
   ): Promise<ClassApiResponse<DeleteResponse>> {
