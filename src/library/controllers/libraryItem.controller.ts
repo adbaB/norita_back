@@ -9,7 +9,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   ApiResponse as ClassApiResponse,
   DeleteResponse,
@@ -19,6 +19,7 @@ import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.d
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibraryItemService } from '../services/libraryItem.service';
 
+@ApiBearerAuth()
 @Controller('library/item')
 export class LibraryItemController {
   constructor(private readonly libraryItemService: LibraryItemService) {}
