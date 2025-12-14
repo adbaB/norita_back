@@ -17,6 +17,7 @@ import { Kanji } from '../../libraryType/entities/kanji.entity';
 import { Numbers } from '../../libraryType/entities/numbers.entity';
 import { Onomatopoeia } from '../../libraryType/entities/onomatopoeia.entity';
 import { Radicals } from '../../libraryType/entities/radicals.entity';
+import { Vocabulary } from '../../libraryType/entities/vocabulary.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
@@ -109,6 +110,15 @@ export class LibraryItem implements IOrder {
   radicals?: Radicals;
 
   @Exclude({ toPlainOnly: true })
+  @OneToOne(() => Vocabulary, (vocabulary) => vocabulary.libraryItem, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  vocabulary?: Vocabulary;
+
+  @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
@@ -132,7 +142,7 @@ export class LibraryItem implements IOrder {
   deletedAt?: Date;
 
   @Expose({ toPlainOnly: true, name: 'info' })
-  info(): Adjectives | Counters | Kana | Kanji | Numbers | Onomatopoeia | Radicals {
+  info(): Adjectives | Counters | Kana | Kanji | Numbers | Onomatopoeia | Radicals | Vocabulary {
     if (this.type === LibraryItemTypeEnum.KANA) return this.kana;
     if (this.type === LibraryItemTypeEnum.KANJI) return this.kanji;
     if (this.type === LibraryItemTypeEnum.NUMBER || this.type === LibraryItemTypeEnum.NUMBERS)
@@ -141,5 +151,6 @@ export class LibraryItem implements IOrder {
     if (this.type === LibraryItemTypeEnum.ADJECTIVE) return this.adjectives;
     if (this.type === LibraryItemTypeEnum.ONOMATOPOEIA) return this.onomatopoeia;
     if (this.type === LibraryItemTypeEnum.RADICAL) return this.radicals;
+    if (this.type === LibraryItemTypeEnum.VOCABULARY) return this.vocabulary;
   }
 }
