@@ -9,7 +9,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
@@ -21,6 +22,7 @@ import { CreateLibrarySectionDTO, UpdateLibrarySectionDTO } from '../dto/library
 import { LibrarySection } from '../entities/librarySection.entity';
 import { LibrarySectionService } from '../services/librarySection.service';
 
+@ApiBearerAuth()
 @Controller('library/section')
 export class LibrarySectionController {
   constructor(private readonly librarySectionService: LibrarySectionService) {}
