@@ -148,11 +148,4 @@ export class VocabularyDTO {
   @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
-
-  @ApiProperty({ type: () => [WordTypeDTO], isArray: true, required: true, nullable: false })
-  @Type(() => WordTypeDTO)
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @IsArray({ message: 'wordType must be an array' })
-  wordType: WordTypeDTO[];
 }
