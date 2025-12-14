@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { WordType } from '../../library/interfaces/wordType.interface';
-import { Category } from '../interfaces/commons/category.interface';
 import {
   LoanHiragana,
   LoanRomaji,
@@ -10,13 +9,13 @@ import {
   StructureWord,
 } from '../interfaces/commons/structureWord.interface';
 import { AudioDTO } from './commons/audio.dto';
+import { CategoryDTO } from './commons/category.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
 import { WordDTO } from './commons/word.dto';
 import { WordHiraganaDTO } from './commons/wordHiragana.dto';
 import { WordRomajiDTO } from './commons/wordRomaji.dto';
-import { CategoryDTO } from './commons/category.dto';
 
 export class LoanHiraganaDTO implements LoanHiragana {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })

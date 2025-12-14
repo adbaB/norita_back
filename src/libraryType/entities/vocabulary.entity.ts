@@ -1,6 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { LibraryItem } from '../../library/entities/libraryItem.entity';
-import { WordType } from '../../library/interfaces/wordType.interface';
 import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Category } from '../interfaces/commons/category.interface';
 import { Example } from '../interfaces/commons/example.interface';
