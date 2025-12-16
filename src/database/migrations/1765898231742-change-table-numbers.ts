@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class ChangeTableKanji1765898231742 implements MigrationInterface {
-  name = 'ChangeTableKanji1765898231742';
+  name = 'ChangeTableNumbers1765898231742';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query('ALTER TABLE "library_item_numbers" DROP COLUMN "translation"');
