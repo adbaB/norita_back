@@ -5,9 +5,6 @@ import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { WordDTO } from './commons/word.dto';
-import { WordKatakanaDTO } from './commons/wordKatakana.dto';
-import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class OnomatopoeiaDTO {
   @ApiProperty({ type: () => AudioDTO, required: true, nullable: false })
@@ -47,24 +44,18 @@ export class OnomatopoeiaDTO {
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
-  @ApiProperty({ type: () => WordDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordDTO)
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
+  @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'word must be an array' })
-  word: WordDTO[];
+  word: string;
 
-  @ApiProperty({ type: () => WordKatakanaDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordKatakanaDTO)
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordKatakana' })
+  @IsString({ message: 'wordKatakana must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'wordKatakana must be an array' })
-  wordKatakana: WordKatakanaDTO[];
+  wordKatakana: string;
 
-  @ApiProperty({ type: () => WordRomajiDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordRomajiDTO)
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordRomaji' })
+  @IsString({ message: 'wordRomaji must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'wordRomaji must be an array' })
-  wordRomaji: WordRomajiDTO[];
+  wordRomaji: string;
 }
