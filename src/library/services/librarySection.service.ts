@@ -105,7 +105,16 @@ export class LibrarySectionService {
     return this.librarySectionRepo.findOne({
       where: { uuid },
       relations: {
-        items: true,
+        items: {
+          kana: true,
+          adjectives: true,
+          counters: true,
+          kanji: true,
+          numbers: true,
+          onomatopoeia: true,
+          radicals: true,
+          vocabulary: true,
+        },
       },
       order: {
         items: {
