@@ -16,7 +16,6 @@ import { KunyomiDTO } from './commons/kunyomi.dto';
 import { NoteDTO } from './commons/note.dto';
 import { OnyomiDTO } from './commons/onyomi.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { WordDTO } from './commons/word.dto';
 
 export class KindDTO implements Kind {
   @ApiProperty({ type: String, required: false, nullable: true, description: 'hyougai' })
@@ -133,12 +132,10 @@ export class KanjiDto {
   @IsArray({ message: 'traductionsSpanish must be an array' })
   traductionsSpanish: TraductionSpanishDTO[];
 
-  @ApiProperty({ type: () => WordDTO, required: true, nullable: false, isArray: true })
-  @Type(() => WordDTO)
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
+  @IsString()
   @IsNotEmpty()
-  @IsArray({ message: 'words must be an array' })
-  word: WordDTO[];
+  word: string;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'radicalElement' })
   @IsString()

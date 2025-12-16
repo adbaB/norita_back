@@ -6,7 +6,6 @@ import { Note } from '../interfaces/commons/note.interface';
 import { Onyomi } from '../interfaces/commons/onyomi.interface';
 import { StepImage } from '../interfaces/commons/stepImage.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
-import { Word } from '../interfaces/commons/word.interface';
 import { Kind } from '../interfaces/kanji/kind.interface';
 import { Level } from '../interfaces/kanji/level.interface';
 
@@ -42,8 +41,8 @@ export class Kanji {
   @Column({ type: 'jsonb', default: [] })
   traductionsSpanish: TraductionSpanish[];
 
-  @Column({ type: 'jsonb', default: [] })
-  word: Word[];
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
+  word: string;
 
   @Column({ name: 'radical_element', type: 'varchar', length: 255, nullable: true })
   radicalElement: string;
@@ -51,7 +50,10 @@ export class Kanji {
   @Column({ name: 'radical_key', type: 'varchar', length: 255, nullable: true })
   radicalKey: string;
 
-  @OneToOne(() => LibraryItem, (library) => library.kanji)
+  @OneToOne(() => LibraryItem, (library) => library.kanji, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
 
