@@ -5,6 +5,7 @@ import { AudioDTO } from './commons/audio.dto';
 import { KunyomiDTO } from './commons/kunyomi.dto';
 import { OnyomiDTO } from './commons/onyomi.dto';
 import { StepImageDTO } from './commons/StepImage.dto';
+import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
 
 export class NumbersDTO {
   @ApiProperty({ type: () => AudioDTO, required: false, nullable: true })
@@ -49,10 +50,12 @@ export class NumbersDTO {
   @IsArray({ message: 'stepImage must be an array' })
   stepImage?: StepImageDTO[];
 
-  @ApiProperty({ type: String, required: false, nullable: true, description: 'translation' })
-  @IsOptional()
-  @IsString()
-  translation?: string;
+  @ApiProperty({ type: () => TraductionSpanishDTO, required: true, nullable: false, isArray: true })
+  @Type(() => TraductionSpanishDTO)
+  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @IsArray({ message: 'traductionsSpanish must be an array' })
+  traductionsSpanish: TraductionSpanishDTO[];
 
   @ApiProperty({ type: String, required: false, nullable: true, description: 'word' })
   @IsOptional()

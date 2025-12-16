@@ -4,7 +4,6 @@ import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Category } from '../interfaces/commons/category.interface';
 import { Example } from '../interfaces/commons/example.interface';
 import { Note } from '../interfaces/commons/note.interface';
-import { StructureWord } from '../interfaces/commons/structureWord.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 
 @Entity('library_item_vocabulary')
@@ -30,13 +29,31 @@ export class Vocabulary {
   @Column({ type: 'jsonb', default: [] })
   note: Note[];
 
-  @Column({ type: 'jsonb', default: {} })
-  structureWord: StructureWord;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  loanHiragana?: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  loanRomaji?: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  searchKanji?: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
+  word: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  wordHiragana: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  wordRomaji: string;
 
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];
 
-  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.vocabulary)
+  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.vocabulary, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
 }

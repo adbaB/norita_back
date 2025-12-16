@@ -1,6 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { LibraryItem } from '../../library/entities/libraryItem.entity';
-import { AdjectiveBase } from '../interfaces/adjectives/adjective.interface';
 import { Conditionals } from '../interfaces/adjectives/conditionals.interface';
 import { Conjugations } from '../interfaces/adjectives/conjugations.interface';
 import { Termination } from '../interfaces/adjectives/termination.interface';
@@ -13,9 +12,6 @@ import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.inter
 export class Adjectives {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
-
-  @Column({ type: 'jsonb', nullable: true })
-  adjective: AdjectiveBase;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   adjectiveType: string;
@@ -44,7 +40,28 @@ export class Adjectives {
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];
 
-  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.adjectives)
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  baseHiragana: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  baseKanji?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  baseRomaji: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
+  word: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  wordHiragana: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  wordRomaji: string;
+
+  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.adjectives, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
 }

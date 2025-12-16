@@ -1,9 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { LibraryItem } from '../../library/entities/libraryItem.entity';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
-import { Word } from '../interfaces/commons/word.interface';
-import { WordHiragana } from '../interfaces/commons/wordHiragana.interface';
-import { WordRomaji } from '../interfaces/commons/wordRomaji.interface'; // Actually WordRomaji was created
 import { Position } from '../interfaces/radicals/position.interface';
 import { Variant } from '../interfaces/radicals/variant.interface';
 
@@ -30,16 +27,19 @@ export class Radicals {
   @Column({ type: 'jsonb', default: [] })
   variants: Variant[];
 
-  @Column({ type: 'jsonb', default: [] })
-  word: Word[];
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
+  word: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  wordHiragana: WordHiragana[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wordHiragana: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  wordRomaji: WordRomaji[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wordRomaji: string;
 
-  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.radicals)
+  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.radicals, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
 }

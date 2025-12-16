@@ -1,22 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { AdjectiveBase } from '../interfaces/adjectives/adjective.interface';
+
 import { ConjugationPair } from '../interfaces/adjectives/common/conjugationPair.interface';
 import { FormValue } from '../interfaces/adjectives/common/formValue.interface';
 import { Conditionals } from '../interfaces/adjectives/conditionals.interface';
 import { Conjugations } from '../interfaces/adjectives/conjugations.interface';
 import { Termination } from '../interfaces/adjectives/termination.interface';
-import { Word } from '../interfaces/commons/word.interface';
-import { WordHiragana } from '../interfaces/commons/wordHiragana.interface';
-import { WordRomaji } from '../interfaces/commons/wordRomaji.interface';
 import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { WordDTO } from './commons/word.dto';
-import { WordHiraganaDTO } from './commons/wordHiragana.dto';
-import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class FormValueDTO implements FormValue {
   @ApiProperty({
@@ -113,48 +107,7 @@ export class TerminationDTO implements Termination {
   romaji: string;
 }
 
-export class AdjectiveBaseDTO implements AdjectiveBase {
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseHiragana' })
-  @IsString({ message: 'baseHiragana must be a string' })
-  @IsNotEmpty()
-  baseHiragana: string;
-
-  @ApiProperty({ type: String, required: false, nullable: true, description: 'baseKanji' })
-  @IsString({ message: 'baseKanji must be a string' })
-  @IsOptional()
-  baseKanji?: string;
-
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseRomaji' })
-  @IsString({ message: 'baseRomaji must be a string' })
-  @IsNotEmpty()
-  baseRomaji: string;
-
-  @ApiProperty({ type: () => [WordDTO], required: true, nullable: false })
-  @Type(() => WordDTO)
-  @ValidateNested()
-  @IsNotEmpty()
-  word: Word[];
-
-  @ApiProperty({ type: () => [WordHiraganaDTO], required: true, nullable: false })
-  @Type(() => WordHiraganaDTO)
-  @ValidateNested()
-  @IsNotEmpty()
-  wordHiragana: WordHiragana[];
-
-  @ApiProperty({ type: () => [WordRomajiDTO], required: true, nullable: false })
-  @Type(() => WordRomajiDTO)
-  @ValidateNested()
-  @IsNotEmpty()
-  wordRomaji: WordRomaji[];
-}
-
 export class AdjectivesDTO {
-  @ApiProperty({ type: () => AdjectiveBaseDTO, required: true, nullable: false })
-  @Type(() => AdjectiveBaseDTO)
-  @ValidateNested()
-  @IsNotEmpty()
-  adjective: AdjectiveBaseDTO;
-
   @ApiProperty({ type: String, required: true, nullable: false, description: 'adjectiveType' })
   @IsString({ message: 'adjectiveType must be a string' })
   @IsNotEmpty()
@@ -209,4 +162,34 @@ export class AdjectivesDTO {
   @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
+
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseHiragana' })
+  @IsString({ message: 'baseHiragana must be a string' })
+  @IsNotEmpty()
+  baseHiragana: string;
+
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'baseKanji' })
+  @IsString({ message: 'baseKanji must be a string' })
+  @IsOptional()
+  baseKanji?: string;
+
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'baseRomaji' })
+  @IsString({ message: 'baseRomaji must be a string' })
+  @IsNotEmpty()
+  baseRomaji: string;
+
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
+  @IsString({ message: 'word must be a string' })
+  @IsNotEmpty()
+  word: string;
+
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordHiragana' })
+  @IsString({ message: 'wordHiragana must be a string' })
+  @IsNotEmpty()
+  wordHiragana: string;
+
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordRomaji' })
+  @IsString({ message: 'wordRomaji must be a string' })
+  @IsNotEmpty()
+  wordRomaji: string;
 }

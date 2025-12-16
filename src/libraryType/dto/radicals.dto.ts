@@ -12,9 +12,6 @@ import { Position } from '../interfaces/radicals/position.interface';
 import { Variant } from '../interfaces/radicals/variant.interface';
 import { VariantPosition } from '../interfaces/radicals/variantPosition.interface';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { WordDTO } from './commons/word.dto';
-import { WordHiraganaDTO } from './commons/wordHiragana.dto';
-import { WordRomajiDTO } from './commons/wordRomaji.dto';
 
 export class PositionDTO implements Position {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'position' })
@@ -119,24 +116,18 @@ export class RadicalsDTO {
   @IsArray({ message: 'variants must be an array' })
   variants: VariantDTO[];
 
-  @ApiProperty({ type: () => WordDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordDTO)
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
+  @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'word must be an array' })
-  word: WordDTO[];
+  word: string;
 
-  @ApiProperty({ type: () => WordHiraganaDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordHiraganaDTO)
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @IsArray({ message: 'wordHiragana must be an array' })
-  wordHiragana: WordHiraganaDTO[];
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'wordRomaji' })
+  @IsString({ message: 'wordRomaji must be a string' })
+  @IsOptional()
+  wordHiragana: string;
 
-  @ApiProperty({ type: () => WordRomajiDTO, isArray: true, required: true, nullable: false })
-  @Type(() => WordRomajiDTO)
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @IsArray({ message: 'wordRomaji must be an array' })
-  wordRomaji: WordRomajiDTO[];
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'wordRomaji' })
+  @IsString({ message: 'wordRomaji must be a string' })
+  @IsOptional()
+  wordRomaji: string;
 }

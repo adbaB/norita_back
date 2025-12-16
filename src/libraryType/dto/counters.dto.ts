@@ -14,7 +14,6 @@ import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { NumberDTO } from './commons/number.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { WordDTO } from './commons/word.dto';
 
 export class ExampleSpanishDTO implements ExampleSpanish {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'traduction' })
@@ -90,17 +89,13 @@ export class CountersDTO {
   @IsNotEmpty()
   word: string;
 
-  @ApiProperty({ type: () => [WordDTO], required: true, nullable: false, isArray: true })
-  @Type(() => WordDTO)
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordHiragana' })
+  @IsString({ message: 'wordHiragana must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'wordHiragana must be an array' })
-  @ValidateNested({ each: true })
-  wordHiragana: WordDTO[];
+  wordHiragana: string;
 
-  @ApiProperty({ type: () => [WordDTO], required: true, nullable: false, isArray: true })
-  @Type(() => WordDTO)
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordRomaji' })
+  @IsString({ message: 'wordHiragana must be a string' })
   @IsNotEmpty()
-  @IsArray({ message: 'wordRomaji must be an array' })
-  @ValidateNested({ each: true })
-  wordRomaji: WordDTO[];
+  wordRomaji: string;
 }
