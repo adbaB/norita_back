@@ -49,6 +49,7 @@ export class LibraryItemService {
 
       await this.libraryItemRepo.save(newItems);
       items.push(newLibraryItem);
+      delete newLibraryItem.section;
       response.push(newLibraryItem);
     }
 
