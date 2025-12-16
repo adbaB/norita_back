@@ -14,6 +14,7 @@ import { ConsonantItem } from '../interfaces/kana/consonant.interface';
 import { Romaji } from '../interfaces/kana/romanji.interface';
 import { StepImageDTO } from './commons/StepImage.dto';
 import { AudioDTO } from './commons/audio.dto';
+import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
 
 export class ConsonantDTO implements ConsonantItem {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'note' })
@@ -136,4 +137,16 @@ export class KanaDTO {
   @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
   word: string;
+
+  @ApiProperty({
+    type: () => [TraductionSpanishDTO],
+    required: true,
+    nullable: false,
+    isArray: true,
+  })
+  @Type(() => TraductionSpanishDTO)
+  @IsNotEmpty()
+  @IsArray({ message: 'traductionSpanish must be an array' })
+  @ValidateNested({ each: true })
+  traductionSpanish: TraductionSpanishDTO[];
 }

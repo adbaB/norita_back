@@ -7,6 +7,7 @@ import { ErrorItem } from '../interfaces/commons/error.interface';
 import { Pronunciation } from '../interfaces/commons/pronunciation.interface';
 import { StepImage } from '../interfaces/commons/stepImage.interface';
 
+import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 import { ConsonantItem } from '../interfaces/kana/consonant.interface';
 import { Romaji } from '../interfaces/kana/romanji.interface';
 
@@ -39,10 +40,16 @@ export class Kana {
   @Column({ name: 'final_image', type: 'varchar', length: 255, nullable: true })
   finalImage: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   word: string;
 
-  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.kana)
+  @Column({ type: 'jsonb', default: [] })
+  traductionSpanish: TraductionSpanish[];
+
+  @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.kana, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'library_item_uuid' })
   libraryItem: LibraryItem;
 
