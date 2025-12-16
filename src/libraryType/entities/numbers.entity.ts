@@ -4,6 +4,7 @@ import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Kunyomi } from '../interfaces/commons/kunyomi.interface';
 import { Onyomi } from '../interfaces/commons/onyomi.interface';
 import { StepImage } from '../interfaces/commons/stepImage.interface';
+import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 
 @Entity('library_item_numbers')
 export class Numbers {
@@ -31,10 +32,10 @@ export class Numbers {
   @Column({ type: 'jsonb', default: [] })
   stepImage: StepImage[];
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  translation: string;
+  @Column({ type: 'jsonb', default: [] })
+  traductionsSpanish: TraductionSpanish[];
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
   word: string;
 
   @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.numbers, {
