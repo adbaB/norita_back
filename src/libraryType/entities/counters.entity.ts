@@ -4,7 +4,6 @@ import { Category } from '../interfaces/commons/category.interface';
 import { Example } from '../interfaces/commons/example.interface';
 import { Note } from '../interfaces/commons/note.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
-import { Word } from '../interfaces/commons/word.interface';
 import { ExampleSpanish } from '../interfaces/counters/exampleSpanish.interface';
 import { Number } from '../interfaces/counters/number.interface';
 
@@ -34,14 +33,14 @@ export class Counters {
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   word: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  wordHiragana: Word[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wordHiragana: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  wordRomaji: Word[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wordRomaji: string;
 
   @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.counters, {
     onDelete: 'CASCADE',
