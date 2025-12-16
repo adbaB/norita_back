@@ -57,17 +57,17 @@ export class VocabularyDTO {
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'loanHiragana' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'loanHiragana' })
   @IsString({ message: 'loanHiragana must be a string' })
   @IsOptional()
   loanHiragana?: string;
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'loanRomaji' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'loanRomaji' })
   @IsString({ message: 'loanRomaji must be a string' })
   @IsOptional()
   loanRomaji?: string;
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'searchKanji' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'searchKanji' })
   @IsString({ message: 'searchKanji must be a string' })
   @IsOptional()
   searchKanji?: string;

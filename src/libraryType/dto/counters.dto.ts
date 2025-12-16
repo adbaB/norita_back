@@ -90,12 +90,12 @@ export class CountersDTO {
   word: string;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'wordHiragana' })
-  @IsString({ message: 'word must be a string' })
+  @IsString({ message: 'wordHiragana must be a string' })
   @IsNotEmpty()
   wordHiragana: string;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'wordRomaji' })
-  @IsString({ message: 'word must be a string' })
+  @IsString({ message: 'wordHiragana must be a string' })
   @IsNotEmpty()
   wordRomaji: string;
 }

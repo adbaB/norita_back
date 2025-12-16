@@ -49,13 +49,13 @@ export class OnomatopoeiaDTO {
   @IsNotEmpty()
   word: string;
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordKatakana' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'wordKatakana' })
   @IsString({ message: 'wordKatakana must be a string' })
-  @IsNotEmpty()
+  @IsOptional()
   wordKatakana: string;
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'wordRomaji' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'wordRomaji' })
   @IsString({ message: 'wordRomaji must be a string' })
-  @IsNotEmpty()
+  @IsOptional()
   wordRomaji: string;
 }

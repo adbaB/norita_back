@@ -116,8 +116,8 @@ export class RadicalsDTO {
   @IsArray({ message: 'variants must be an array' })
   variants: VariantDTO[];
 
-  @ApiProperty({ type: String, required: false, nullable: true, description: 'wordRomaji' })
-  @IsString({ message: 'wordRomaji must be a string' })
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
+  @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
   word: string;
 
