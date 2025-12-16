@@ -5,7 +5,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { join } from 'path';
 import config from 'src/config/configuration';
 import { FileController } from './controllers/file.controller';
 import { FileRandom } from './entities/fileRandom.entity';
@@ -35,9 +35,7 @@ const allowedMimes = {
             cb(null, path);
           },
           filename: (req, file, cb) => {
-            const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const fileName = file.originalname.split('.')[0];
-            cb(null, `${fileName}-${uniqueName}${extname(file.originalname)}`);
+            cb(null, `${file.originalname}`);
           },
         }),
         limits: { fileSize: configService.file.maxSize }, // 100 MB
