@@ -5,13 +5,11 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseEnumPipe,
   ParseUUIDPipe,
   Post,
   Put,
-  Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
@@ -21,7 +19,7 @@ import {
 } from '../../utils/responses';
 import { CreateLibraryDTO, UpdateLibraryDTO } from '../dto/library.dto';
 import { Library } from '../entities/library.entity';
-import { LibraryTypeEnum } from '../enums/library.enum';
+import { ResponseLibrary } from '../interfaces/responseLibrary.interface';
 import { LibraryService } from '../services/library.service';
 
 @ApiBearerAuth()
@@ -64,16 +62,12 @@ export class LibraryController {
   @ApiResponse({ status: 200, type: [Library], description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  @ApiQuery({ name: 'type', enum: LibraryTypeEnum })
   @Get()
-  async findAll(
-    @Query('type', new ParseEnumPipe(LibraryTypeEnum, { errorHttpStatusCode: 400 }))
-    type: LibraryTypeEnum,
-  ): Promise<ClassApiResponse<Library[]>> {
+  async findAll(): Promise<ClassApiResponse<ResponseLibrary>> {
     return new ClassApiResponse(
       true,
       'Libraries found successfully',
-      await this.libraryService.findAll(type),
+      await this.libraryService.findAll(),
     );
   }
 
