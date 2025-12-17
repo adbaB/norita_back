@@ -81,7 +81,7 @@ export class KanaDTO {
   @ApiProperty({ type: () => AudioDTO, required: true, nullable: false })
   @Type(() => AudioDTO)
   @ValidateNested()
-  @IsNotEmpty()
+  @IsOptional()
   audio: AudioDTO;
 
   @ApiProperty({ type: () => [ConsonantDTO], isArray: true, required: false, nullable: true })
@@ -119,7 +119,7 @@ export class KanaDTO {
   @ApiProperty({ type: () => [StepImageDTO], isArray: true, required: true, nullable: false })
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray({ message: 'images must be an array' })
   images: StepImageDTO[];
 
@@ -130,7 +130,7 @@ export class KanaDTO {
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'finalImage' })
   @IsString({ message: 'finalImage must be a string' })
-  @IsNotEmpty()
+  @IsOptional()
   finalImage: string;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })

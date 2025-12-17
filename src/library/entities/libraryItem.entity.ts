@@ -40,6 +40,9 @@ export class LibraryItem implements IOrder {
   @Column({ type: 'int', nullable: false })
   order: number;
 
+  @Column({ type: 'boolean', default: true })
+  enabled: boolean;
+
   @ManyToOne(() => LibrarySection, (section) => section.items)
   @JoinColumn({ name: 'library_section_uuid' })
   section: LibrarySection;

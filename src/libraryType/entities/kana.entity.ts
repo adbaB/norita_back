@@ -16,25 +16,25 @@ export class Kana {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'jsonb', default: { male: '', female: '' } })
+  @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
   audio: LibraryAudio;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   consonant: ConsonantItem[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   error: ErrorItem[];
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   lottie: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   pronunciation: Pronunciation[];
 
   @Column({ type: 'jsonb', default: { hepburn: '', kunreishiki: '', nihonshiki: '' } })
   romaji: Romaji;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   images: StepImage[];
 
   @Column({ name: 'final_image', type: 'varchar', length: 255, nullable: true })

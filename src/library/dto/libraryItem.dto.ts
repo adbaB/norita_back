@@ -2,6 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -66,6 +67,11 @@ export class CreateLibraryItemDTO {
   )
   @IsNotEmpty()
   order: number;
+
+  @ApiProperty({ type: Boolean, required: true, nullable: false, description: 'enabled' })
+  @IsOptional()
+  @IsBoolean({ message: 'enabled must be a boolean' })
+  enabled: boolean;
 
   @ApiProperty({ type: () => KanaDTO, required: false, nullable: true })
   @ValidateIf((o) => o.type === LibraryItemTypeEnum.KANA)
