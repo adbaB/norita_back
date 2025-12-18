@@ -54,6 +54,6 @@ export class Kana {
   libraryItem: LibraryItem;
 
   steps(): number {
-    return this.images.length;
+    return this.images?.length ?? 0;
   }
 }

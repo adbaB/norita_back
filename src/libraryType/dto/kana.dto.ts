@@ -78,7 +78,7 @@ export class RomajiDTO implements Romaji {
 }
 
 export class KanaDTO {
-  @ApiProperty({ type: () => AudioDTO, required: true, nullable: false })
+  @ApiProperty({ type: () => AudioDTO, required: false, nullable: true })
   @Type(() => AudioDTO)
   @ValidateNested()
   @IsOptional()
@@ -116,7 +116,7 @@ export class KanaDTO {
   @IsNotEmpty()
   romaji: RomajiDTO;
 
-  @ApiProperty({ type: () => [StepImageDTO], isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [StepImageDTO], isArray: true, required: false, nullable: true })
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -128,7 +128,7 @@ export class KanaDTO {
   @IsOptional()
   steps: string;
 
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'finalImage' })
+  @ApiProperty({ type: String, required: false, nullable: true, description: 'finalImage' })
   @IsString({ message: 'finalImage must be a string' })
   @IsOptional()
   finalImage: string;

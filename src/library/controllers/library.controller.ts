@@ -59,7 +59,7 @@ export class LibraryController {
     );
   }
 
-  @ApiResponse({ status: 200, type: [Library], description: 'Success' })
+  @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Get()

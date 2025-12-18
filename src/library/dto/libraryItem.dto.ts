@@ -68,7 +68,13 @@ export class CreateLibraryItemDTO {
   @IsNotEmpty()
   order: number;
 
-  @ApiProperty({ type: Boolean, required: true, nullable: false, description: 'enabled' })
+  @ApiProperty({
+    type: Boolean,
+    required: false,
+    nullable: false,
+    description: 'enabled',
+    default: true,
+  })
   @IsOptional()
   @IsBoolean({ message: 'enabled must be a boolean' })
   enabled: boolean;

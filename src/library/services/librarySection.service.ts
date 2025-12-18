@@ -113,6 +113,7 @@ export class LibrarySectionService {
           numbers: true,
           onomatopoeia: true,
           radicals: true,
+          vocabulary: true,
         },
       },
       order: {
