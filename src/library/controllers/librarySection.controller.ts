@@ -13,7 +13,8 @@ import {
 
 import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
-import { LibraryUserGuard } from '../../libraryUser/guards/libraryUser.guard';
+import { LibrarySectionUserGuard } from '../../libraryUser/guards/librarySectionUser.guard';
+import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
   ApiResponse as ClassApiResponse,
@@ -84,14 +85,15 @@ export class LibrarySectionController {
     description: 'Library section found successfully',
   })
   @Get(':uuid')
-  @UseGuards(LibraryUserGuard)
+  @UseGuards(LibrarySectionUserGuard)
   async findOne(
     @Param('uuid', ParseUUIDPipe) sectionUuid: string,
+    @User() userUUID: string,
   ): Promise<ClassApiResponse<LibrarySection>> {
     return new ClassApiResponse(
       true,
       'Library section found successfully',
-      await this.librarySectionService.findOne(sectionUuid),
+      await this.librarySectionService.findOne(sectionUuid, userUUID),
     );
   }
 

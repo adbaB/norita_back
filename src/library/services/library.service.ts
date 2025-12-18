@@ -143,11 +143,13 @@ export class LibraryService {
     };
   }
 
-  async findOne(uuid: string): Promise<Library> {
+  async findOne(uuid: string, userUUID?: string): Promise<Library> {
     return this.libraryRepo.findOne({
-      where: { uuid },
+      where: [{ uuid, sections: { sectionUser: { user: { uuid: userUUID } } } }, { uuid }],
       relations: {
-        sections: true,
+        sections: {
+          sectionUser: true,
+        },
       },
       order: {
         sections: {

@@ -80,8 +80,11 @@ export class LibraryController {
   @ApiParam({ name: 'uuid', type: String, description: 'UUID of the library' })
   @UseGuards(LibraryUserGuard)
   @Get(':uuid')
-  async findOne(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<ClassApiResponse<Library>> {
-    const library = await this.libraryService.findOne(uuid);
+  async findOne(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @User() userUUID: string,
+  ): Promise<ClassApiResponse<Library>> {
+    const library = await this.libraryService.findOne(uuid, userUUID);
 
     if (!library) {
       throw new NotFoundException('Library not found');

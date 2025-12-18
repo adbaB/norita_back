@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 import { LibraryService } from '../../library/services/library.service';
 import { UsersService } from '../../users/services/users.service';
 import { LibraryUser } from '../entities/libraryUser.entity';
@@ -20,6 +21,7 @@ export class LibraryUserService {
     private readonly usersService: UsersService,
   ) {}
 
+  @Transactional()
   async unlock(
     userUUID: string,
     libraryUUID: string,
