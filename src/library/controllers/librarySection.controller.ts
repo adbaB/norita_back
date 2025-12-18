@@ -8,10 +8,12 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
+import { LibraryUserGuard } from '../../libraryUser/guards/libraryUser.guard';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
   ApiResponse as ClassApiResponse,
@@ -82,6 +84,7 @@ export class LibrarySectionController {
     description: 'Library section found successfully',
   })
   @Get(':uuid')
+  @UseGuards(LibraryUserGuard)
   async findOne(
     @Param('uuid', ParseUUIDPipe) sectionUuid: string,
   ): Promise<ClassApiResponse<LibrarySection>> {

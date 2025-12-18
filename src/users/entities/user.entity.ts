@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
+import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { RoleEnum } from '../enum/role.enum';
@@ -88,6 +89,9 @@ export class User {
 
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
   lessonProgress: LessonProgress[];
+
+  @OneToMany(() => LibraryUser, (libraryUser) => libraryUser.user)
+  libraries: LibraryUser[];
 
   @OneToMany(() => Comments, (comments) => comments.user)
   comments: Comments[];
