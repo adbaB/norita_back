@@ -1,4 +1,4 @@
-import { Controller, Param, ParseEnumPipe, Post, Query } from '@nestjs/common';
+import { Controller, Param, ParseEnumPipe, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { LibraryUser } from '../entities/libraryUser.entity';
@@ -14,7 +14,7 @@ export class LibraryUserController {
   @ApiParam({ name: 'uuid' })
   @Post('unlock/:uuid')
   unlock(
-    @Param('uuid') libraryUUID: string,
+    @Param('uuid', ParseUUIDPipe) libraryUUID: string,
     @Query('type', new ParseEnumPipe(TypeUnlockEnum)) type: TypeUnlockEnum,
     @User() userUUID: string,
   ): Promise<LibraryUser> {

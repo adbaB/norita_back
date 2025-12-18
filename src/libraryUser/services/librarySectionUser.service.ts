@@ -47,6 +47,10 @@ export class LibrarySectionUserService {
       throw new NotFoundException('Library not found');
     }
 
+    if (!user.isPremium && typeUnlock === TypeUnlockEnum.PREMIUM) {
+      throw new ConflictException('User is not premium');
+    }
+
     const libraryUser = await this.libraryUserService.findByLibraryAndUser(
       section?.library?.uuid,
       userUUID,

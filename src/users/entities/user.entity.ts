@@ -52,9 +52,9 @@ export class User {
   @Column({ type: 'integer', default: 0 })
   coin: number;
 
-  @ApiProperty({ description: 'is premiun of the user', type: Boolean })
-  @Column({ name: 'is_premiun', type: 'boolean', default: false })
-  isPremiun: boolean;
+  @ApiProperty({ description: 'is premium of the user', type: Boolean })
+  @Column({ name: 'is_premium', type: 'boolean', default: false })
+  isPremium: boolean;
 
   @ApiProperty({ description: 'first tutorial of the user', type: Boolean })
   @Column({ name: 'first_tutorial', type: 'boolean', default: false })

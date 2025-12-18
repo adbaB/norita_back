@@ -38,9 +38,11 @@ export class LibraryUserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    if (!user.isPremiun && typeUnlock === TypeUnlockEnum.PREMIUM) {
+
+    if (!user.isPremium && typeUnlock === TypeUnlockEnum.PREMIUM) {
       throw new ConflictException('User is not premium');
     }
+
     const libraryUser = await this.libraryUserRepo.findOne({
       where: { user: { uuid: userUUID }, library: { uuid: libraryUUID } },
     });
