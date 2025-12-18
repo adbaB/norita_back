@@ -17,28 +17,28 @@ export class Kana {
   uuid: string;
 
   @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
-  audio: LibraryAudio;
+  audio: LibraryAudio | null;
 
   @Column({ type: 'jsonb', default: [], nullable: true })
-  consonant: ConsonantItem[];
+  consonant: ConsonantItem[] | null;
 
   @Column({ type: 'jsonb', default: [], nullable: true })
-  error: ErrorItem[];
+  error: ErrorItem[] | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   lottie: string;
 
   @Column({ type: 'jsonb', default: [], nullable: true })
-  pronunciation: Pronunciation[];
+  pronunciation: Pronunciation[] | null;
 
   @Column({ type: 'jsonb', default: { hepburn: '', kunreishiki: '', nihonshiki: '' } })
   romaji: Romaji;
 
   @Column({ type: 'jsonb', default: [], nullable: true })
-  images: StepImage[];
+  images: StepImage[] | null;
 
   @Column({ name: 'final_image', type: 'varchar', length: 255, nullable: true })
-  finalImage: string;
+  finalImage: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   word: string;
