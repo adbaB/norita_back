@@ -18,7 +18,7 @@ import { LibraryUserService } from './libraryUser.service';
 export class LibrarySectionUserService {
   constructor(
     @InjectRepository(LibrarySectionUser)
-    private readonly libraryUserRepo: Repository<LibrarySectionUser>,
+    private readonly librarySectionUser: Repository<LibrarySectionUser>,
     @Inject(forwardRef(() => LibrarySectionService))
     private readonly librarySectionService: LibrarySectionService,
     private readonly libraryUserService: LibraryUserService,
@@ -60,7 +60,7 @@ export class LibrarySectionUserService {
       throw new ConflictException('the library is not unlocked, please unlock it first');
     }
 
-    const librarySection = await this.libraryUserRepo.findOne({
+    const librarySection = await this.librarySectionUser.findOne({
       where: { user: { uuid: userUUID }, section: { uuid: sectionUUID } },
     });
 
@@ -74,24 +74,24 @@ export class LibrarySectionUserService {
       }
 
       librarySection.typeUnlock = typeUnlock;
-      return this.libraryUserRepo.save(librarySection);
+      return this.librarySectionUser.save(librarySection);
     }
 
     if (typeUnlock === TypeUnlockEnum.GEMS && section.coinsNeeded > 0) {
       await this.usersService.decreaseCoins(userUUID, section.coinsNeeded);
     }
 
-    const newLibrarySection = this.libraryUserRepo.create({
+    const newLibrarySection = this.librarySectionUser.create({
       user,
       section,
       typeUnlock,
     });
 
-    return await this.libraryUserRepo.save(newLibrarySection);
+    return await this.librarySectionUser.save(newLibrarySection);
   }
 
   findBySectionAndUser(sectionUUID: string, userUUID: string): Promise<LibrarySectionUser> {
-    return this.libraryUserRepo.findOne({
+    return this.librarySectionUser.findOne({
       where: { user: { uuid: userUUID }, section: { uuid: sectionUUID } },
     });
   }
