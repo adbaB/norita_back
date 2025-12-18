@@ -37,6 +37,7 @@ export class LibrarySection implements IOrder {
   @Column({ type: 'int', nullable: false })
   order: number;
 
+  @Exclude({ toPlainOnly: true })
   @ManyToOne(() => Library, (library) => library.sections)
   @JoinColumn({ name: 'library_uuid' })
   library: Library;

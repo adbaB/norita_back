@@ -16,29 +16,29 @@ export class Kana {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'jsonb', default: { male: '', female: '' } })
-  audio: LibraryAudio;
+  @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
+  audio: LibraryAudio | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  consonant: ConsonantItem[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  consonant: ConsonantItem[] | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  error: ErrorItem[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  error: ErrorItem[] | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   lottie: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  pronunciation: Pronunciation[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  pronunciation: Pronunciation[] | null;
 
   @Column({ type: 'jsonb', default: { hepburn: '', kunreishiki: '', nihonshiki: '' } })
   romaji: Romaji;
 
-  @Column({ type: 'jsonb', default: [] })
-  images: StepImage[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  images: StepImage[] | null;
 
   @Column({ name: 'final_image', type: 'varchar', length: 255, nullable: true })
-  finalImage: string;
+  finalImage: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   word: string;
@@ -54,6 +54,6 @@ export class Kana {
   libraryItem: LibraryItem;
 
   steps(): number {
-    return this.images.length;
+    return this.images?.length ?? 0;
   }
 }

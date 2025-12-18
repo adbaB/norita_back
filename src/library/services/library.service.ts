@@ -9,6 +9,7 @@ import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateLibraryDTO, UpdateLibraryDTO } from '../dto/library.dto';
 import { Library } from '../entities/library.entity';
 import { LibraryTypeEnum } from '../enums/library.enum';
+import { ResponseLibrary } from '../interfaces/responseLibrary.interface';
 
 @Injectable()
 export class LibraryService {
@@ -53,11 +54,33 @@ export class LibraryService {
     };
   }
 
-  async findAll(type: LibraryTypeEnum): Promise<Library[]> {
-    return this.libraryRepo.find({
-      where: { type },
+  async findAll(): Promise<ResponseLibrary> {
+    const promiseGrammars = this.libraryRepo.find({
+      where: { type: LibraryTypeEnum.GRAMMAR },
       order: { order: 'ASC' },
     });
+
+    const promiseVocabularies = this.libraryRepo.find({
+      where: { type: LibraryTypeEnum.VOCABULARY },
+      order: { order: 'ASC' },
+    });
+
+    const promiseSpecialized = this.libraryRepo.find({
+      where: { type: LibraryTypeEnum.SPECIALIZED },
+      order: { order: 'ASC' },
+    });
+
+    const [grammars, vocabularies, specialized] = await Promise.all([
+      promiseGrammars,
+      promiseVocabularies,
+      promiseSpecialized,
+    ]);
+
+    return {
+      grammars,
+      vocabularies,
+      specialized,
+    };
   }
 
   async findOne(uuid: string): Promise<Library> {
