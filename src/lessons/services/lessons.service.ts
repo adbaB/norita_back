@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ContentDTO } from 'src/contentLessons/dtos/content.dto';
 import { MoreThan, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { ContentService } from '../../contentLessons/services/content.service';
@@ -179,6 +180,8 @@ export class LessonsService {
 
     if (lessonFound?.lessonContent?.uuid) {
       await this.contentService.update(lessonFound?.lessonContent?.uuid, lesson.contentLesson);
+    } else if (lesson.contentLesson) {
+      await this.contentService.create(lessonEntity, lesson.contentLesson as ContentDTO);
     }
     return {
       affected: 1,
