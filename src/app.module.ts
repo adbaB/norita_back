@@ -8,6 +8,7 @@ import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
 import { LibraryTypeModule } from './libraryType/libraryType.module';
+import { LibraryUserModule } from './libraryUser/libraryUser.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
@@ -26,6 +27,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     FileModule,
     LibraryModule,
     LibraryTypeModule,
+    LibraryUserModule,
   ],
   controllers: [],
   providers: [

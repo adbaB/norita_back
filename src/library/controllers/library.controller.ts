@@ -8,9 +8,12 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
+import { LibraryUserGuard } from '../../libraryUser/guards/libraryUser.guard';
+import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
   ApiResponse as ClassApiResponse,
@@ -63,11 +66,11 @@ export class LibraryController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Get()
-  async findAll(): Promise<ClassApiResponse<ResponseLibrary>> {
+  async findAll(@User() userUUID: string): Promise<ClassApiResponse<ResponseLibrary>> {
     return new ClassApiResponse(
       true,
       'Libraries found successfully',
-      await this.libraryService.findAll(),
+      await this.libraryService.findAll(userUUID),
     );
   }
 
@@ -75,9 +78,13 @@ export class LibraryController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiParam({ name: 'uuid', type: String, description: 'UUID of the library' })
+  @UseGuards(LibraryUserGuard)
   @Get(':uuid')
-  async findOne(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<ClassApiResponse<Library>> {
-    const library = await this.libraryService.findOne(uuid);
+  async findOne(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @User() userUUID: string,
+  ): Promise<ClassApiResponse<Library>> {
+    const library = await this.libraryService.findOne(uuid, userUUID);
 
     if (!library) {
       throw new NotFoundException('Library not found');

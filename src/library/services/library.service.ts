@@ -54,19 +54,79 @@ export class LibraryService {
     };
   }
 
-  async findAll(): Promise<ResponseLibrary> {
+  async findAll(userUUID: string): Promise<ResponseLibrary> {
     const promiseGrammars = this.libraryRepo.find({
-      where: { type: LibraryTypeEnum.GRAMMAR },
+      where: [
+        {
+          type: LibraryTypeEnum.GRAMMAR,
+          user: {
+            user: {
+              uuid: userUUID,
+            },
+          },
+        },
+        {
+          type: LibraryTypeEnum.GRAMMAR,
+          user: {
+            user: {
+              uuid: null,
+            },
+          },
+        },
+      ],
+      relations: {
+        user: true,
+      },
       order: { order: 'ASC' },
     });
 
     const promiseVocabularies = this.libraryRepo.find({
-      where: { type: LibraryTypeEnum.VOCABULARY },
+      where: [
+        {
+          type: LibraryTypeEnum.VOCABULARY,
+          user: {
+            user: {
+              uuid: userUUID,
+            },
+          },
+        },
+        {
+          type: LibraryTypeEnum.VOCABULARY,
+          user: {
+            user: {
+              uuid: null,
+            },
+          },
+        },
+      ],
+      relations: {
+        user: true,
+      },
       order: { order: 'ASC' },
     });
 
     const promiseSpecialized = this.libraryRepo.find({
-      where: { type: LibraryTypeEnum.SPECIALIZED },
+      where: [
+        {
+          type: LibraryTypeEnum.SPECIALIZED,
+          user: {
+            user: {
+              uuid: userUUID,
+            },
+          },
+        },
+        {
+          type: LibraryTypeEnum.SPECIALIZED,
+          user: {
+            user: {
+              uuid: null,
+            },
+          },
+        },
+      ],
+      relations: {
+        user: true,
+      },
       order: { order: 'ASC' },
     });
 
@@ -83,11 +143,13 @@ export class LibraryService {
     };
   }
 
-  async findOne(uuid: string): Promise<Library> {
+  async findOne(uuid: string, userUUID?: string): Promise<Library> {
     return this.libraryRepo.findOne({
-      where: { uuid },
+      where: [{ uuid, sections: { sectionUser: { user: { uuid: userUUID } } } }, { uuid }],
       relations: {
-        sections: true,
+        sections: {
+          sectionUser: true,
+        },
       },
       order: {
         sections: {

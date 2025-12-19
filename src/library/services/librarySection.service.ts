@@ -101,9 +101,9 @@ export class LibrarySectionService {
     });
   }
 
-  async findOne(uuid: string): Promise<LibrarySection> {
+  async findOne(uuid: string, userUUID?: string): Promise<LibrarySection> {
     return this.librarySectionRepo.findOne({
-      where: { uuid },
+      where: [{ uuid, sectionUser: { user: { uuid: userUUID } } }, { uuid }],
       relations: {
         items: {
           kana: true,
@@ -121,6 +121,13 @@ export class LibrarySectionService {
           order: 'ASC',
         },
       },
+    });
+  }
+
+  findByUUID(uuid: string): Promise<LibrarySection> {
+    return this.librarySectionRepo.findOne({
+      where: { uuid },
+      relations: { library: true },
     });
   }
 

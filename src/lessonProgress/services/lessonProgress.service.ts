@@ -199,7 +199,7 @@ export class LessonProgressService {
         newLessonProgress.isUnlocked = true;
         break;
       case TypeUnlockEnum.PREMIUM:
-        if (!user.isPremiun) {
+        if (!user.isPremium) {
           throw new ConflictException('User is not premium');
         }
         if (!existingProgress) {

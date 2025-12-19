@@ -7,9 +7,11 @@ import {
   Entity,
   Index,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryTypeEnum } from '../enums/library.enum';
 import { LibrarySection } from './librarySection.entity';
@@ -90,6 +92,10 @@ export class Library implements IOrder {
     onUpdate: 'CASCADE',
   })
   sections: LibrarySection[];
+
+  @ApiProperty({ description: 'Users of the library', type: () => LibraryUser })
+  @OneToOne(() => LibraryUser, (user) => user.library)
+  user: LibraryUser;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

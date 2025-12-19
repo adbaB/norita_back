@@ -8,9 +8,11 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { LibrarySectionUser } from '../../libraryUser/entities/librarySectionUser.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { Library } from './library.entity';
 import { LibraryItem } from './libraryItem.entity';
@@ -49,6 +51,9 @@ export class LibrarySection implements IOrder {
     onUpdate: 'CASCADE',
   })
   items: LibraryItem[];
+
+  @OneToOne(() => LibrarySectionUser, (sectionUser) => sectionUser.section)
+  sectionUser: LibrarySectionUser;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

@@ -11,6 +11,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
+import { LibrarySectionUser } from '../../libraryUser/entities/librarySectionUser.entity';
+import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { RoleEnum } from '../enum/role.enum';
@@ -50,9 +52,9 @@ export class User {
   @Column({ type: 'integer', default: 0 })
   coin: number;
 
-  @ApiProperty({ description: 'is premiun of the user', type: Boolean })
-  @Column({ name: 'is_premiun', type: 'boolean', default: false })
-  isPremiun: boolean;
+  @ApiProperty({ description: 'is premium of the user', type: Boolean })
+  @Column({ name: 'is_premium', type: 'boolean', default: false })
+  isPremium: boolean;
 
   @ApiProperty({ description: 'first tutorial of the user', type: Boolean })
   @Column({ name: 'first_tutorial', type: 'boolean', default: false })
@@ -88,6 +90,12 @@ export class User {
 
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
   lessonProgress: LessonProgress[];
+
+  @OneToMany(() => LibraryUser, (libraryUser) => libraryUser.user)
+  libraries: LibraryUser[];
+
+  @OneToMany(() => LibrarySectionUser, (librarySection) => librarySection.user)
+  sections: LibrarySectionUser[];
 
   @OneToMany(() => Comments, (comments) => comments.user)
   comments: Comments[];
