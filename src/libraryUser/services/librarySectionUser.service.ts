@@ -90,7 +90,19 @@ export class LibrarySectionUserService {
     return await this.librarySectionUser.save(newLibrarySection);
   }
 
-  findBySectionAndUser(sectionUUID: string, userUUID: string): Promise<LibrarySectionUser> {
+  async findBySectionAndUser(sectionUUID: string, userUUID: string): Promise<LibrarySectionUser> {
+    const section = await this.librarySectionService.findByUUID(sectionUUID);
+
+    if (!section) {
+      throw new NotFoundException('Section not found');
+    }
+
+    const user = await this.usersService.findByUUID(userUUID);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return this.librarySectionUser.findOne({
       where: { user: { uuid: userUUID }, section: { uuid: sectionUUID } },
     });

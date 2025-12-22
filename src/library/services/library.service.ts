@@ -55,80 +55,26 @@ export class LibraryService {
   }
 
   async findAll(userUUID: string): Promise<ResponseLibrary> {
-    const promiseGrammars = this.libraryRepo.find({
-      where: [
-        {
-          type: LibraryTypeEnum.GRAMMAR,
-          user: {
-            user: {
-              uuid: userUUID,
-            },
-          },
-        },
-        {
-          type: LibraryTypeEnum.GRAMMAR,
-          user: {
-            user: {
-              uuid: null,
-            },
-          },
-        },
-      ],
-      relations: {
-        user: true,
-      },
-      order: { order: 'ASC' },
-    });
+    const promiseGrammars = this.libraryRepo
+      .createQueryBuilder('library')
+      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
+      .where('library.type = :type', { type: LibraryTypeEnum.GRAMMAR })
+      .orderBy('library.order', 'ASC')
+      .getMany();
 
-    const promiseVocabularies = this.libraryRepo.find({
-      where: [
-        {
-          type: LibraryTypeEnum.VOCABULARY,
-          user: {
-            user: {
-              uuid: userUUID,
-            },
-          },
-        },
-        {
-          type: LibraryTypeEnum.VOCABULARY,
-          user: {
-            user: {
-              uuid: null,
-            },
-          },
-        },
-      ],
-      relations: {
-        user: true,
-      },
-      order: { order: 'ASC' },
-    });
+    const promiseVocabularies = this.libraryRepo
+      .createQueryBuilder('library')
+      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
+      .where('library.type = :type', { type: LibraryTypeEnum.VOCABULARY })
+      .orderBy('library.order', 'ASC')
+      .getMany();
 
-    const promiseSpecialized = this.libraryRepo.find({
-      where: [
-        {
-          type: LibraryTypeEnum.SPECIALIZED,
-          user: {
-            user: {
-              uuid: userUUID,
-            },
-          },
-        },
-        {
-          type: LibraryTypeEnum.SPECIALIZED,
-          user: {
-            user: {
-              uuid: null,
-            },
-          },
-        },
-      ],
-      relations: {
-        user: true,
-      },
-      order: { order: 'ASC' },
-    });
+    const promiseSpecialized = this.libraryRepo
+      .createQueryBuilder('library')
+      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
+      .where('library.type = :type', { type: LibraryTypeEnum.SPECIALIZED })
+      .orderBy('library.order', 'ASC')
+      .getMany();
 
     const [grammars, vocabularies, specialized] = await Promise.all([
       promiseGrammars,
@@ -144,19 +90,20 @@ export class LibraryService {
   }
 
   async findOne(uuid: string, userUUID?: string): Promise<Library> {
-    return this.libraryRepo.findOne({
-      where: [{ uuid, sections: { sectionUser: { user: { uuid: userUUID } } } }, { uuid }],
-      relations: {
-        sections: {
-          sectionUser: true,
+    return this.libraryRepo
+      .createQueryBuilder('library')
+      .leftJoinAndSelect('library.sections', 'section')
+      .leftJoinAndSelect(
+        'section.sectionUser',
+        'sectionUser',
+        'sectionUser.user_uuid = :userUUID',
+        {
+          userUUID,
         },
-      },
-      order: {
-        sections: {
-          order: 'ASC',
-        },
-      },
-    });
+      )
+      .where('library.uuid = :uuid', { uuid })
+      .orderBy('section.order', 'ASC')
+      .getOne();
   }
 
   async delete(uuid: string): Promise<DeleteResponse> {
