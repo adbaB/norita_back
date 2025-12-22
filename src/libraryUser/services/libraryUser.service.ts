@@ -73,7 +73,19 @@ export class LibraryUserService {
     return this.libraryUserRepo.save(newLibraryUser);
   }
 
-  findByLibraryAndUser(libraryUUID: string, userUUID: string): Promise<LibraryUser> {
+  async findByLibraryAndUser(libraryUUID: string, userUUID: string): Promise<LibraryUser> {
+    const library = await this.libraryService.findOne(libraryUUID);
+
+    if (!library) {
+      throw new NotFoundException('Library not found');
+    }
+
+    const user = await this.usersService.findByUUID(userUUID);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return this.libraryUserRepo.findOne({
       where: { library: { uuid: libraryUUID }, user: { uuid: userUUID } },
     });

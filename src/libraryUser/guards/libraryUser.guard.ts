@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { RoleEnum } from '../../users/enum/role.enum';
 import { LibraryUserService } from '../services/libraryUser.service';
 
 @Injectable()
@@ -15,6 +16,9 @@ export class LibraryUserGuard implements CanActivate {
       return false;
     }
 
+    if (user.role === RoleEnum.ADMIN) {
+      return true;
+    }
     const libraryUser = await this.libraryUserService.findByLibraryAndUser(params.uuid, user.uuid);
 
     if (!libraryUser) {
