@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
 import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { UpdateResponse } from '../../utils/responses';
@@ -128,6 +128,13 @@ export class LibrarySectionService {
     return this.librarySectionRepo.findOne({
       where: { uuid },
       relations: { library: true },
+    });
+  }
+
+  findByLibraryCoins(libraryUuid: string, coins = 0): Promise<LibrarySection[]> {
+    return this.librarySectionRepo.find({
+      where: { coinsNeeded: Equal(coins), library: { uuid: libraryUuid } },
+      order: { order: 'ASC' },
     });
   }
 

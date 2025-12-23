@@ -12,12 +12,15 @@ import { LibraryService } from '../../library/services/library.service';
 import { UsersService } from '../../users/services/users.service';
 import { LibraryUser } from '../entities/libraryUser.entity';
 import { TypeUnlockEnum } from '../enums/typeUnlock.enum';
+import { LibrarySectionUserService } from './librarySectionUser.service';
 
 @Injectable()
 export class LibraryUserService {
   constructor(
     @InjectRepository(LibraryUser) private readonly libraryUserRepo: Repository<LibraryUser>,
     @Inject(forwardRef(() => LibraryService)) private readonly libraryService: LibraryService,
+    @Inject(forwardRef(() => LibrarySectionUserService))
+    private readonly librarySectionUserService: LibrarySectionUserService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -69,8 +72,11 @@ export class LibraryUserService {
       library,
       typeUnlock,
     });
+    const createdLibraryUser = await this.libraryUserRepo.save(newLibraryUser);
 
-    return this.libraryUserRepo.save(newLibraryUser);
+    await this.librarySectionUserService.unlockAllFreeSections(userUUID, libraryUUID);
+
+    return createdLibraryUser;
   }
 
   async findByLibraryAndUser(libraryUUID: string, userUUID: string): Promise<LibraryUser> {

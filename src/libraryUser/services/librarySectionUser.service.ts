@@ -107,4 +107,31 @@ export class LibrarySectionUserService {
       where: { user: { uuid: userUUID }, section: { uuid: sectionUUID } },
     });
   }
+
+  async unlockAllFreeSections(
+    userUUID: string,
+    libraryUUID: string,
+  ): Promise<LibrarySectionUser[]> {
+    const sections = await this.librarySectionService.findByLibraryCoins(libraryUUID, 0);
+    if (sections.length <= 0) {
+      return null;
+    }
+
+    const libraryUser = await this.libraryUserService.findByLibraryAndUser(libraryUUID, userUUID);
+
+    if (!libraryUser) {
+      return null;
+    }
+    const librarySectionUsers = await Promise.all(
+      sections.map(async (section) => {
+        const sectionUser = await this.findBySectionAndUser(section.uuid, userUUID);
+
+        if (sectionUser) {
+          return sectionUser;
+        }
+        return this.unlock(section.uuid, userUUID, TypeUnlockEnum.GEMS);
+      }),
+    );
+    return librarySectionUsers;
+  }
 }
