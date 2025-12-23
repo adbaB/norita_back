@@ -1,5 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, RawBodyRequest } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import { Request } from 'express';
 import Stripe from 'stripe';
 import configuration from '../../config/configuration';
 
@@ -23,10 +24,26 @@ export class StripeService {
       amount: amount,
       currency: 'usd',
       automatic_payment_methods: { enabled: true },
+      metadata: {
+        userUUID: '',
+        productUUID: '',
+      },
     });
     console.log(paymentIntent);
     return {
       clientSecret: paymentIntent.client_secret,
     };
+  }
+
+  async handleWebhook(req: RawBodyRequest<Request>, sig: string): Promise<void> {
+    const rawBody = req.rawBody;
+    const signature = sig;
+
+    const event = this.stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      this.configService.stripe.webhookSecret,
+    );
+    console.log(event);
   }
 }

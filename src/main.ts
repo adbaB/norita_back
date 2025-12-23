@@ -10,7 +10,9 @@ import { initializeTransactionalContext } from 'typeorm-transactional';
 
 async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
 
   const config = new DocumentBuilder()
     .setDescription('The norita API description')
