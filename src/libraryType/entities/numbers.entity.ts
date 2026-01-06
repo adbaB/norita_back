@@ -11,10 +11,10 @@ export class Numbers {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'jsonb', default: { male: '', female: '' } })
+  @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
   audio: LibraryAudio;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   kunyomi: Kunyomi[];
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -23,19 +23,19 @@ export class Numbers {
   @Column({ type: 'text', nullable: true })
   note: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   onyomi: Onyomi[];
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   romanNumber: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   stepImage: StepImage[];
 
   @Column({ type: 'jsonb', default: [] })
   traductionsSpanish: TraductionSpanish[];
 
-  @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
+  @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
   word: string;
 
   @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.numbers, {
