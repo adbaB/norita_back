@@ -9,6 +9,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
 import { LibraryTypeModule } from './libraryType/libraryType.module';
 import { LibraryUserModule } from './libraryUser/libraryUser.module';
+import { ProductsModule } from './products/products.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
@@ -28,6 +29,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     LibraryModule,
     LibraryTypeModule,
     LibraryUserModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [

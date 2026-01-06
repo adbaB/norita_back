@@ -6,12 +6,14 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
+import { Product } from '../../products/entities/product.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryTypeEnum } from '../enums/library.enum';
 import { LibrarySection } from './librarySection.entity';
@@ -96,6 +98,11 @@ export class Library implements IOrder {
   @ApiProperty({ description: 'Users of the library', type: () => LibraryUser })
   @OneToOne(() => LibraryUser, (user) => user.library)
   user: LibraryUser;
+
+  @Exclude({ toPlainOnly: true })
+  @ApiProperty({ description: 'Products associated with the library', type: () => [Product] })
+  @ManyToMany(() => Product, (product) => product.libraries)
+  products: Product[];
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
