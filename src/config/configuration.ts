@@ -12,6 +12,9 @@ export default registerAs('config', () => {
     coins: {
       tutorial: parseInt(process.env.REWARD_POINTS_TUTORIAL, 10) || 50,
     },
+    exchangeRate: {
+      apiKey: process.env.EXCHANGE_RATE_API_KEY,
+    },
     mail: {
       port: parseInt(process.env.PORT, 10),
     },

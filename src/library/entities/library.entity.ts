@@ -13,7 +13,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
-import { Product } from '../../products/entities/product.entity';
+import { Package } from '../../store/entities/package.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryTypeEnum } from '../enums/library.enum';
 import { LibrarySection } from './librarySection.entity';
@@ -100,9 +100,9 @@ export class Library implements IOrder {
   user: LibraryUser;
 
   @Exclude({ toPlainOnly: true })
-  @ApiProperty({ description: 'Products associated with the library', type: () => [Product] })
-  @ManyToMany(() => Product, (product) => product.libraries)
-  products: Product[];
+  @ApiProperty({ description: 'Packages associated with the library', type: () => [Package] })
+  @ManyToMany(() => Package, (pkg) => pkg.libraries)
+  packages: Package[];
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
