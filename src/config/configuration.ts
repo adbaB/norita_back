@@ -33,6 +33,10 @@ export default registerAs('config', () => {
     file: {
       maxSize: parseInt(process.env.FILE_MAX_SIZE, 10) || 100 * 1024 * 1024,
     },
+    stripe: {
+      secretKey: process.env.STRIPE_SECRET_KEY,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    },
     env: process.env.NODE_ENV || 'development',
   };
 });
