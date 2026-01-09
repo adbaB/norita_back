@@ -56,6 +56,10 @@ export class User {
   @Column({ name: 'is_premium', type: 'boolean', default: false })
   isPremium: boolean;
 
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'subscription_expires_at', type: 'timestamp', nullable: true })
+  subscriptionExpiresAt: Date;
+
   @ApiProperty({ description: 'first tutorial of the user', type: Boolean })
   @Column({ name: 'first_tutorial', type: 'boolean', default: false })
   firstTutorial: boolean;
@@ -87,6 +91,14 @@ export class User {
   @ApiProperty({ description: 'is active of the user', type: Boolean })
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
+
+  @ApiProperty({ description: 'show ads of the user', type: Boolean })
+  @Column({ name: 'show_ads', type: 'boolean', default: true })
+  showAds: boolean;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'ads_free_expiration', type: 'timestamptz', nullable: true })
+  adsFreeExpiration: Date;
 
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
   lessonProgress: LessonProgress[];
