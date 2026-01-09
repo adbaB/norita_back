@@ -98,7 +98,7 @@ export class UsersService {
     }
 
     const passwordHash = await hashPassword(password);
-    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage())?.url;
     const user = this.userRepo.create({
       password: passwordHash,
       deviceJWT: jwt,

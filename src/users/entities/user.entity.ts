@@ -57,7 +57,6 @@ export class User {
   isPremium: boolean;
 
   @Exclude({ toPlainOnly: true })
-  @ApiProperty({ description: 'subscription expires at', type: Date })
   @Column({ name: 'subscription_expires_at', type: 'timestamp', nullable: true })
   subscriptionExpiresAt: Date;
 

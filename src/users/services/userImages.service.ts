@@ -34,6 +34,11 @@ export class UserImagesService {
 
   async getRandomImage(): Promise<UserImages> {
     const images = await this.userImagesRepo.find();
+
+    if (images.length <= 0) {
+      return null;
+    }
+
     const randomIndex = Math.floor(Math.random() * images.length);
     return images[randomIndex];
   }
