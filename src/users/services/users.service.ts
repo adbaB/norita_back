@@ -13,6 +13,7 @@ import { RegisterDto } from '../dto/user/create-user.dto';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { User } from '../entities/user.entity';
 import { LevelService } from './level.service';
+import { UserImagesService } from './userImages.service';
 
 /**
  * UsersService is a service that handles user-related operations.
@@ -24,6 +25,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly levelService: LevelService,
     private readonly lessonProgressService: LessonProgressService,
+    private readonly userImagesService: UserImagesService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
@@ -42,11 +44,12 @@ export class UsersService {
     }
 
     const passwordHash = await hashPassword(password);
-
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
     const user = this.userRepo.create({
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
+      image,
       coin: initialCoins,
       firstRewards: firstRewards || false,
       secondRewards: secondRewards || false,
@@ -95,11 +98,12 @@ export class UsersService {
     }
 
     const passwordHash = await hashPassword(password);
-
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
     const user = this.userRepo.create({
       password: passwordHash,
       deviceJWT: jwt,
       ...rest,
+      image,
       coin: initialCoins,
       firstRewards: firstRewards || false,
       secondRewards: secondRewards || false,
