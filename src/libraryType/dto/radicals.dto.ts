@@ -122,7 +122,7 @@ export class RadicalsDTO {
   word: string;
 
   @ApiProperty({ type: String, required: false, nullable: true, description: 'wordRomaji' })
-  @IsString({ message: 'wordRomaji must be a string' })
+  @IsString({ message: 'wordHiragana must be a string' })
   @IsOptional()
   wordHiragana: string;
 

@@ -22,4 +22,13 @@ export class updateLessonProgressDTO {
   })
   @IsOptional()
   rewardClaimed: boolean;
+
+  @ApiProperty({
+    description: 'Has seen alert ship',
+    nullable: true,
+    required: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  hasSeenAlertShip: boolean;
 }

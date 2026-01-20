@@ -68,7 +68,14 @@ export class LessonProgressService {
 
     lessonProgress.lastLineSeen = dto.lastLineSeen;
 
+    if (dto.hasSeenAlertShip !== undefined) {
+      lessonProgress.hasSeenAlertShip = dto.hasSeenAlertShip;
+    }
+
     if (dto.rewardClaimed && !lessonProgress.rewardClaimed) {
+      if (lessonProgress.hasSeenAlertShip) {
+        throw new ConflictException('Cannot claim reward if the user has seen the alert ship');
+      }
       lessonProgress.rewardClaimed = true;
       lessonProgress.dateRewardClaimed = new Date();
       await this.usersService.increaseCoins(userUUID, lessonProgress?.lesson?.reward);
