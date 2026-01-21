@@ -104,7 +104,7 @@ export class Lesson implements IOrder {
   timeToUnlock: number;
 
   @OneToMany(() => Comments, (comments) => comments.lesson)
-  comments: Comments[];
+  comments: Comments[] | Comments | null;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

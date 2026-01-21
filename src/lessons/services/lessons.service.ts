@@ -60,12 +60,16 @@ export class LessonsService {
       .where('lesson.uuid = :uuid', { uuid });
 
     if (userUUID) {
-      queryBuilder.leftJoinAndSelect(
-        'lesson.lessonProgress',
-        'lessonProgress',
-        'lessonProgress.user_uuid = :userUUID',
-        { userUUID },
-      );
+      queryBuilder
+        .leftJoinAndSelect(
+          'lesson.lessonProgress',
+          'lessonProgress',
+          'lessonProgress.user_uuid = :userUUID',
+          { userUUID },
+        )
+        .leftJoinAndSelect('lesson.comments', 'comment', 'comment.user_uuid = :userUUID', {
+          userUUID,
+        });
     }
     const lesson = await queryBuilder.getOne();
 
@@ -113,6 +117,12 @@ export class LessonsService {
       lesson.lessonContent.glossaries = lesson.lessonContent.glossaries.sort(
         (a, b) => a?.order - b?.order,
       );
+    }
+
+    if (Array.isArray(lesson.comments) && lesson.comments.length > 0) {
+      lesson.comments = lesson.comments[0];
+    } else {
+      lesson.comments = null;
     }
 
     return lesson;

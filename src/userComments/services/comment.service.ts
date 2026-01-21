@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { formatResponse, getSkip } from '../../utils/functions';
 import { FormatResponse } from '../../utils/responses';
-import { CreateCommentDto, findComment } from '../dto/comments.dto';
+import { CreateCommentDto, findComment, UpdateCommentDto } from '../dto/comments.dto';
 import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
 import { UserLikesService } from './userLikes.service';
@@ -73,6 +73,23 @@ export class CommentsService {
 
     const total = await this.commentsRepository.count({ where: { lesson: { uuid } } });
     return { average: average.rating, rating, total };
+  }
+
+  async update(uuid: string, userUuid: string, dto: UpdateCommentDto): Promise<Comments> {
+    const comment = await this.commentsRepository.findOne({
+      where: { uuid, user: { uuid: userUuid } },
+    });
+
+    if (!comment) {
+      throw new ConflictException('User has not commented on this lesson');
+    }
+
+    if (dto.userLikes && dto.userLikes.length > 0) {
+      await this.userLikesService.updateLikes(userUuid, dto.userLikes);
+    }
+
+    const commentUpdate = this.commentsRepository.merge(comment, dto);
+    return this.commentsRepository.save(commentUpdate);
   }
 
   async delete(uuid: string, userUuid: string): Promise<void> {
