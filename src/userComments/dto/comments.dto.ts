@@ -1,6 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsOptional, IsUUID, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+  Max,
+  Min,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 import { Paginate } from '../../utils/models/paginate-request';
 
 export class UserLike {
@@ -25,6 +34,7 @@ export class CreateCommentDto {
     description: 'Content of the comment',
     example: 'This is a great lesson!',
   })
+  @ValidateIf((o) => o.rating === null && o.rating === undefined)
   @IsNotEmpty()
   comment: string;
 
@@ -39,9 +49,10 @@ export class CreateCommentDto {
     description: 'Rating given in the comment (1 to 5)',
     example: 4,
   })
-  @IsNotEmpty()
   @Min(1)
   @Max(5)
+  @ValidateIf((o) => o.comment === null || o.comment === undefined)
+  @IsNotEmpty()
   rating: number;
 
   @ApiProperty({
@@ -61,3 +72,7 @@ export class findComment extends Paginate {
   @IsUUID('4')
   lessonUuid: string;
 }
+
+export class UpdateCommentDto extends PartialType(
+  OmitType(CreateCommentDto, ['lessonUuid'] as const),
+) {}

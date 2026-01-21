@@ -12,7 +12,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { FormatResponse, PaginatedResponse, UpdateResponse } from '../../utils/responses';
-import { CreateCommentDto } from '../dto/comments.dto';
+import { CreateCommentDto, UpdateCommentDto } from '../dto/comments.dto';
 import { LikesDto } from '../dto/likes.dto';
 import { Comments } from '../entities/comments.entity';
 import { StatsResponse } from '../interfaces/stats.reponse';
@@ -60,6 +60,15 @@ export class CommentsController {
     @Body() userLikes: LikesDto[],
   ): Promise<UpdateResponse> {
     return this.userLikesService.updateLikes(userUuid, userLikes);
+  }
+
+  @Put('/:uuid')
+  async update(
+    @User('uuid') userUuid: string,
+    @Param('uuid') uuid: string,
+    @Body() dto: UpdateCommentDto,
+  ): Promise<Comments> {
+    return this.commentsService.update(uuid, userUuid, dto);
   }
 
   @Delete('/:uuid')

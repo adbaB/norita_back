@@ -48,6 +48,9 @@ export class LessonProgress {
   @Column({ name: 'is_unlocked', type: 'boolean', default: false })
   isUnlocked: boolean;
 
+  @Column({ name: 'has_seen_alert_ship', type: 'boolean', default: false })
+  hasSeenAlertShip: boolean;
+
   @ManyToOne(() => User, (user) => user.lessonProgress, {
     onDelete: 'CASCADE',
   })

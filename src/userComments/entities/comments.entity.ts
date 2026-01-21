@@ -44,6 +44,7 @@ export class Comments {
   })
   createdAt: Date;
 
+  @Exclude({ toPlainOnly: true })
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamptz',
@@ -52,6 +53,7 @@ export class Comments {
   })
   updatedAt: Date;
 
+  @Exclude({ toPlainOnly: true })
   @DeleteDateColumn({
     name: 'deleted_at',
     type: 'timestamptz',
