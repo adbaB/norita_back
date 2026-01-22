@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -128,4 +128,13 @@ export class Lesson implements IOrder {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ toPlainOnly: true })
+  get infoComment(): Comments {
+    if (this.comments) {
+      return this.comments[0];
+    } else {
+      return null;
+    }
+  }
 }
