@@ -104,7 +104,7 @@ export class Lesson implements IOrder {
   timeToUnlock: number;
 
   @OneToMany(() => Comments, (comments) => comments.lesson)
-  comments: Comments[] | Comments | null;
+  comments: Comments[] | null;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
@@ -131,8 +131,8 @@ export class Lesson implements IOrder {
 
   @Expose({ toPlainOnly: true })
   get infoComment(): Comments {
-    if (this.comments) {
-      return this.comments[0];
+    if (Array.isArray(this.comments)) {
+      return this.comments[0] ?? null;
     } else {
       return null;
     }
