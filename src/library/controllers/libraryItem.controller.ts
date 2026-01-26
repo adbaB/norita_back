@@ -8,8 +8,9 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
@@ -47,6 +48,16 @@ export class LibraryItemController {
       'Library item created successfully',
       await this.libraryItemService.create(uuid, body),
     );
+  }
+
+  @Get('search')
+  @ApiQuery({ name: 'term', required: true, type: String })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  async search(
+    @Query('term') term: string,
+    @Query('limit') limit: number = 5,
+  ): Promise<LibraryItem[]> {
+    return this.libraryItemService.searchBySpanish(term, limit);
   }
 
   @Get(':uuid')

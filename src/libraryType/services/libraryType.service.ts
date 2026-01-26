@@ -126,4 +126,52 @@ export class LibraryTypeService {
 
     return data;
   }
+
+  async searchBySpanish(term: string, limit: number = 5): Promise<LibraryItem[]> {
+    const termLike = `%${term}%`;
+    const searchConfig = [
+      { type: LibraryItemTypeEnum.KANA, field: 'traductionSpanish', prop: 'kana' },
+      { type: LibraryItemTypeEnum.KANJI, field: 'traductionsSpanish', prop: 'kanji' },
+      { type: LibraryItemTypeEnum.ADJECTIVE, field: 'traductionSpanish', prop: 'adjectives' },
+      { type: LibraryItemTypeEnum.NUMBERS, field: 'traductionsSpanish', prop: 'numbers' },
+      { type: LibraryItemTypeEnum.COUNTER, field: 'traductionSpanish', prop: 'counters' },
+      { type: LibraryItemTypeEnum.RADICAL, field: 'traductionSpanish', prop: 'radicals' },
+      { type: LibraryItemTypeEnum.ONOMATOPOEIA, field: 'traductionSpanish', prop: 'onomatopoeia' },
+    ];
+
+    const results: LibraryItem[] = [];
+
+    for (const { type, field, prop } of searchConfig) {
+      const repo = this.getRepository(type);
+      const alias = type;
+      // Use query builder to filter inside the JSONB array
+      const data = await repo
+        .createQueryBuilder(alias)
+        .leftJoinAndSelect(`${alias}.libraryItem`, 'libraryItem')
+        .where(
+          `EXISTS (
+            SELECT 1 FROM jsonb_array_elements(${alias}.${field}) as el 
+            WHERE el->>'traduction' ILIKE :term
+          )`,
+          { term: termLike },
+        )
+        .take(limit)
+        .getMany();
+
+      // Transform result to return LibraryItem with the specific type populated
+      const mapped = data.map(
+        (item: Kanji | Adjectives | Counters | Kana | Onomatopoeia | Radicals | Numbers) => {
+          const libraryItem = item.libraryItem;
+          // Attach the item to the libraryItem on the correct property (child-to-parent reverse mapping simulation)
+          libraryItem[prop] = item;
+          // Remove circular reference or cleanup if necessary, but returning libraryItem is the key
+          return libraryItem;
+        },
+      );
+
+      results.push(...mapped);
+    }
+
+    return results;
+  }
 }

@@ -95,6 +95,10 @@ export class LibraryItemService {
     };
   }
 
+  async searchBySpanish(term: string, limit: number): Promise<LibraryItem[]> {
+    return this.libraryTypeService.searchBySpanish(term, limit);
+  }
+
   async findOne(uuid: string): Promise<LibraryItem> {
     return this.libraryItemRepo.findOne({
       where: {
