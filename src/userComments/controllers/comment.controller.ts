@@ -42,8 +42,9 @@ export class CommentsController {
     @Query('limit', ParseIntPipe) limit: number,
     @Query('page', ParseIntPipe) page: number,
     @Param('uuid') uuid: string,
+    @User() user: string,
   ): Promise<FormatResponse<Comments>> {
-    const comments = await this.commentsService.findAll({ lessonUuid: uuid, limit, page });
+    const comments = await this.commentsService.findAll({ lessonUuid: uuid, limit, page }, user);
     return new PaginatedResponse(
       true,
       'Comments fetched successfully',
