@@ -70,4 +70,7 @@ export class Comments {
   getDislikesCount(): number {
     return this.Userlikes ? this.Userlikes.filter((like) => !like.isLike).length : 0;
   }
+
+  @Expose()
+  userLiked: boolean | null;
 }

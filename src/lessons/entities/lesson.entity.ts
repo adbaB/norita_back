@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -104,7 +104,7 @@ export class Lesson implements IOrder {
   timeToUnlock: number;
 
   @OneToMany(() => Comments, (comments) => comments.lesson)
-  comments: Comments[] | Comments | null;
+  comments: Comments[] | null;
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({
@@ -128,4 +128,13 @@ export class Lesson implements IOrder {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ toPlainOnly: true })
+  get infoComment(): Comments {
+    if (Array.isArray(this.comments)) {
+      return this.comments[0] ?? null;
+    } else {
+      return null;
+    }
+  }
 }

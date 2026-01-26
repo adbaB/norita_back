@@ -119,11 +119,7 @@ export class LessonsService {
       );
     }
 
-    if (Array.isArray(lesson.comments) && lesson.comments.length > 0) {
-      lesson.comments = lesson.comments[0];
-    } else {
-      lesson.comments = null;
-    }
+    delete lesson.comments;
 
     return lesson;
   }

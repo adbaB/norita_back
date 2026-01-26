@@ -38,11 +38,12 @@ export class CommentsService {
     }
     return this.commentsRepository.save(newComment);
   }
-  async findAll(dto: findComment): Promise<FormatResponse<Comments>> {
+
+  async findAll(dto: findComment, user: string): Promise<FormatResponse<Comments>> {
     const { limit, page, lessonUuid } = dto;
     const skip = getSkip(limit, page);
     const [comments, total] = await this.commentsRepository.findAndCount({
-      relations: { Userlikes: true, user: true },
+      relations: { Userlikes: { user: true }, user: true },
       where: { lesson: { uuid: lessonUuid } },
       select: {
         user: {
@@ -54,6 +55,12 @@ export class CommentsService {
       take: limit,
       skip,
     });
+
+    comments.forEach((comment) => {
+      const userLike = comment.Userlikes.find((like) => like.user.uuid === user);
+      comment.userLiked = userLike ? userLike.isLike : null;
+    });
+
     return formatResponse(comments, page, limit, total);
   }
 
