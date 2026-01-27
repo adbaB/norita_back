@@ -95,8 +95,23 @@ export class LibraryItemService {
     };
   }
 
-  async searchBySpanish(term: string, limit: number): Promise<LibraryItem[]> {
-    return this.libraryTypeService.searchBySpanish(term, limit);
+  async searchBySpanish(
+    term: string,
+    limit: number,
+    userUuid?: string,
+  ): Promise<
+    Record<
+      string,
+      (LibraryItem & {
+        unlocked: boolean;
+        libraryUnlocked: boolean;
+        sectionUnlocked: boolean;
+        hiragana: string | null;
+        romaji: string | null;
+      })[]
+    >
+  > {
+    return this.libraryTypeService.searchBySpanish(term, limit, userUuid);
   }
 
   async findOne(uuid: string): Promise<LibraryItem> {
@@ -112,6 +127,7 @@ export class LibraryItemService {
         numbers: true,
         onomatopoeia: true,
         radicals: true,
+        vocabulary: true,
       },
     });
   }
