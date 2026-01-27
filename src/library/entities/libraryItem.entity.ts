@@ -144,6 +144,21 @@ export class LibraryItem implements IOrder {
   })
   deletedAt?: Date;
 
+  @Exclude({ toPlainOnly: true })
+  unlocked?: boolean;
+
+  @Exclude({ toPlainOnly: true })
+  libraryUnlocked?: boolean;
+
+  @Exclude({ toPlainOnly: true })
+  sectionUnlocked?: boolean;
+
+  @Exclude({ toPlainOnly: true })
+  hiragana?: string | null;
+
+  @Exclude({ toPlainOnly: true })
+  romaji?: string | null;
+
   @Expose({ toPlainOnly: true, name: 'info' })
   info(): Adjectives | Counters | Kana | Kanji | Numbers | Onomatopoeia | Radicals | Vocabulary {
     if (this.type === LibraryItemTypeEnum.KANA) return this.kana;

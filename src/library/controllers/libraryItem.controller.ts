@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseArrayPipe,
+  ParseIntPipe,
   ParseUUIDPipe,
   Post,
   Put,
@@ -21,6 +22,7 @@ import {
 import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.dto';
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibraryItemService } from '../services/libraryItem.service';
+import { User } from 'src/users/decorators/user.decorator';
 
 @ApiBearerAuth()
 @Controller('library/item')
@@ -55,9 +57,21 @@ export class LibraryItemController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async search(
     @Query('term') term: string,
-    @Query('limit') limit: number = 5,
-  ): Promise<LibraryItem[]> {
-    return this.libraryItemService.searchBySpanish(term, limit);
+    @Query('limit', ParseIntPipe) limit: number = 5,
+    @User() userUuid: string,
+  ): Promise<
+    Record<
+      string,
+      (LibraryItem & {
+        unlocked: boolean;
+        libraryUnlocked: boolean;
+        sectionUnlocked: boolean;
+        hiragana: string | null;
+        romaji: string | null;
+      })[]
+    >
+  > {
+    return this.libraryItemService.searchBySpanish(term, limit, userUuid);
   }
 
   @Get(':uuid')
