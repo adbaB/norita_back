@@ -97,7 +97,7 @@ export class Lesson implements IOrder {
   progress: LessonProgress;
 
   @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
-  @Column({ name: 'order', type: 'decimal', precision: 10, scale: 2 })
+  @Column({ name: 'order', type: 'integer' })
   order: number;
 
   @Column({ name: 'time_to_unlock', type: 'integer', default: 0 })
