@@ -119,8 +119,6 @@ export class LessonsService {
       );
     }
 
-    delete lesson.comments;
-
     return lesson;
   }
 

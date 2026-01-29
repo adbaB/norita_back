@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, SerializeOptions } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
@@ -26,6 +26,7 @@ export class SectionController {
 
   @ApiResponse({ status: 200, type: [Section], description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @SerializeOptions({ groups: ['show-comments'] })
   @Get()
   async findAll(@User() userUUID: string): Promise<Section[]> {
     return this.sectionService.findAll(userUUID);

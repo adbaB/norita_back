@@ -103,6 +103,8 @@ export class Lesson implements IOrder {
   @Column({ name: 'time_to_unlock', type: 'integer', default: 0 })
   timeToUnlock: number;
 
+  @Exclude()
+  @Expose({ groups: ['show-comments'] })
   @OneToMany(() => Comments, (comments) => comments.lesson)
   comments: Comments[] | null;
 
