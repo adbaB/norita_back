@@ -23,6 +23,7 @@ import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.d
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibraryItemService } from '../services/libraryItem.service';
 import { User } from 'src/users/decorators/user.decorator';
+import { SearchResponse } from 'src/libraryType/interfaces/response/search.interface';
 
 @ApiBearerAuth()
 @Controller('library/item')
@@ -59,18 +60,7 @@ export class LibraryItemController {
     @Query('term') term: string,
     @Query('limit', ParseIntPipe) limit: number = 5,
     @User() userUuid: string,
-  ): Promise<
-    Record<
-      string,
-      (LibraryItem & {
-        unlocked: boolean;
-        libraryUnlocked: boolean;
-        sectionUnlocked: boolean;
-        hiragana: string | null;
-        romaji: string | null;
-      })[]
-    >
-  > {
+  ): Promise<Record<string, SearchResponse[]>> {
     return this.libraryItemService.searchBySpanish(term, limit, userUuid);
   }
 

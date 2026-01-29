@@ -8,6 +8,7 @@ import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.dto';
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibrarySectionService } from './librarySection.service';
+import { SearchResponse } from 'src/libraryType/interfaces/response/search.interface';
 
 @Injectable()
 export class LibraryItemService {
@@ -99,18 +100,7 @@ export class LibraryItemService {
     term: string,
     limit: number,
     userUuid?: string,
-  ): Promise<
-    Record<
-      string,
-      (LibraryItem & {
-        unlocked: boolean;
-        libraryUnlocked: boolean;
-        sectionUnlocked: boolean;
-        hiragana: string | null;
-        romaji: string | null;
-      })[]
-    >
-  > {
+  ): Promise<Record<string, SearchResponse[]>> {
     return this.libraryTypeService.searchBySpanish(term, limit, userUuid);
   }
 
