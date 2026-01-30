@@ -39,7 +39,7 @@ export class Kanji {
   images: StepImage[];
 
   @Column({ type: 'jsonb', default: [] })
-  traductionsSpanish: TraductionSpanish[];
+  traductionSpanish: TraductionSpanish[];
 
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   word: string;

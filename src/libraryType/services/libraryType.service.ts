@@ -12,6 +12,7 @@ import { Onomatopoeia } from '../entities/onomatopoeia.entity';
 import { Radicals } from '../entities/radicals.entity';
 
 import { Vocabulary } from '../entities/vocabulary.entity';
+import { SearchResponse } from '../interfaces/response/search.interface';
 
 export type EntityTypeMap = {
   [LibraryItemTypeEnum.ADJECTIVE]: Adjectives;
@@ -134,18 +135,7 @@ export class LibraryTypeService {
     term: string,
     limit: number = 5,
     userUuid?: string,
-  ): Promise<
-    Record<
-      string,
-      (LibraryItem & {
-        unlocked: boolean;
-        libraryUnlocked: boolean;
-        sectionUnlocked: boolean;
-        hiragana: string | null;
-        romaji: string | null;
-      })[]
-    >
-  > {
+  ): Promise<Record<string, SearchResponse[]>> {
     const termLike = `%${term}%`;
     const searchConfig = [
       {
@@ -156,7 +146,7 @@ export class LibraryTypeService {
       },
       {
         type: LibraryItemTypeEnum.KANJI,
-        field: 'traductionsSpanish',
+        field: 'traductionSpanish',
         prop: 'kanji',
         readingFields: [],
       },
@@ -168,7 +158,7 @@ export class LibraryTypeService {
       },
       {
         type: LibraryItemTypeEnum.NUMBERS,
-        field: 'traductionsSpanish',
+        field: 'traductionSpanish',
         prop: 'numbers',
         readingFields: ['romanNumber'],
       },
@@ -198,16 +188,7 @@ export class LibraryTypeService {
       },
     ];
 
-    const results: Record<
-      string,
-      (LibraryItem & {
-        unlocked: boolean;
-        libraryUnlocked: boolean;
-        sectionUnlocked: boolean;
-        hiragana: string | null;
-        romaji: string | null;
-      })[]
-    > = {};
+    const results: Record<string, SearchResponse[]> = {};
 
     for (const { type, field, prop, readingFields } of searchConfig) {
       const repo = this.getRepository(type);
@@ -308,23 +289,21 @@ export class LibraryTypeService {
           }
 
           return {
-            ...libraryItem,
+            uuid: libraryItem.uuid,
+            type: libraryItem.type,
+            package: libraryItem.package,
             unlocked: libraryUnlocked && sectionUnlocked,
             libraryUnlocked,
             sectionUnlocked,
             hiragana,
             romaji,
+            word: item.word,
+            traductionSpanish: item.traductionSpanish,
           };
         },
       );
 
-      results[type] = mapped as (LibraryItem & {
-        unlocked: boolean;
-        libraryUnlocked: boolean;
-        sectionUnlocked: boolean;
-        hiragana: string | null;
-        romaji: string | null;
-      })[];
+      results[type] = mapped as SearchResponse[];
     }
 
     return results;

@@ -33,7 +33,7 @@ export class Numbers {
   stepImage: StepImage[];
 
   @Column({ type: 'jsonb', default: [] })
-  traductionsSpanish: TraductionSpanish[];
+  traductionSpanish: TraductionSpanish[];
 
   @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
   word: string;
