@@ -13,6 +13,7 @@ import {
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { LibrarySectionUser } from '../../libraryUser/entities/librarySectionUser.entity';
 import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
+import { Schedule } from '../../schedules/entities/schedule.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { RoleEnum } from '../enum/role.enum';
@@ -99,6 +100,13 @@ export class User {
   @Exclude({ toPlainOnly: true })
   @Column({ name: 'ads_free_expiration', type: 'timestamptz', nullable: true })
   adsFreeExpiration: Date;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'notification_token', type: 'varchar', length: 255, nullable: true })
+  notificationToken: string;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.user)
+  schedules: Schedule[];
 
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
   lessonProgress: LessonProgress[];
