@@ -30,6 +30,6 @@ import { NotificationService } from './service/notification.service';
     },
     NotificationService,
   ],
-  exports: [FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING],
+  exports: [FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING, NotificationService],
 })
 export class FirebaseModule {}
