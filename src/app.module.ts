@@ -7,6 +7,7 @@ import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
 import { FileModule } from './files/file.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { LessonAccessModule } from './lessonAccess/lesson-access.module';
 import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
@@ -27,6 +28,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     AuthModule,
     LessonsModule,
     LessonProgressModule,
+    LessonAccessModule,
     UserCommentsModule,
     FileModule,
     LibraryModule,

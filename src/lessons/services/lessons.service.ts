@@ -67,6 +67,12 @@ export class LessonsService {
           'lessonProgress.user_uuid = :userUUID',
           { userUUID },
         )
+        .leftJoinAndSelect(
+          'lesson.lessonAccess',
+          'lessonAccess',
+          'lessonAccess.user_uuid = :userUUID',
+          { userUUID },
+        )
         .leftJoinAndSelect('lesson.comments', 'comment', 'comment.user_uuid = :userUUID', {
           userUUID,
         });
@@ -79,6 +85,9 @@ export class LessonsService {
 
     if (lesson.lessonProgress) {
       lesson['progress'] = lesson.lessonProgress[0];
+    }
+    if (lesson.lessonAccess) {
+      lesson['access'] = lesson.lessonAccess[0];
     }
     if (lesson?.lessonContent) {
       lesson.lessonContent.audioPopups = await this.fileService

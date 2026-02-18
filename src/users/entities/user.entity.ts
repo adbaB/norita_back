@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { LessonAccess } from '../../lessonAccess/entity/lesson-access.entity';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { LibrarySectionUser } from '../../libraryUser/entities/librarySectionUser.entity';
 import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
@@ -111,6 +112,9 @@ export class User {
 
   @OneToMany(() => LessonProgress, (lessonProgress) => lessonProgress.user)
   lessonProgress: LessonProgress[];
+
+  @OneToMany(() => LessonAccess, (lessonAccess) => lessonAccess.user)
+  lessonAccess: LessonAccess[];
 
   @OneToMany(() => LibraryUser, (libraryUser) => libraryUser.user)
   libraries: LibraryUser[];

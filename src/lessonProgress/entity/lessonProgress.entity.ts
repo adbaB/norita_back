@@ -9,17 +9,10 @@ import {
 import { Lesson } from '../../lessons/entities/lesson.entity';
 import { User } from '../../users/entities/user.entity';
 
-import { Exclude } from 'class-transformer';
-import * as moment from 'moment';
-import { TypeUnlockEnum } from '../enums/type-unlock.enum';
-
 @Entity('lesson_progress')
 export class LessonProgress {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
-
-  @Column({ name: 'unlocked_at', type: 'timestamptz' })
-  unlockedAt: Date;
 
   @Column({ type: 'boolean', default: false })
   completed: boolean;
@@ -35,18 +28,6 @@ export class LessonProgress {
 
   @Column({ name: 'date_reward_claimed', type: 'timestamptz', nullable: true })
   dateRewardClaimed: Date | null;
-
-  @Column({
-    name: 'type_unlock',
-    type: 'enum',
-    enum: TypeUnlockEnum,
-    default: null,
-    nullable: true,
-  })
-  typeUnlock: TypeUnlockEnum | null;
-
-  @Column({ name: 'is_unlocked', type: 'boolean', default: false })
-  isUnlocked: boolean;
 
   @Column({ name: 'has_seen_alert_ship', type: 'boolean', default: false })
   hasSeenAlertShip: boolean;
@@ -70,9 +51,4 @@ export class LessonProgress {
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
-
-  @Exclude({ toPlainOnly: true })
-  canUnlock(): boolean {
-    return moment().isSameOrAfter(this.unlockedAt);
-  }
 }

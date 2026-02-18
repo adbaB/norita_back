@@ -13,6 +13,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Content } from '../../contentLessons/entities/content.entity';
+import { LessonAccess } from '../../lessonAccess/entity/lesson-access.entity';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
@@ -95,6 +96,10 @@ export class Lesson implements IOrder {
 
   @OneToOne(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
   progress: LessonProgress;
+
+  @Exclude({ toPlainOnly: true })
+  @OneToMany(() => LessonAccess, (lessonAccess) => lessonAccess.lesson)
+  lessonAccess: LessonAccess[];
 
   @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
   @Column({ name: 'order', type: 'integer' })
