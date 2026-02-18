@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   DeleteDateColumn,
@@ -17,6 +17,7 @@ import { Schedule } from '../../schedules/entities/schedule.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { RoleEnum } from '../enum/role.enum';
+import { IStadistics } from '../interfaces/stadistics.interface';
 import { Level } from './level.entity';
 
 @Entity({ name: 'user' })
@@ -122,6 +123,9 @@ export class User {
 
   @OneToMany(() => UserLikes, (userLikes) => userLikes.user)
   likes: UserLikes[];
+
+  @Expose({ toPlainOnly: true })
+  stadistics: IStadistics;
 
   @Exclude({ toPlainOnly: true })
   @UpdateDateColumn({

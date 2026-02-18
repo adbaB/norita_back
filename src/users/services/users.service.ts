@@ -12,6 +12,7 @@ import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { RegisterDto } from '../dto/user/create-user.dto';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { User } from '../entities/user.entity';
+import { IStadistics } from '../interfaces/stadistics.interface';
 import { LevelService } from './level.service';
 import { UserImagesService } from './userImages.service';
 
@@ -134,6 +135,67 @@ export class UsersService {
     return this.userRepo.findOne({ where: { uuid }, relations: ['level'] });
   }
 
+  async getStadistics(uuid: string): Promise<IStadistics> {
+    const queryRunner = this.userRepo.queryRunner;
+
+    const promiseLessonCompleted = queryRunner.query(
+      `select count(lp.*) from lesson_progress lp 
+inner join lessons l on l."uuid"  = lp.lesson_uuid 
+where lp.user_uuid = ? and l.deleted_at is null and lp.completed = true`,
+      [uuid],
+    );
+
+    const promiseVocabularyCompleted = queryRunner.query(
+      `select count(lsu.*) from library_section_user lsu  
+inner join library_section ls  on ls."uuid"  = lsu.library_section_uuid 
+where lsu.user_uuid  = ? and ls.deleted_at is null `,
+      [uuid],
+    );
+
+    const promiseTotalLessons = queryRunner.query(
+      'select count(*) as total from lessons where deleted_at  is null',
+    );
+
+    const promiseTotalVocabulary = queryRunner.query(
+      'select count(*) as total from library_section where deleted_at  is null',
+    );
+
+    const [lessonCompleted, vocabularyCompleted, totalLessons, totalVocabulary] = await Promise.all(
+      [
+        promiseLessonCompleted,
+        promiseVocabularyCompleted,
+        promiseTotalLessons,
+        promiseTotalVocabulary,
+      ],
+    );
+
+    const total = parseInt(totalLessons[0].total, 10) + parseInt(totalVocabulary[0].total, 10);
+
+    const percentageTotal =
+      (parseInt(lessonCompleted[0].total, 10) + parseInt(vocabularyCompleted[0].total, 10)) / total;
+    const percentageVocabulary =
+      parseInt(vocabularyCompleted[0].total, 10) / parseInt(totalVocabulary[0].total, 10);
+    const percentageLessons =
+      parseInt(lessonCompleted[0].total, 10) / parseInt(totalLessons[0].total, 10);
+
+    return {
+      percentageTotal: Math.floor(percentageTotal[0].total),
+      percentageVocabulary: Math.floor(percentageVocabulary[0].total),
+      percentageLessons: Math.floor(percentageLessons[0].total),
+      percentageTour: 0,
+    };
+  }
+
+  async me(uuid: string): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { uuid }, relations: ['level'] });
+
+    const stadistics = await this.getStadistics(uuid);
+
+    return {
+      ...user,
+      stadistics,
+    };
+  }
   /**
    * Finds a user by email.
    * @param {string} email - The email of the user to be found.

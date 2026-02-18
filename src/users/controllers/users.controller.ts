@@ -24,7 +24,7 @@ export class UsersController {
   @ApiResponse({ status: '5XX', description: 'Internal error' })
   @Get('/me')
   findByUUID(@User() user: string): Promise<UserEntity> {
-    return this.usersService.findByUUID(user);
+    return this.usersService.me(user);
   }
 
   /**
