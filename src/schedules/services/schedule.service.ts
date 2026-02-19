@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { NotificationService } from '../../firebase/service/notification.service';
 import { Schedule } from '../entities/schedule.entity';
 import { ScheduleTypeEnum } from '../enums/schedule-type.enum';
+import { CreateScheduleDto } from '../dto/create-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -14,6 +15,48 @@ export class ScheduleService {
     @InjectRepository(Schedule) private readonly scheduleRepo: Repository<Schedule>,
     private readonly notificationService: NotificationService,
   ) {}
+
+  async createOrUpdateSchedule(
+    userId: string,
+    createScheduleDto: CreateScheduleDto,
+  ): Promise<Schedule> {
+    const { dayOfWeek, hour, timezone } = createScheduleDto;
+
+    let schedule = await this.scheduleRepo.findOne({
+      where: {
+        user: { uuid: userId },
+        dayOfWeek,
+        type: ScheduleTypeEnum.SCHEDULED,
+      },
+    });
+
+    if (schedule) {
+      schedule.hour = hour;
+      if (timezone) schedule.timezone = timezone;
+    } else {
+      schedule = this.scheduleRepo.create({
+        user: { uuid: userId },
+        dayOfWeek,
+        hour,
+        timezone,
+        type: ScheduleTypeEnum.SCHEDULED,
+      });
+    }
+
+    return this.scheduleRepo.save(schedule);
+  }
+
+  async getScheduledSchedules(userId: string): Promise<Schedule[]> {
+    return this.scheduleRepo.find({
+      where: {
+        user: { uuid: userId },
+        type: ScheduleTypeEnum.SCHEDULED,
+      },
+      order: {
+        dayOfWeek: 'ASC',
+      },
+    });
+  }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCron(): Promise<void> {
@@ -42,7 +85,7 @@ export class ScheduleService {
       .leftJoinAndSelect('schedule.user', 'user')
       .where('schedule.type = :type', { type: ScheduleTypeEnum.SCHEDULED })
       .andWhere('schedule.dayOfWeek = :dayOfWeek', { dayOfWeek })
-      .andWhere('schedule.hour LIKE :hour', { hour: `${currentHour}%` })
+      .andWhere("TO_CHAR(schedule.hour, 'HH24:MI') = :hour", { hour: currentHour })
       .andWhere('(schedule.lastSend IS NULL OR schedule.lastSend < :todayStart)', {
         todayStart: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
       })
@@ -60,7 +103,7 @@ export class ScheduleService {
   private async handleLessonNotifications(): Promise<void> {
     const now = new Date();
 
-    this.logger.debug(`Checking LESSON notifications`);
+    this.logger.debug('Checking LESSON notifications');
 
     // Buscar schedules LESSON que deben enviarse ahora
     const schedulesToSend = await this.scheduleRepo

@@ -26,4 +26,13 @@ export class UpdateUserDto extends PartialType(RegisterDto) {
   @IsOptional()
   @IsBoolean()
   isGuest?: boolean;
+
+  @ApiProperty({
+    description: 'notification token of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  notificationToken?: string;
 }

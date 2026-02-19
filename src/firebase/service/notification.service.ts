@@ -4,9 +4,7 @@ import { FIREBASE_MESSAGING } from '../constants/firebase.constant';
 
 @Injectable()
 export class NotificationService {
-  constructor(@Inject(FIREBASE_MESSAGING) private readonly fcm: messaging.Messaging) {
-    this.sendPushToToken('', 'hola', 'hola');
-  }
+  constructor(@Inject(FIREBASE_MESSAGING) private readonly fcm: messaging.Messaging) {}
 
   async sendPushToToken(
     token: string,
