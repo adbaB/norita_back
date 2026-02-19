@@ -50,16 +50,16 @@ jobs:
           script: |
 
             # =========================================================
-            # 0. CARGAR RUTAS DEL SISTEMA (PATH)
-            # =========================================================
-            export PATH="/home/ubuntu/.nvm/versions/node/v24.11.0/bin:$PATH"
-            
-            # =========================================================
-            # 1. FORZAR LA CARGA DE VARIABLES DE ENTORNO
+            # 0. FORZAR LA CARGA DE VARIABLES DE ENTORNO
             # =========================================================
             set -a
             source /etc/environment
             set +a
+            
+            # =========================================================
+            # 1. CARGAR RUTAS DEL SISTEMA (PATH)
+            # =========================================================
+            export PATH="/home/ubuntu/.nvm/versions/node/v24.11.0/bin:$PATH"
             
             # 2. Crear staging temporal y extraer
             mkdir -p /tmp/norita_staging
