@@ -6,6 +6,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -19,6 +20,7 @@ import { UpdateResponse } from '../../utils/responses';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
 import { TypeUnlockEnum } from '../enums/type-unlock.enum';
+import { LessonCompletedEvent } from '../../schedules/events/lesson-completed.event';
 
 @Injectable()
 export class LessonProgressService {
@@ -27,6 +29,7 @@ export class LessonProgressService {
     private readonly lessonProgressRepo: Repository<LessonProgress>,
     @Inject(forwardRef(() => LessonsService)) private readonly lessonsService: LessonsService,
     @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async addInitialProgress(user: User): Promise<void> {
@@ -114,18 +117,30 @@ export class LessonProgressService {
     lessonProgress.completed = true;
     lessonProgress.dateCompleted = new Date();
 
-    await this.addNextLesson(userUUID, lessonUUID);
+    const nextLesson = await this.addNextLesson(userUUID, lessonUUID);
     await this.lessonProgressRepo.save(lessonProgress);
+
+    // Emitir evento para crear notificación de la siguiente lección
+    if (nextLesson) {
+      this.eventEmitter.emit(
+        'lesson.completed',
+        new LessonCompletedEvent(userUUID, lessonUUID, nextLesson.unlockedAt),
+      );
+    }
+
     return {
       affected: 1,
       status: 200,
     };
   }
 
-  private async addNextLesson(userUUID: string, lessonUUID: string): Promise<void> {
+  private async addNextLesson(
+    userUUID: string,
+    lessonUUID: string,
+  ): Promise<LessonProgress | null> {
     const nextLesson = await this.lessonsService.getNextLesson(lessonUUID);
     if (!nextLesson) {
-      throw new NotFoundException('No next lesson found');
+      return null;
     }
     const lessonProgress = await this.lessonProgressRepo.findOne({
       where: { user: { uuid: userUUID }, lesson: { uuid: nextLesson.uuid } },
@@ -149,6 +164,7 @@ export class LessonProgressService {
       unlockedAt,
     });
     await this.lessonProgressRepo.save(newLessonProgress);
+    return newLessonProgress;
   }
 
   @Transactional()

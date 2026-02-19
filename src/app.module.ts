@@ -1,14 +1,18 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
 import { FileModule } from './files/file.module';
+import { FirebaseModule } from './firebase/firebase.module';
 import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
 import { LibraryTypeModule } from './libraryType/libraryType.module';
 import { LibraryUserModule } from './libraryUser/libraryUser.module';
+import { ScheduleModule } from './schedules/schedule.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
@@ -28,6 +32,10 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     LibraryModule,
     LibraryTypeModule,
     LibraryUserModule,
+    ScheduleModule,
+    NestScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
+    FirebaseModule,
   ],
   controllers: [],
   providers: [
