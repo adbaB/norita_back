@@ -11,7 +11,7 @@ export class CreateScheduleDto {
 
   @ApiProperty({ description: 'Hour of the notification (HH:mm)', example: '08:00' })
   @IsString()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: 'Hour must be in HH:mm format' })
+  @Matches(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, { message: 'Hour must be in HH:mm format' })
   @IsNotEmpty()
   hour: string;
 
