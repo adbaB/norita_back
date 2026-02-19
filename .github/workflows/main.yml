@@ -48,6 +48,14 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+
+            # =========================================================
+            # 0. CARGAR RUTAS DEL SISTEMA (PATH)
+            # =========================================================
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:/home/ubuntu/.local/share/pnpm
+            if [ -f ~/.nvm/nvm.sh ]; then source ~/.nvm/nvm.sh; fi
+            source ~/.profile || true
+            
             # =========================================================
             # 1. FORZAR LA CARGA DE VARIABLES DE ENTORNO
             # =========================================================
