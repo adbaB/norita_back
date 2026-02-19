@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { IOrder } from '../../utils/interfaces/order.interface';
+import { Goal } from '../../goals/entities/goal.entity';
 import { Lesson } from './lesson.entity';
 
 @Entity('sections')
@@ -29,6 +30,9 @@ export class Section implements IOrder {
   @ApiProperty({ description: 'Lessons in the section', type: () => [Lesson] })
   @OneToMany(() => Lesson, (lesson) => lesson.section)
   lessons: Lesson[];
+
+  @OneToMany(() => Goal, (goal) => goal.section)
+  goals: Goal[];
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

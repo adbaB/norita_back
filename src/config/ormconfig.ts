@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
+import { SectionSubscriber } from '../goals/subscribers/section.subscriber';
 
 config();
 
@@ -15,6 +16,7 @@ const source = new DataSource({
   database: configService.get('POSTGRES_DB'),
   synchronize: false,
   logging: false,
+  subscribers: [SectionSubscriber],
   migrations: ['src/database/migrations/*.ts'],
   migrationsTableName: 'migrations',
   entities: [__dirname + '/../**/**/*.entity.ts'],

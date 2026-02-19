@@ -18,6 +18,7 @@ import { UsersModule } from './users/users.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
 import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 import { ResponseInterceptor } from './utils/interceptors/apiResponse.interceptor';
+import { GoalsModule } from './goals/goals.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     NestScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     FirebaseModule,
+    GoalsModule,
   ],
   controllers: [],
   providers: [
