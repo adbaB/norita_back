@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { RegisterDto } from './create-user.dto';
 
 export class UpdateUserParamsDto {
@@ -34,5 +34,6 @@ export class UpdateUserDto extends PartialType(RegisterDto) {
     type: String,
   })
   @IsOptional()
+  @IsString()
   notificationToken?: string;
 }
