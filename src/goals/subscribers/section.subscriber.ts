@@ -1,12 +1,12 @@
+import { Injectable } from '@nestjs/common';
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
 import { Section } from '../../lessons/entities/section.entity';
 import { Goal } from '../entities/goal.entity';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 @EventSubscriber()
 export class SectionSubscriber implements EntitySubscriberInterface<Section> {
-  listenTo() {
+  listenTo(): typeof Section {
     return Section;
   }
 

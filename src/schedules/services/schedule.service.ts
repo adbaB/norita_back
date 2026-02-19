@@ -60,7 +60,7 @@ export class ScheduleService {
   private async handleLessonNotifications(): Promise<void> {
     const now = new Date();
 
-    this.logger.debug(`Checking LESSON notifications`);
+    this.logger.debug('Checking LESSON notifications');
 
     // Buscar schedules LESSON que deben enviarse ahora
     const schedulesToSend = await this.scheduleRepo
