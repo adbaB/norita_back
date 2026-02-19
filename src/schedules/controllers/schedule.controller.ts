@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from '../../auth/guards/jwt.guard';
+
 import { CreateScheduleDto } from '../dto/create-schedule.dto';
 import { ScheduleService } from '../services/schedule.service';
 import { User } from 'src/users/decorators/user.decorator';
@@ -8,7 +8,6 @@ import { Schedule } from '../entities/schedule.entity';
 
 @ApiTags('Schedules')
 @Controller('schedules')
-@UseGuards(JwtGuard)
 @ApiBearerAuth()
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
