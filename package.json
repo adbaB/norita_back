@@ -23,6 +23,7 @@
     "check-types": "tsc --pretty --noEmit",
     "check-lint": "pnpm exec eslint .",
     "typeorm": "typeorm-ts-node-commonjs -d src/config/ormconfig.ts",
+    "migrations:run:prod": "typeorm -d dist/config/ormconfig.js migration:run",
     "migrations:create": "typeorm-ts-node-commonjs migration:create",
     "migrations:generate": "pnpm typeorm migration:generate",
     "migrations:run": "pnpm typeorm migration:run",
