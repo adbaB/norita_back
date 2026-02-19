@@ -52,9 +52,7 @@ jobs:
             # =========================================================
             # 0. CARGAR RUTAS DEL SISTEMA (PATH)
             # =========================================================
-            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:/home/ubuntu/.local/share/pnpm
-            if [ -f ~/.nvm/nvm.sh ]; then source ~/.nvm/nvm.sh; fi
-            source ~/.profile || true
+            export PATH="/home/ubuntu/.nvm/versions/node/v24.11.0/bin:$PATH"
             
             # =========================================================
             # 1. FORZAR LA CARGA DE VARIABLES DE ENTORNO
