@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/ts/quotes */
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,7 +11,7 @@ import { CreateScheduleDto } from '../dto/create-schedule.dto';
 @Injectable()
 export class ScheduleService {
   private readonly logger = new Logger(ScheduleService.name);
-
+  private isRunning = false;
   constructor(
     @InjectRepository(Schedule) private readonly scheduleRepo: Repository<Schedule>,
     private readonly notificationService: NotificationService,
@@ -60,35 +61,40 @@ export class ScheduleService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCron(): Promise<void> {
+    if (this.isRunning) {
+      this.logger.warn('Previous cron still running, skipping tick');
+      return;
+    }
+    this.isRunning = true;
     try {
       await this.handleScheduledNotifications();
       await this.handleLessonNotifications();
     } catch (error) {
       this.logger.error(`Error in cron job: ${error.message}`, error.stack);
+    } finally {
+      this.isRunning = false;
     }
   }
 
   private async handleScheduledNotifications(): Promise<void> {
-    const now = new Date();
+    this.logger.debug('Checking SCHEDULED notifications with timezone support');
 
-    // Obtener día de la semana (1 = Lunes, 7 = Domingo)
-    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-
-    // Obtener hora actual en formato HH:MM
-    const currentHour = now.toTimeString().split(' ')[0].substring(0, 5);
-
-    this.logger.debug(`Checking SCHEDULED notifications for day ${dayOfWeek} at ${currentHour}`);
-
-    // Buscar schedules SCHEDULED que coincidan con el día y hora actual
     const schedulesToSend = await this.scheduleRepo
       .createQueryBuilder('schedule')
       .leftJoinAndSelect('schedule.user', 'user')
       .where('schedule.type = :type', { type: ScheduleTypeEnum.SCHEDULED })
-      .andWhere('schedule.dayOfWeek = :dayOfWeek', { dayOfWeek })
-      .andWhere("TO_CHAR(schedule.hour, 'HH24:MI') = :hour", { hour: currentHour })
-      .andWhere('(schedule.lastSend IS NULL OR schedule.lastSend < :todayStart)', {
-        todayStart: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      })
+
+      .andWhere(
+        "EXTRACT(ISODOW FROM (NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC'))) = schedule.dayOfWeek",
+      )
+
+      .andWhere(
+        "TO_CHAR(NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC'), 'HH24:MI') = TO_CHAR(schedule.hour, 'HH24:MI')",
+      )
+
+      .andWhere(
+        "(schedule.lastSend IS NULL OR schedule.lastSend < (DATE_TRUNC('day', NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC')) AT TIME ZONE COALESCE(schedule.timezone, 'UTC')))",
+      )
       .getMany();
 
     this.logger.log(`Found ${schedulesToSend.length} SCHEDULED notifications to send`);
