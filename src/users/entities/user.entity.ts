@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   DeleteDateColumn,
@@ -18,6 +18,7 @@ import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { UserDiaryAikoItem } from '../../diaryAiko/entities/userDiaryAikoItem.entity';
 import { RoleEnum } from '../enum/role.enum';
+import { IStatistics } from '../interfaces/statistics.interface';
 import { Level } from './level.entity';
 
 @Entity({ name: 'user' })
@@ -141,4 +142,7 @@ export class User {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ toPlainOnly: true })
+  statistics?: IStatistics | null;
 }

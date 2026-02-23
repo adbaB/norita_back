@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { ConfigType } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Transactional } from 'typeorm-transactional';
+
 import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
@@ -12,6 +13,7 @@ import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { RegisterDto } from '../dto/user/create-user.dto';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
 import { User } from '../entities/user.entity';
+import { IStatistics } from '../interfaces/statistics.interface';
 import { LevelService } from './level.service';
 import { UserImagesService } from './userImages.service';
 
@@ -134,6 +136,108 @@ export class UsersService {
     return this.userRepo.findOne({ where: { uuid }, relations: ['level'] });
   }
 
+  async getStatistics(uuid: string): Promise<IStatistics> {
+    const manager = this.userRepo.manager;
+
+    const promiseLessonCompleted = manager.query(
+      `select count(lp.*) as total from lesson_progress lp 
+inner join lessons l on l."uuid"  = lp.lesson_uuid 
+where lp.user_uuid = $1 and l.deleted_at is null and lp.completed = true`,
+      [uuid],
+    );
+
+    const promiseVocabularyCompleted = manager.query(
+      `select count(lsu.*) as total from library_section_user lsu  
+inner join library_section ls  on ls."uuid"  = lsu.library_section_uuid 
+where lsu.user_uuid  = $1 and ls.deleted_at is null `,
+      [uuid],
+    );
+
+    const promiseTotalTourAikoUnlocked = manager.query(
+      'select count(*) as total from user_diary_aiko_items where user_uuid = $1 and is_unlocked = true',
+      [uuid],
+    );
+
+    const promiseTotalLessons = manager.query(
+      'select count(*) as total from lessons where deleted_at  is null',
+    );
+
+    const promiseTotalVocabulary = manager.query(
+      'select count(*) as total from library_section where deleted_at  is null',
+    );
+
+    const promiseTotalItemTourAiko = manager.query(
+      'select count(*) as total from diary_aiko_items',
+    );
+
+    const [
+      lessonCompleted,
+      vocabularyCompleted,
+      totalLessons,
+      totalVocabulary,
+      totalTourAikoUnlocked,
+      totalItemTourAiko,
+    ] = await Promise.all([
+      promiseLessonCompleted,
+      promiseVocabularyCompleted,
+      promiseTotalLessons,
+      promiseTotalVocabulary,
+      promiseTotalTourAikoUnlocked,
+      promiseTotalItemTourAiko,
+    ]);
+
+    const totalLessonsRaw = parseInt(totalLessons[0].total, 10);
+    const totalVocabularyRaw = parseInt(totalVocabulary[0].total, 10);
+    const totalTourAikoRaw = parseInt(totalItemTourAiko[0].total, 10);
+
+    const total = totalLessonsRaw + totalVocabularyRaw + totalTourAikoRaw;
+
+    console.log(
+      parseInt(lessonCompleted[0].total, 10) +
+        parseInt(vocabularyCompleted[0].total, 10) +
+        parseInt(totalTourAikoUnlocked[0].total, 10),
+    );
+    console.log(total);
+
+    const percentageTotal =
+      total === 0
+        ? 0
+        : (parseInt(lessonCompleted[0].total, 10) +
+            parseInt(vocabularyCompleted[0].total, 10) +
+            parseInt(totalTourAikoUnlocked[0].total, 10)) /
+          total;
+
+    const percentageVocabulary =
+      totalVocabularyRaw === 0
+        ? 0
+        : parseInt(vocabularyCompleted[0].total, 10) / totalVocabularyRaw;
+
+    const percentageLessons =
+      totalLessonsRaw === 0 ? 0 : parseInt(lessonCompleted[0].total, 10) / totalLessonsRaw;
+
+    const percentageTour =
+      totalTourAikoRaw === 0 ? 0 : parseInt(totalTourAikoUnlocked[0].total, 10) / totalTourAikoRaw;
+
+    console.log(percentageTotal);
+    return {
+      percentageTotal: Math.floor(percentageTotal * 100),
+      percentageVocabulary: Math.floor(percentageVocabulary * 100),
+      percentageLessons: Math.floor(percentageLessons * 100),
+      percentageTour: Math.floor(percentageTour * 100),
+    };
+  }
+
+  async me(uuid: string): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { uuid }, relations: ['level'] });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const statistics = await this.getStatistics(uuid);
+    user.statistics = statistics;
+    return user;
+  }
   /**
    * Finds a user by email.
    * @param {string} email - The email of the user to be found.
