@@ -5,9 +5,11 @@ import { Schedule } from './entities/schedule.entity';
 import { LessonCompletedListener } from './listeners/lesson-completed.listener';
 import { ScheduleService } from './services/schedule.service';
 
+import { ScheduleController } from './controllers/schedule.controller';
+
 @Module({
   imports: [TypeOrmModule.forFeature([Schedule]), FirebaseModule],
-  controllers: [],
+  controllers: [ScheduleController],
   providers: [ScheduleService, LessonCompletedListener],
   exports: [ScheduleService],
 })

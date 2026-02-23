@@ -17,7 +17,7 @@ const source = new DataSource({
   synchronize: false,
   logging: false,
   subscribers: [SectionSubscriber],
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
   entities: [__dirname + '/../**/**/*.entity.ts'],
 });
