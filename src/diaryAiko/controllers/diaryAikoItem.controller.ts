@@ -67,6 +67,7 @@ export class DiaryAikoItemController {
   @Get(':uuid')
   @ApiOperation({ summary: 'Get a Diary Aiko item by uuid' })
   @ApiResponse({ status: 200, description: 'Return the item.' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Item not found' })
   findOne(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -79,7 +80,6 @@ export class DiaryAikoItemController {
   @ApiOperation({ summary: 'Manually unlock a Diary Aiko item for the user' })
   @ApiResponse({ status: 200, description: 'Item unlocked successfully.' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 404, description: 'Item not found or not assigned' })
   async unlockItem(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @User('uuid') userUuid: string,

@@ -122,10 +122,17 @@ export class DiaryAikoItemService {
       }
     }
 
-    const item = await this.findOne(uuid);
-    this.itemRepository.merge(item, updateDto, {
-      section: { uuid: updateDto.sectionUuid || item.section.uuid },
+    const item = await this.itemRepository.findOne({
+      where: { uuid },
+      relations: { section: true },
     });
+
+    if (!item) {
+      throw new NotFoundException(`Item with UUID ${uuid} not found`);
+    }
+
+    const resolvedSectionUuid = updateDto.sectionUuid ?? item.section.uuid;
+    this.itemRepository.merge(item, updateDto, { section: { uuid: resolvedSectionUuid } });
     return await this.itemRepository.save(item);
   }
 
