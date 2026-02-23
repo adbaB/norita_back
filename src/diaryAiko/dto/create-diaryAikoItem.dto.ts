@@ -49,6 +49,6 @@ export class CreateDiaryAikoItemDto {
 
   @ApiPropertyOptional({ description: 'The UUID of the lesson that unlocks this item' })
   @IsUUID()
-  @IsOptional()
-  lessonUuid?: string;
+  @IsNotEmpty()
+  lessonUuid: string;
 }

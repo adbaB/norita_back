@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  Put,
+  HttpCode,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DiaryAikoService } from '../services/diaryAiko.service';
 import { CreateDiaryAikoSectionDto } from '../dto/create-diaryAikoSection.dto';
@@ -58,8 +68,9 @@ export class DiaryAikoController {
 
   @Delete(':uuid')
   @Roles(RoleEnum.ADMIN)
+  @HttpCode(204)
   @ApiOperation({ summary: 'Delete a Diary Aiko section' })
-  @ApiResponse({ status: 200, description: 'The section has been successfully deleted.' })
+  @ApiResponse({ status: 204, description: 'The section has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Section not found' })
   remove(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<void> {
     return this.diaryAikoService.remove(uuid);

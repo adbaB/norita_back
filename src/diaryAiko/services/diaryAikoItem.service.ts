@@ -103,7 +103,7 @@ export class DiaryAikoItemService {
     });
 
     if (!unlock) {
-      throw new NotFoundException('You do not have access to unlock this item');
+      throw new ForbiddenException('You do not have access to unlock this item');
     }
 
     if (unlock.isUnlocked) {
@@ -115,8 +115,17 @@ export class DiaryAikoItemService {
   }
 
   async update(uuid: string, updateDto: UpdateDiaryAikoItemDto): Promise<DiaryAikoItem> {
+    if (updateDto.sectionUuid) {
+      const section = await this.sectionService.findOne(updateDto.sectionUuid);
+      if (!section) {
+        throw new NotFoundException(`Section with UUID ${updateDto.sectionUuid} not found`);
+      }
+    }
+
     const item = await this.findOne(uuid);
-    this.itemRepository.merge(item, updateDto);
+    this.itemRepository.merge(item, updateDto, {
+      section: { uuid: updateDto.sectionUuid || item.section.uuid },
+    });
     return await this.itemRepository.save(item);
   }
 

@@ -10,6 +10,8 @@ import {
   Query,
   ParseIntPipe,
   Patch,
+  DefaultValuePipe,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DiaryAikoItemService, DiaryAikoItemResponse } from '../services/diaryAikoItem.service';
@@ -44,8 +46,8 @@ export class DiaryAikoItemController {
   @ApiResponse({ status: 200, description: 'Return paginated items.' })
   async findAllBySection(
     @Param('sectionUuid', ParseUUIDPipe) sectionUuid: string,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @User('uuid') userUuid: string,
   ): Promise<FormatResponse<Record<string, unknown>>> {
     const itemsData = await this.diaryAikoItemService.findAllBySection(
@@ -104,8 +106,9 @@ export class DiaryAikoItemController {
 
   @Delete(':uuid')
   @Roles(RoleEnum.ADMIN)
+  @HttpCode(204)
   @ApiOperation({ summary: 'Delete a Diary Aiko item' })
-  @ApiResponse({ status: 200, description: 'The item has been successfully deleted.' })
+  @ApiResponse({ status: 204, description: 'The item has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Item not found' })
   remove(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<void> {
     return this.diaryAikoItemService.remove(uuid);

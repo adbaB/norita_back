@@ -6,10 +6,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { DiaryAikoItem } from './diaryAikoItem.entity';
 
+@Unique(['user', 'item'])
 @Entity('user_diary_aiko_items')
 export class UserDiaryAikoItem {
   @PrimaryGeneratedColumn('uuid')
