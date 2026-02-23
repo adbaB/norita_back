@@ -87,10 +87,13 @@ export class DiaryAikoItemService {
       const unlock = await this.userItemRepository.findOne({
         where: { user: { uuid: userUuid }, item: { uuid: item.uuid } },
       });
-      const isUnlocked = unlock ? unlock.isUnlocked : false;
-      if (!isUnlocked) {
+      if (!unlock) {
+        throw new ForbiddenException('You do not have access to this item');
+      }
+      if (!unlock.isUnlocked) {
         throw new ForbiddenException("You haven't unlocked this item yet");
       }
+      const isUnlocked = unlock.isUnlocked;
       return { ...item, isUnlocked };
     }
 
