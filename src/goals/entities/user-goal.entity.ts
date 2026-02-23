@@ -8,21 +8,23 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Goal } from './goal.entity';
 
 @Entity('user_goals')
+@Unique(['user', 'goal'])
 export class UserGoal {
   @ApiProperty({ description: 'UUID of the user goal', type: String })
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 
-  @ManyToOne(() => Goal, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Goal, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'goal_uuid' })
   goal: Goal;
 

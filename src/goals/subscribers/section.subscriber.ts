@@ -21,6 +21,5 @@ export class SectionSubscriber implements EntitySubscriberInterface<Section> {
     });
 
     await goalRepository.save(goal);
-    // console.log(`Goal created for section: ${section.name}`);
   }
 }

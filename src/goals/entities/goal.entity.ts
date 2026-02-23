@@ -23,7 +23,7 @@ export class Goal {
 
   @ApiProperty({ description: 'Description of the goal', type: String })
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description: string | null;
 
   @ApiProperty({ description: 'Reward for completing the goal', type: Number, default: 0 })
   @Column({ type: 'int', default: 0 })

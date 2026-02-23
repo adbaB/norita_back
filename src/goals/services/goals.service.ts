@@ -7,6 +7,7 @@ import { Section } from '../../lessons/entities/section.entity';
 import { LessonProgressService } from 'src/lessonProgress/services/lessonProgress.service';
 import { UsersService } from 'src/users/services/users.service';
 import { UpdateGoalDto } from '../dto/update-goal.dto';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class GoalsService {
@@ -29,6 +30,7 @@ export class GoalsService {
     return this.goalRepo.save(goal);
   }
 
+  @Transactional()
   async claimGoal(userUuid: string, goalUuid: string): Promise<UserGoal> {
     const goal = await this.goalRepo.findOne({
       where: { uuid: goalUuid },
