@@ -5,7 +5,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { DiaryAikoItem } from './diaryAikoItem.entity';
 
 @Entity('diary_aiko_sections')
 export class DiaryAikoSection {
@@ -20,6 +22,9 @@ export class DiaryAikoSection {
 
   @Column({ type: 'varchar', nullable: true })
   image?: string;
+
+  @OneToMany(() => DiaryAikoItem, (item) => item.section)
+  items: DiaryAikoItem[];
 
   @Exclude()
   @CreateDateColumn({ type: 'timestamp' })

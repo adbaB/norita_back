@@ -1,14 +1,15 @@
 import { Controller, Get, Post, Body, Param, Delete, ParseUUIDPipe, Put } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { DiaryAikoService } from './diaryAiko.service';
-import { CreateDiaryAikoSectionDto } from './dto/create-diaryAikoSection.dto';
-import { UpdateDiaryAikoSectionDto } from './dto/update-diaryAikoSection.dto';
-import { DiaryAikoSection } from './entities/diaryAikoSection.entity';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { DiaryAikoService } from '../services/diaryAiko.service';
+import { CreateDiaryAikoSectionDto } from '../dto/create-diaryAikoSection.dto';
+import { UpdateDiaryAikoSectionDto } from '../dto/update-diaryAikoSection.dto';
+import { DiaryAikoSection } from '../entities/diaryAikoSection.entity';
 import { Roles } from 'src/auth/decorators/role.decorator';
 import { RoleEnum } from 'src/users/enum/role.enum';
 
 @ApiTags('Diary Aiko Sections')
 @Controller('diary-aiko-sections')
+@ApiBearerAuth()
 export class DiaryAikoController {
   constructor(private readonly diaryAikoService: DiaryAikoService) {}
 

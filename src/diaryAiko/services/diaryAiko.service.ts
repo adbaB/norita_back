@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateDiaryAikoSectionDto } from './dto/create-diaryAikoSection.dto';
-import { UpdateDiaryAikoSectionDto } from './dto/update-diaryAikoSection.dto';
-import { DiaryAikoSection } from './entities/diaryAikoSection.entity';
+import { CreateDiaryAikoSectionDto } from '../dto/create-diaryAikoSection.dto';
+import { UpdateDiaryAikoSectionDto } from '../dto/update-diaryAikoSection.dto';
+import { DiaryAikoSection } from '../entities/diaryAikoSection.entity';
 
 @Injectable()
 export class DiaryAikoService {
