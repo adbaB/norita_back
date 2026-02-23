@@ -144,5 +144,5 @@ export class User {
   deletedAt?: Date;
 
   @Expose({ toPlainOnly: true })
-  statistics: IStatistics;
+  statistics?: IStatistics | null;
 }

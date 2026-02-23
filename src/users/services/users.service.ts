@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { ConfigType } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { Transactional } from 'typeorm-transactional';
+
 import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
@@ -153,7 +154,7 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     );
 
     const promiseTotalTourAikoUnlocked = manager.query(
-      'select count(*) as total from user_diary_aiko where user_uuid = $1 and is_unlocked = true',
+      'select count(*) as total from user_diary_aiko_items where user_uuid = $1 and is_unlocked = true',
       [uuid],
     );
 
@@ -166,8 +167,7 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     );
 
     const promiseTotalItemTourAiko = manager.query(
-      'select count(*) as total from user_diary_aiko_item where user_uuid = $1',
-      [uuid],
+      'select count(*) as total from diary_aiko_items',
     );
 
     const [
@@ -192,25 +192,38 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
 
     const total = totalLessonsRaw + totalVocabularyRaw + totalTourAikoRaw;
 
+    console.log(
+      parseInt(lessonCompleted[0].total, 10) +
+        parseInt(vocabularyCompleted[0].total, 10) +
+        parseInt(totalTourAikoUnlocked[0].total, 10),
+    );
+    console.log(total);
+
     const percentageTotal =
       total === 0
         ? 0
-        : (parseInt(lessonCompleted[0].total, 10) + parseInt(vocabularyCompleted[0].total, 10)) /
+        : (parseInt(lessonCompleted[0].total, 10) +
+            parseInt(vocabularyCompleted[0].total, 10) +
+            parseInt(totalTourAikoUnlocked[0].total, 10)) /
           total;
+
     const percentageVocabulary =
       totalVocabularyRaw === 0
         ? 0
         : parseInt(vocabularyCompleted[0].total, 10) / totalVocabularyRaw;
+
     const percentageLessons =
       totalLessonsRaw === 0 ? 0 : parseInt(lessonCompleted[0].total, 10) / totalLessonsRaw;
+
     const percentageTour =
       totalTourAikoRaw === 0 ? 0 : parseInt(totalTourAikoUnlocked[0].total, 10) / totalTourAikoRaw;
 
+    console.log(percentageTotal);
     return {
-      percentageTotal: Math.floor(percentageTotal),
-      percentageVocabulary: Math.floor(percentageVocabulary),
-      percentageLessons: Math.floor(percentageLessons),
-      percentageTour: Math.floor(percentageTour),
+      percentageTotal: Math.floor(percentageTotal * 100),
+      percentageVocabulary: Math.floor(percentageVocabulary * 100),
+      percentageLessons: Math.floor(percentageLessons * 100),
+      percentageTour: Math.floor(percentageTour * 100),
     };
   }
 
@@ -222,11 +235,8 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     }
 
     const statistics = await this.getStatistics(uuid);
-
-    return {
-      ...user,
-      statistics,
-    };
+    user.statistics = statistics;
+    return user;
   }
   /**
    * Finds a user by email.
