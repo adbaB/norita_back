@@ -7,9 +7,15 @@ import { UserGoal } from './entities/user-goal.entity';
 import { SectionSubscriber } from './subscribers/section.subscriber';
 import { LessonProgressModule } from '../lessonProgress/lessonProgress.module';
 import { LessonsModule } from '../lessons/lessons.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Goal, UserGoal]), LessonProgressModule, LessonsModule],
+  imports: [
+    TypeOrmModule.forFeature([Goal, UserGoal]),
+    LessonProgressModule,
+    LessonsModule,
+    UsersModule,
+  ],
   controllers: [GoalsController],
   providers: [GoalsService, SectionSubscriber],
   exports: [GoalsService],

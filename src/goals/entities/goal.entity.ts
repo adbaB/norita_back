@@ -25,6 +25,10 @@ export class Goal {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @ApiProperty({ description: 'Reward for completing the goal', type: Number, default: 0 })
+  @Column({ type: 'int', default: 0 })
+  reward: number;
+
   @ApiProperty({ description: 'Section associated with the goal', type: () => Section })
   @ManyToOne(() => Section, (section) => section.goals)
   @JoinColumn({ name: 'section_uuid' })

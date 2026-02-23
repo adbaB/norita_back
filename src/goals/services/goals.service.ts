@@ -5,6 +5,8 @@ import { Goal } from '../entities/goal.entity';
 import { UserGoal } from '../entities/user-goal.entity';
 import { Section } from '../../lessons/entities/section.entity';
 import { LessonProgressService } from 'src/lessonProgress/services/lessonProgress.service';
+import { UsersService } from 'src/users/services/users.service';
+import { UpdateGoalDto } from '../dto/update-goal.dto';
 
 @Injectable()
 export class GoalsService {
@@ -15,6 +17,7 @@ export class GoalsService {
     private readonly userGoalRepo: Repository<UserGoal>,
 
     private readonly lessonProgressService: LessonProgressService,
+    private readonly usersService: UsersService,
   ) {}
 
   async createGoalForSection(section: Section): Promise<Goal> {
@@ -69,10 +72,26 @@ export class GoalsService {
       claimedAt: new Date(),
     });
 
-    return this.userGoalRepo.save(userGoal);
+    await this.userGoalRepo.save(userGoal);
+
+    if (goal.reward > 0) {
+      await this.usersService.increaseCoins(userUuid, goal.reward);
+    }
+
+    return userGoal;
   }
 
   async findAll(): Promise<Goal[]> {
     return this.goalRepo.find();
+  }
+
+  async update(uuid: string, updateGoalDto: UpdateGoalDto): Promise<Goal> {
+    const goal = await this.goalRepo.findOneBy({ uuid });
+    if (!goal) {
+      throw new NotFoundException('Goal not found');
+    }
+
+    Object.assign(goal, updateGoalDto);
+    return this.goalRepo.save(goal);
   }
 }
