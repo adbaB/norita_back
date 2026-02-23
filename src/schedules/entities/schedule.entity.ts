@@ -25,7 +25,7 @@ export class Schedule {
   @Column({ name: 'last_send', type: 'timestamptz', nullable: true })
   lastSend: Date;
 
-  @ManyToOne(() => User, (user) => user.schedules, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.schedules, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 }

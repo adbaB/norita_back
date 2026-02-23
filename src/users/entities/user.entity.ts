@@ -16,6 +16,7 @@ import { LibraryUser } from '../../libraryUser/entities/libraryUser.entity';
 import { Schedule } from '../../schedules/entities/schedule.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
+import { UserDiaryAikoItem } from '../../diaryAiko/entities/userDiaryAikoItem.entity';
 import { RoleEnum } from '../enum/role.enum';
 import { IStadistics } from '../interfaces/stadistics.interface';
 import { Level } from './level.entity';
@@ -124,8 +125,8 @@ export class User {
   @OneToMany(() => UserLikes, (userLikes) => userLikes.user)
   likes: UserLikes[];
 
-  @Expose({ toPlainOnly: true })
-  stadistics: IStadistics;
+  @OneToMany(() => UserDiaryAikoItem, (userDiaryAikoItem) => userDiaryAikoItem.user)
+  diaryAikoItems: UserDiaryAikoItem[];
 
   @Exclude({ toPlainOnly: true })
   @UpdateDateColumn({
@@ -141,4 +142,7 @@ export class User {
     type: 'timestamptz',
   })
   deletedAt?: Date;
+
+  @Expose({ toPlainOnly: true })
+  stadistics: IStadistics;
 }

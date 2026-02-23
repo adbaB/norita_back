@@ -8,3 +8,4 @@ nest-cli.json
 tsconfig.build.json
 tsconfig.json
 jest-e2e.json
+.github

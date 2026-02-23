@@ -15,7 +15,7 @@ const source = new DataSource({
   database: configService.get('POSTGRES_DB'),
   synchronize: false,
   logging: false,
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
   entities: [__dirname + '/../**/**/*.entity.ts'],
 });

@@ -15,6 +15,7 @@ import { LibraryUserModule } from './libraryUser/libraryUser.module';
 import { ScheduleModule } from './schedules/schedule.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
+import { DiaryAikoModule } from './diaryAiko/diaryAiko.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
 import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 import { ResponseInterceptor } from './utils/interceptors/apiResponse.interceptor';
@@ -36,6 +37,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     NestScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     FirebaseModule,
+    DiaryAikoModule,
   ],
   controllers: [],
   providers: [

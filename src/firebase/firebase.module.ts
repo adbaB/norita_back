@@ -12,15 +12,22 @@ import { NotificationService } from './service/notification.service';
       provide: FIREBASE_ADMIN_INJECT,
       inject: [config.KEY],
       useFactory: (configService: ConfigType<typeof config>): admin.app.App => {
+        const { project_id, client_email, private_key } = configService.google.firebase;
+        if (!project_id || !client_email || !private_key) {
+          throw new Error(
+            'Firebase configuration is incomplete. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY env vars.',
+          );
+        }
+
         const firebaseConfig: admin.ServiceAccount = {
-          projectId: configService.google.firebase.project_id,
-          clientEmail: configService.google.firebase.client_email,
-          privateKey: configService.google.firebase.private_key?.replace(/\\n/g, '\n'),
+          projectId: project_id,
+          clientEmail: client_email,
+          privateKey: private_key?.replace(/\\n/g, '\n'),
         };
 
-        return admin.initializeApp({
-          credential: admin.credential.cert(firebaseConfig),
-        });
+        return admin.apps.length
+          ? admin.app()
+          : admin.initializeApp({ credential: admin.credential.cert(firebaseConfig) });
       },
     },
     {
