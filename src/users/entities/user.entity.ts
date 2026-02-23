@@ -18,7 +18,7 @@ import { Comments } from '../../userComments/entities/comments.entity';
 import { UserLikes } from '../../userComments/entities/userLikes.entity';
 import { UserDiaryAikoItem } from '../../diaryAiko/entities/userDiaryAikoItem.entity';
 import { RoleEnum } from '../enum/role.enum';
-import { IStadistics } from '../interfaces/stadistics.interface';
+import { IStatistics } from '../interfaces/statistics.interface';
 import { Level } from './level.entity';
 
 @Entity({ name: 'user' })
@@ -144,5 +144,5 @@ export class User {
   deletedAt?: Date;
 
   @Expose({ toPlainOnly: true })
-  stadistics: IStadistics;
+  statistics: IStatistics;
 }

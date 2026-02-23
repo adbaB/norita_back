@@ -1,4 +1,4 @@
-export interface IStadistics {
+export interface IStatistics {
   percentageTotal: number;
   percentageVocabulary: number;
   percentageLessons: number;
