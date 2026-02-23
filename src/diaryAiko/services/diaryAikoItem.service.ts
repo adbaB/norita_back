@@ -122,6 +122,13 @@ export class DiaryAikoItemService {
       }
     }
 
+    if (updateDto.lessonUuid) {
+      const lesson = await this.lessonService.findByUUID(updateDto.lessonUuid);
+      if (!lesson) {
+        throw new NotFoundException(`Lesson with UUID ${updateDto.lessonUuid} not found`);
+      }
+    }
+
     const item = await this.itemRepository.findOne({
       where: { uuid },
       relations: { section: true },
