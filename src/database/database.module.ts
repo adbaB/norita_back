@@ -19,6 +19,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
           username,
           password,
           database,
+          subscribers: [__dirname + '/../**/**/*.subscriber{.ts,.js}'],
           entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
           logging: configService.env === 'development' ? true : false,
         };

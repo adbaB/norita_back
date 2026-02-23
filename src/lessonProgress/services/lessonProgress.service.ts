@@ -258,4 +258,18 @@ export class LessonProgressService {
       return this.lessonProgressRepo.save(newLessonProgress);
     }
   }
+
+  async countCompletedLessons(userUuid: string, lessonUuids: string[]): Promise<number> {
+    if (lessonUuids.length === 0) {
+      return 0;
+    }
+    return this.lessonProgressRepo
+      .createQueryBuilder('lp')
+      .leftJoinAndSelect('lp.user', 'user')
+      .leftJoinAndSelect('lp.lesson', 'lesson')
+      .where('user.uuid = :userUuid', { userUuid })
+      .andWhere('lesson.uuid IN (:...lessonUuids)', { lessonUuids })
+      .andWhere('lp.completed = :completed', { completed: true })
+      .getCount();
+  }
 }
