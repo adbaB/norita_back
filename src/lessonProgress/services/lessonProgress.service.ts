@@ -260,10 +260,15 @@ export class LessonProgressService {
   }
 
   async countCompletedLessons(userUuid: string, lessonUuids: string[]): Promise<number> {
+    if (lessonUuids.length === 0) {
+      return 0;
+    }
     return this.lessonProgressRepo
       .createQueryBuilder('lp')
-      .where('lp.user_uuid = :userUuid', { userUuid })
-      .andWhere('lp.lesson_uuid IN (:...lessonUuids)', { lessonUuids })
+      .leftJoinAndSelect('lp.user', 'user')
+      .leftJoinAndSelect('lp.lesson', 'lesson')
+      .where('user.uuid = :userUuid', { userUuid })
+      .andWhere('lesson.uuid IN (:...lessonUuids)', { lessonUuids })
       .andWhere('lp.completed = :completed', { completed: true })
       .getCount();
   }
