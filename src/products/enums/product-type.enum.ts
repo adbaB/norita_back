@@ -1,0 +1,6 @@
+export enum ProductType {
+  COIN = 'COIN',
+  PREMIUM = 'PREMIUM',
+  REMOVE_ADS = 'REMOVE_ADS',
+  UNLOCK_LIBRARY = 'UNLOCK_LIBRARY',
+}
