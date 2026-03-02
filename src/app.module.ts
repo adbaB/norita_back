@@ -5,21 +5,22 @@ import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
+import { DiaryAikoModule } from './diaryAiko/diaryAiko.module';
 import { FileModule } from './files/file.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { GoalsModule } from './goals/goals.module';
 import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
 import { LibraryTypeModule } from './libraryType/libraryType.module';
 import { LibraryUserModule } from './libraryUser/libraryUser.module';
+import { EntitlementsModule } from './products/products.module';
 import { ScheduleModule } from './schedules/schedule.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
-import { DiaryAikoModule } from './diaryAiko/diaryAiko.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
 import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 import { ResponseInterceptor } from './utils/interceptors/apiResponse.interceptor';
-import { GoalsModule } from './goals/goals.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GoalsModule } from './goals/goals.module';
     FirebaseModule,
     GoalsModule,
     DiaryAikoModule,
+    EntitlementsModule,
   ],
   controllers: [],
   providers: [

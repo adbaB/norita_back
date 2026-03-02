@@ -43,6 +43,9 @@ export default registerAs('config', () => {
     file: {
       maxSize: parseInt(process.env.FILE_MAX_SIZE, 10) || 100 * 1024 * 1024,
     },
+    revenueCat: {
+      token: process.env.REVENUECAT_TOKEN,
+    },
     env: process.env.NODE_ENV || 'development',
   };
 });

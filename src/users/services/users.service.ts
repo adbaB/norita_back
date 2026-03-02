@@ -192,13 +192,6 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
 
     const total = totalLessonsRaw + totalVocabularyRaw + totalTourAikoRaw;
 
-    console.log(
-      parseInt(lessonCompleted[0].total, 10) +
-        parseInt(vocabularyCompleted[0].total, 10) +
-        parseInt(totalTourAikoUnlocked[0].total, 10),
-    );
-    console.log(total);
-
     const percentageTotal =
       total === 0
         ? 0
@@ -218,7 +211,6 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     const percentageTour =
       totalTourAikoRaw === 0 ? 0 : parseInt(totalTourAikoUnlocked[0].total, 10) / totalTourAikoRaw;
 
-    console.log(percentageTotal);
     return {
       percentageTotal: Math.floor(percentageTotal * 100),
       percentageVocabulary: Math.floor(percentageVocabulary * 100),
@@ -299,6 +291,80 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     }
 
     const result = await this.userRepo.update({ uuid }, { coin: user.coin + coins });
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+    };
+  }
+
+  async grantPremium(uuid: string, expirationAtMs?: number): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let expirationDate: Date | null = null;
+    if (expirationAtMs !== undefined) {
+      if (!Number.isFinite(expirationAtMs) || expirationAtMs < 0) {
+        throw new ConflictException('Invalid expiration timestamp');
+      }
+      expirationDate = new Date(expirationAtMs);
+    }
+
+    const result = await this.userRepo.update(
+      { uuid },
+      { isPremium: true, subscriptionExpiresAt: expirationDate },
+    );
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+    };
+  }
+
+  async revokePremium(uuid: string): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const result = await this.userRepo.update(
+      { uuid },
+      { isPremium: false, subscriptionExpiresAt: null },
+    );
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+    };
+  }
+
+  async removeAds(uuid: string, expirationAtMs?: number): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let expirationDate = null;
+    if (expirationAtMs) {
+      expirationDate = new Date(expirationAtMs);
+    }
+
+    const result = await this.userRepo.update(
+      { uuid },
+      { showAds: false, adsFreeExpiration: expirationDate },
+    );
+    return {
+      affected: result.affected,
+      status: result.affected === 0 ? 204 : 200,
+    };
+  }
+
+  async restoreAds(uuid: string): Promise<UpdateResponse> {
+    const user = await this.userRepo.findOne({ where: { uuid } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const result = await this.userRepo.update({ uuid }, { showAds: true, adsFreeExpiration: null });
     return {
       affected: result.affected,
       status: result.affected === 0 ? 204 : 200,

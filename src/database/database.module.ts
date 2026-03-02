@@ -21,7 +21,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
           database,
           subscribers: [__dirname + '/../**/**/*.subscriber{.ts,.js}'],
           entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-          logging: configService.env === 'development' ? true : false,
+          logging: configService.env === 'development' ? false : false,
         };
       },
       dataSourceFactory: async (options) => {
