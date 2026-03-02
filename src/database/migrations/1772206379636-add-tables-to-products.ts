@@ -43,9 +43,6 @@ export class AddTablesToProducts1772206379636 implements MigrationInterface {
     );
     await queryRunner.query(`DROP TYPE "public"."library_section_user_typeunlock_enum_old"`);
     await queryRunner.query(
-      `ALTER TABLE "user_diary_aiko_items" ADD CONSTRAINT "UQ_59bc8b2d96c486c07c27e661b88" UNIQUE ("user_uuid", "item_uuid")`,
-    );
-    await queryRunner.query(
       `ALTER TABLE "product_library" ADD CONSTRAINT "FK_6b63906b4781b6e170408b1fa40" FOREIGN KEY ("product_uuid") REFERENCES "product"("uuid") ON DELETE CASCADE ON UPDATE CASCADE`,
     );
     await queryRunner.query(
@@ -59,9 +56,6 @@ export class AddTablesToProducts1772206379636 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "product_library" DROP CONSTRAINT "FK_6b63906b4781b6e170408b1fa40"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_diary_aiko_items" DROP CONSTRAINT "UQ_59bc8b2d96c486c07c27e661b88"`,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."library_section_user_typeunlock_enum_old" AS ENUM('GEMS', 'PREMIUM')`,
