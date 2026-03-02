@@ -21,10 +21,7 @@ export class EntitlementsService {
     Object.assign(newEntitlement, rest);
 
     if (grantsLibraryIds && grantsLibraryIds.length > 0) {
-      const libraries = await this.libraryRepo.findBy({
-        uuid: In(grantsLibraryIds),
-      });
-      newEntitlement.grantsLibrary = libraries;
+      newEntitlement.grantsLibrary = await this.resolveLibrariesOrThrow(grantsLibraryIds);
     }
 
     return await this.entitlementRepo.save(newEntitlement);
@@ -57,10 +54,7 @@ export class EntitlementsService {
 
     if (grantsLibraryIds !== undefined) {
       if (grantsLibraryIds.length > 0) {
-        const libraries = await this.libraryRepo.findBy({
-          uuid: In(grantsLibraryIds),
-        });
-        entitlement.grantsLibrary = libraries;
+        entitlement.grantsLibrary = await this.resolveLibrariesOrThrow(grantsLibraryIds);
       } else {
         entitlement.grantsLibrary = [];
       }
@@ -72,5 +66,16 @@ export class EntitlementsService {
   async remove(uuid: string): Promise<void> {
     const entitlement = await this.findOne(uuid);
     await this.entitlementRepo.remove(entitlement);
+  }
+
+  private async resolveLibrariesOrThrow(ids: string[]): Promise<Library[]> {
+    const uniqueIds = [...new Set(ids)];
+    const libraries = await this.libraryRepo.findBy({ uuid: In(uniqueIds) });
+    if (libraries.length !== uniqueIds.length) {
+      const found = new Set(libraries.map((l) => l.uuid));
+      const missing = uniqueIds.filter((id) => !found.has(id));
+      throw new NotFoundException(`Libraries not found: ${missing.join(', ')}`);
+    }
+    return libraries;
   }
 }

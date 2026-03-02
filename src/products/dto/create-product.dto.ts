@@ -7,6 +7,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 import { ProductType } from '../enums/product-type.enum';
 
@@ -34,6 +35,7 @@ export class CreateEntitlementDto {
   @ApiProperty({ description: 'Coins to grant to the user', default: 0, required: false })
   @IsOptional()
   @IsInt()
+  @Min(0)
   coinsToGrant?: number;
 
   @ApiProperty({ description: 'Is the entitlement active?', default: true, required: false })

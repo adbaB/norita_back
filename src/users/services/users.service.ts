@@ -303,8 +303,11 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
       throw new NotFoundException('User not found');
     }
 
-    let expirationDate = null;
-    if (expirationAtMs) {
+    let expirationDate: Date | null = null;
+    if (expirationAtMs !== undefined) {
+      if (!Number.isFinite(expirationAtMs) || expirationAtMs < 0) {
+        throw new ConflictException('Invalid expiration timestamp');
+      }
       expirationDate = new Date(expirationAtMs);
     }
 

@@ -44,6 +44,15 @@ export class WebhookService {
       case 'INITIAL_PURCHASE':
       case 'RENEWAL':
       case 'NON_RENEWING_PURCHASE':
+        if (transactionId) {
+          const alreadyProcessed = await this.transactionRepo.exists({
+            where: { userUuid: userId, transactionId, eventType },
+          });
+          if (alreadyProcessed) {
+            this.logger.warn(`Evento duplicado ignorado: ${eventType} (${transactionId})`);
+            return;
+          }
+        }
         await this.logTransaction(userId, entitlementIds, transactionId, eventType, environment);
         for (const entitlementId of entitlementIds) {
           await this.handlePurchase(userId, entitlementId, eventType, expirationAtMs);
@@ -94,6 +103,7 @@ export class WebhookService {
         `Error al registrar la transacción de entitlements para el usuario ${userId}`,
         error,
       );
+      throw error;
     }
   }
 
@@ -106,7 +116,7 @@ export class WebhookService {
     if (!entitlementId) return;
 
     const entitlement = await this.entitlementRepo.findOne({
-      where: { entitlementId },
+      where: { entitlementId, isActive: true },
       relations: ['grantsLibrary'],
     });
     if (!entitlement) {
@@ -147,6 +157,7 @@ export class WebhookService {
         `Error al procesar la compra del entitlement ${entitlementId} para el usuario ${userId}`,
         error,
       );
+      throw error;
     }
   }
 
@@ -177,6 +188,7 @@ export class WebhookService {
         `Error al revocar el entitlement ${entitlementId} para el usuario ${userId}`,
         error,
       );
+      throw error;
     }
   }
 }
