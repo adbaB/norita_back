@@ -15,23 +15,23 @@ import { Roles } from 'src/auth/decorators/role.decorator';
 export class GoalsController {
   constructor(private readonly goalsService: GoalsService) {}
 
+  @ApiOperation({ summary: 'Claim the reward for completing a specific goal' })
   @Patch('claim/:uuid')
-  @ApiOperation({ summary: 'Claim a goal' })
   @ApiOkResponse({ type: UserGoal })
   async claimGoal(@Param('uuid') uuid: string, @User() userUUID: string): Promise<UserGoal> {
     return this.goalsService.claimGoal(userUUID, uuid);
   }
 
+  @ApiOperation({ summary: 'List all available goals and their current progression state' })
   @Get()
-  @ApiOperation({ summary: 'List all goals' })
   @ApiOkResponse({ type: [Goal] })
   async findAll(): Promise<Goal[]> {
     return this.goalsService.findAll();
   }
 
+  @ApiOperation({ summary: 'Update the requirements or rewards for an existing goal' })
   @Put(':uuid')
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Update a goal (title, description, reward)' })
   @ApiBody({ type: UpdateGoalDto })
   @ApiOkResponse({ type: Goal })
   async update(@Param('uuid') uuid: string, @Body() updateGoalDto: UpdateGoalDto): Promise<Goal> {

@@ -12,34 +12,34 @@ import { EntitlementsService } from '../services/products.service';
 export class EntitlementsController {
   constructor(private readonly entitlementsService: EntitlementsService) {}
 
+  @ApiOperation({ summary: 'Create a new entitlement configuration' })
   @Post()
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Create a new entitlement' })
   @ApiOkResponse({ type: Entitlement })
   @ApiBody({ type: CreateEntitlementDto })
   create(@Body() createEntitlementDto: CreateEntitlementDto): Promise<Entitlement> {
     return this.entitlementsService.create(createEntitlementDto);
   }
 
+  @ApiOperation({ summary: 'Retrieve all configured entitlements' })
   @Get()
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Get all entitlements' })
   @ApiOkResponse({ type: Entitlement, isArray: true })
   findAll(): Promise<Entitlement[]> {
     return this.entitlementsService.findAll();
   }
 
+  @ApiOperation({ summary: 'Fetch a specific entitlement by its uuid' })
   @Get(':uuid')
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Get an entitlement by uuid' })
   @ApiOkResponse({ type: Entitlement })
   findOne(@Param('uuid') uuid: string): Promise<Entitlement> {
     return this.entitlementsService.findOne(uuid);
   }
 
+  @ApiOperation({ summary: 'Update parameters for an existing entitlement' })
   @Patch(':uuid')
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Update an entitlement ' })
   @ApiOkResponse({ type: Entitlement })
   @ApiBody({ type: UpdateEntitlementDto })
   update(
@@ -49,9 +49,9 @@ export class EntitlementsController {
     return this.entitlementsService.update(uuid, updateEntitlementDto);
   }
 
+  @ApiOperation({ summary: 'Delete an entitlement completely from the system' })
   @Delete(':uuid')
   @Roles(RoleEnum.ADMIN)
-  @ApiOperation({ summary: 'Delete an entitlement ' })
   remove(@Param('uuid') uuid: string): Promise<void> {
     return this.entitlementsService.remove(uuid);
   }

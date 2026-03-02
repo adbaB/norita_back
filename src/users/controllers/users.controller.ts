@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Put } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { User } from '../decorators/user.decorator';
 import { UpdateUserDto } from '../dto/user/update-user.dto';
@@ -22,6 +22,7 @@ export class UsersController {
    */
   @ApiResponse({ status: '2XX', type: UserEntity, description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @ApiOperation({ summary: 'Retrieve the profile of the currently authenticated user' })
   @Get('/me')
   findByUUID(@User() user: string): Promise<UserEntity> {
     return this.usersService.me(user);
@@ -35,6 +36,7 @@ export class UsersController {
    */
   @ApiResponse({ status: '2XX', type: UpdateResponse, description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @ApiOperation({ summary: 'Update the profile information of the authenticated user' })
   @Put()
   update(@Body() dto: UpdateUserDto, @User() user: string): Promise<UpdateResponse> {
     return this.usersService.update(user, dto);
@@ -42,6 +44,9 @@ export class UsersController {
 
   @ApiResponse({ status: '2XX', type: UpdateResponse, description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @ApiOperation({
+    summary: 'Permanently delete the authenticated user account and associated data',
+  })
   @Delete()
   delete(@User() user: string): Promise<DeleteResponse> {
     return this.usersService.delete(user);

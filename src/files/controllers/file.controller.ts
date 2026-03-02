@@ -7,7 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiBody, ApiConsumes, ApiParam } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { ApiResponse } from '../../utils/responses';
@@ -21,6 +21,7 @@ import { FileService } from '../services/file.service';
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
+  @ApiOperation({ summary: 'Upload a standard file to the system storage' })
   @Post('upload')
   @Roles(RoleEnum.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
@@ -43,6 +44,7 @@ export class FileController {
     });
   }
 
+  @ApiOperation({ summary: 'Upload an arbitrary or system-generated random file' })
   @Post('upload/:type')
   @Roles(RoleEnum.ADMIN)
   @UseInterceptors(FileInterceptor('file'))

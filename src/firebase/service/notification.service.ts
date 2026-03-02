@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { messaging } from 'firebase-admin';
 import { FIREBASE_MESSAGING } from '../constants/firebase.constant';
 
@@ -25,7 +25,7 @@ export class NotificationService {
       const response = await this.fcm.send(message);
       return { success: true, messageId: response };
     } catch (error) {
-      console.error('Error enviando notificación:', error);
+      Logger.error('Error enviando notificación:', error, 'NotificationService');
       throw error;
     }
   }

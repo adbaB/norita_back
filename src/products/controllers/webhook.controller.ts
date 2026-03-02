@@ -1,3 +1,4 @@
+import { ApiOperation } from '@nestjs/swagger';
 import {
   BadRequestException,
   Body,
@@ -15,6 +16,9 @@ import { WebhookService } from '../services/webhook.service';
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 
+  @ApiOperation({
+    summary: 'Process incoming RevenueCat webhook events (e.g. renewals, purchases)',
+  })
   @Post()
   @IsPublic()
   @HttpCode(HttpStatus.OK)

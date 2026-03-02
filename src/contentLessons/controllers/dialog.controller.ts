@@ -1,5 +1,5 @@
 import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { ApiResponse as ClassApiResponse, DeleteResponse } from '../../utils/responses';
@@ -16,6 +16,7 @@ export class DialogController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Delete a specific dialog entry' })
   @Delete(':uuid')
   async delete(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteResponse> {
     return this.dialogService.delete(uuid);

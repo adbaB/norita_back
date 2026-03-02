@@ -1,12 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+import * as morgan from 'morgan';
 
 async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
@@ -24,6 +25,7 @@ async function bootstrap(): Promise<void> {
   );
 
   app.use(cookieParser());
+  app.use(morgan('dev'));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors({
@@ -36,6 +38,6 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
   const port = configService.get('PORT');
   await app.listen(port ?? 3000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  Logger.log(`Application is running on: ${await app.getUrl()}`, 'Bootstrap');
 }
 bootstrap();

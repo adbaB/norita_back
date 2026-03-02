@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, SerializeOptions } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
@@ -17,6 +17,7 @@ import { SectionService } from '../services/section.service';
 export class SectionController {
   constructor(private readonly sectionService: SectionService) {}
 
+  @ApiOperation({ summary: 'Create a new lesson section' })
   @Post()
   @Roles(RoleEnum.ADMIN)
   async create(@Body() dto: CreateSectionDto): Promise<ClassApiResponse<Section>> {
@@ -27,11 +28,13 @@ export class SectionController {
   @ApiResponse({ status: 200, type: [Section], description: 'Success' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
   @SerializeOptions({ groups: ['show-comments'] })
+  @ApiOperation({ summary: 'Retrieve all available sections for the user' })
   @Get()
   async findAll(@User() userUUID: string): Promise<Section[]> {
     return this.sectionService.findAll(userUUID);
   }
 
+  @ApiOperation({ summary: 'Update an existing lesson section' })
   @Put('/:uuid')
   @Roles(RoleEnum.ADMIN)
   async update(
@@ -41,6 +44,7 @@ export class SectionController {
     return this.sectionService.update(uuid, updateData);
   }
 
+  @ApiOperation({ summary: 'Delete a specific lesson section' })
   @Delete('/:uuid')
   @Roles(RoleEnum.ADMIN)
   async remove(@Param('uuid') uuid: string): Promise<DeleteResponse> {

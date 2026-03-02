@@ -1,5 +1,5 @@
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { ApiResponse, UpdateResponse } from '../../utils/responses';
 import { UnlockLessonDTO } from '../dto/unlock.dto';
@@ -21,6 +21,7 @@ export class LessonProgressController {
       status: 200,
     },
   })
+  @ApiOperation({ summary: 'Incrementally update the progress state of a lesson' })
   @Put(':uuid')
   async updateLessonProgress(
     @User() userUUID: string,
@@ -39,6 +40,7 @@ export class LessonProgressController {
       status: 200,
     },
   })
+  @ApiOperation({ summary: 'Mark a lesson as fully completed' })
   @Put(':uuid/complete')
   async completeLesson(
     @User() userUUID: string,
@@ -52,6 +54,7 @@ export class LessonProgressController {
     description: 'Unlock lesson',
     type: LessonProgress,
   })
+  @ApiOperation({ summary: 'Unlock a specific lesson using coins or premium' })
   @Post(':uuid/unlock')
   async unlockLesson(
     @User() userUUID: string,

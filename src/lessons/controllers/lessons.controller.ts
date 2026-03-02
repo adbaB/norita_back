@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
@@ -19,6 +19,7 @@ export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
   @ApiResponse({ status: 200, type: Lesson, description: 'Success' })
+  @ApiOperation({ summary: 'Retrieve comprehensive details about a specific lesson' })
   @Get('/:uuid')
   async findByUUID(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -32,6 +33,7 @@ export class LessonsController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Create a new lesson within a section' })
   @Post()
   async create(@Body() lesson: LessonDTO): Promise<ClassApiResponse<Lesson>> {
     const lessonCreated = await this.lessonsService.create(lesson);
@@ -44,6 +46,7 @@ export class LessonsController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Update the core configuration of a specific lesson' })
   @Put('/:uuid')
   async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -58,6 +61,7 @@ export class LessonsController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Delete a specific lesson' })
   @Delete('/:uuid')
   async delete(@Param('uuid', ParseUUIDPipe) uuid: string): Promise<DeleteResponse> {
     return this.lessonsService.delete(uuid);

@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { LibrarySectionUserGuard } from '../../libraryUser/guards/librarySectionUser.guard';
 import { User } from '../../users/decorators/user.decorator';
@@ -39,6 +39,7 @@ export class LibrarySectionController {
     description: 'Library sections created successfully',
   })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Create new sections under a specific library' })
   @Post(':uuid')
   async create(
     @Param('uuid', ParseUUIDPipe) libraryUuid: string,
@@ -66,6 +67,7 @@ export class LibrarySectionController {
     description: 'Library section updated successfully',
   })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Update an existing library section' })
   @Put(':uuid')
   async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -84,6 +86,7 @@ export class LibrarySectionController {
     type: LibrarySection,
     description: 'Library section found successfully',
   })
+  @ApiOperation({ summary: 'Retrieve a specific library section by its ID' })
   @Get(':uuid')
   @UseGuards(LibrarySectionUserGuard)
   async findOne(
@@ -109,6 +112,7 @@ export class LibrarySectionController {
     description: 'Library section deleted successfully',
   })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Delete a library section and its contents' })
   @Delete(':uuid')
   async delete(
     @Param('uuid', ParseUUIDPipe) uuid: string,

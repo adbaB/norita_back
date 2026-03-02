@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { CreateUserImagesDto } from '../dto/userImages/create-userImages.dto';
 import { UserImages } from '../entities/userImages.entity';
@@ -20,6 +20,7 @@ export class UserImagesController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Upload a new profile image or avatar' })
   @Post()
   async create(@Body() createUserImagesDto: CreateUserImagesDto): Promise<UserImages> {
     return this.userImagesService.create(createUserImagesDto);
@@ -31,6 +32,7 @@ export class UserImagesController {
     description: 'Success',
   })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
+  @ApiOperation({ summary: 'Retrieve all available user images and avatars' })
   @Get()
   async findAll(): Promise<UserImages[]> {
     return this.userImagesService.findAll();
@@ -43,6 +45,7 @@ export class UserImagesController {
   @ApiResponse({ status: 404, description: 'User image not found' })
   @ApiResponse({ status: '5XX', description: 'Internal error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Delete a specific user image by its unique identifier' })
   @Delete(':uuid')
   async remove(@Param('uuid') uuid: string): Promise<void> {
     return this.userImagesService.remove(uuid);
