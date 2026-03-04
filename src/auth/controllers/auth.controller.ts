@@ -2,7 +2,13 @@ import { Body, Controller, NotFoundException, Post, Req, Res, UseGuards } from '
 
 import { AuthService } from '../services/auth.service';
 
-import { ApiBearerAuth, ApiHeader, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiBearerAuth,
+  ApiHeader,
+  ApiResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { JwtTokenPayload } from '../../libs/Auth/token';
 import {
@@ -30,6 +36,7 @@ export class AuthController {
   @ApiResponse({ status: 201, type: ClassApiResponse<LoginResponse>, description: 'success' })
   @ApiUnauthorizedResponse({ description: 'email or password is incorrect' })
   @IsPublic()
+  @ApiOperation({ summary: 'Authenticate a user and return an access token' })
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const response = await this.authService.signIn(loginDto);
@@ -44,6 +51,7 @@ export class AuthController {
   @IsPublic()
   @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
   @ApiUnauthorizedResponse()
+  @ApiOperation({ summary: 'Register a new user account' })
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<ClassApiResponse<RegisterInterface>> {
     const user = await this.authService.register(registerDto);
@@ -67,6 +75,7 @@ export class AuthController {
     description: 'success',
   })
   @IsPublic()
+  @ApiOperation({ summary: 'Renew an expired access token using a refresh token' })
   @Post('/renew-access-token')
   @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
@@ -93,6 +102,7 @@ export class AuthController {
    */
   @IsPublic()
   @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
+  @ApiOperation({ summary: 'Create a temporary guest user account' })
   @Post('guest')
   async guest(@Body() registerDto: RegisterGuestDTO): Promise<ClassApiResponse<RegisterInterface>> {
     const user = await this.authService.createGuestUser(registerDto);
@@ -102,6 +112,7 @@ export class AuthController {
 
   @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
   @IsPublic()
+  @ApiOperation({ summary: 'Register a new user account using Google OAuth' })
   @Post('register-with-google')
   async registerWithGoogle(
     @Body() body: RegisterWithGoogleDTO,
@@ -111,6 +122,7 @@ export class AuthController {
     return new ClassApiResponse(true, 'User created successfully', user);
   }
 
+  @ApiOperation({ summary: 'Authenticate a user using Google OAuth' })
   @Post('login-with-google')
   @IsPublic()
   async loginWithGoogle(

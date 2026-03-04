@@ -12,8 +12,8 @@ import { Schedule } from '../entities/schedule.entity';
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
-  @Post()
   @ApiOperation({ summary: 'Create or update a schedule for a specific day' })
+  @Post()
   async createOrUpdate(
     @User() userUuid: string,
     @Body() createScheduleDto: CreateScheduleDto,
@@ -21,8 +21,8 @@ export class ScheduleController {
     return this.scheduleService.createOrUpdateSchedule(userUuid, createScheduleDto);
   }
 
-  @Get()
   @ApiOperation({ summary: 'Get all scheduled notifications for the user' })
+  @Get()
   async findAll(@User() userUuid: string): Promise<Schedule[]> {
     return this.scheduleService.getScheduledSchedules(userUuid);
   }

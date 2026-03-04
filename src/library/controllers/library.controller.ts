@@ -10,7 +10,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { LibraryUserGuard } from '../../libraryUser/guards/libraryUser.guard';
 import { User } from '../../users/decorators/user.decorator';
@@ -35,6 +35,7 @@ export class LibraryController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Create a new top-level library' })
   @Post()
   async create(@Body() body: CreateLibraryDTO): Promise<ClassApiResponse<Library>> {
     return new ClassApiResponse(
@@ -50,6 +51,7 @@ export class LibraryController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Update the details of an existing library' })
   @Put(':uuid')
   async update(
     @Body() body: UpdateLibraryDTO,
@@ -65,6 +67,7 @@ export class LibraryController {
   @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiOperation({ summary: 'Retrieve all available libraries for the user' })
   @Get()
   async findAll(@User() userUUID: string): Promise<ClassApiResponse<ResponseLibrary>> {
     return new ClassApiResponse(
@@ -79,6 +82,7 @@ export class LibraryController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiParam({ name: 'uuid', type: String, description: 'UUID of the library' })
   @UseGuards(LibraryUserGuard)
+  @ApiOperation({ summary: 'Fetch a specific library by its ID' })
   @Get(':uuid')
   async findOne(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -96,6 +100,7 @@ export class LibraryController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Delete a library from the system' })
   @Delete(':uuid')
   async remove(
     @Param('uuid', ParseUUIDPipe) uuid: string,

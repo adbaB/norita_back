@@ -11,7 +11,14 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import {
@@ -33,6 +40,7 @@ export class LibraryItemController {
   @ApiBody({ type: [CreateLibraryItemDTO] })
   @ApiResponse({ type: [LibraryItem] })
   @ApiParam({ name: 'uuid', description: 'UUID of the library section', type: String })
+  @ApiOperation({ summary: 'Add new items to a specific library section' })
   @Post(':uuid')
   @Roles(RoleEnum.ADMIN)
   async create(
@@ -53,6 +61,7 @@ export class LibraryItemController {
     );
   }
 
+  @ApiOperation({ summary: 'Search for library items by their Spanish translation' })
   @Get('search')
   @ApiQuery({ name: 'term', required: true, type: String })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -64,6 +73,7 @@ export class LibraryItemController {
     return this.libraryItemService.searchBySpanish(term, limit, userUuid);
   }
 
+  @ApiOperation({ summary: 'Retrieve a specific library item by its ID' })
   @Get(':uuid')
   async findOne(
     @Param('uuid', ParseUUIDPipe) uuid: string,
@@ -75,6 +85,7 @@ export class LibraryItemController {
     );
   }
 
+  @ApiOperation({ summary: 'Update an existing library item' })
   @Put(':uuid')
   @Roles(RoleEnum.ADMIN)
   async update(
@@ -88,6 +99,7 @@ export class LibraryItemController {
     );
   }
 
+  @ApiOperation({ summary: 'Delete a specific library item' })
   @Delete(':uuid')
   @Roles(RoleEnum.ADMIN)
   async delete(
