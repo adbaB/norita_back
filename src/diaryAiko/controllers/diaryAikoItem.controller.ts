@@ -1,27 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
+  DefaultValuePipe,
   Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
   ParseUUIDPipe,
+  Patch,
+  Post,
   Put,
   Query,
-  ParseIntPipe,
-  Patch,
-  DefaultValuePipe,
-  HttpCode,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { DiaryAikoItemService, DiaryAikoItemResponse } from '../services/diaryAikoItem.service';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/role.decorator';
+import { User } from 'src/users/decorators/user.decorator';
+import { RoleEnum } from 'src/users/enum/role.enum';
+import { FormatResponse, PaginatedResponse } from 'src/utils/responses';
 import { CreateDiaryAikoItemDto } from '../dto/create-diaryAikoItem.dto';
 import { UpdateDiaryAikoItemDto } from '../dto/update-diaryAikoItem.dto';
 import { DiaryAikoItem } from '../entities/diaryAikoItem.entity';
-import { PaginatedResponse, FormatResponse } from 'src/utils/responses';
-import { Roles } from 'src/auth/decorators/role.decorator';
-import { RoleEnum } from 'src/users/enum/role.enum';
-import { User } from 'src/users/decorators/user.decorator';
+import { DiaryAikoItemResponse, DiaryAikoItemService } from '../services/diaryAikoItem.service';
 
 @ApiTags('Diary Aiko Items')
 @Controller('diary-aiko-items')
@@ -76,7 +76,7 @@ export class DiaryAikoItemController {
     return this.diaryAikoItemService.findOne(uuid, userUuid);
   }
 
-  @Patch(':uuid/unlock')
+  @Patch('unlock/:uuid')
   @ApiOperation({ summary: 'Manually unlock a Diary Aiko item for the user' })
   @ApiResponse({ status: 200, description: 'Item unlocked successfully.' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
