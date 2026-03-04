@@ -1,10 +1,10 @@
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiBearerAuth, ApiProperty } from '@nestjs/swagger';
+import { Body, Controller, Param, ParseEnumPipe, Patch, Put, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiProperty, ApiQuery } from '@nestjs/swagger';
 import { User } from '../../users/decorators/user.decorator';
 import { ApiResponse, UpdateResponse } from '../../utils/responses';
-import { UnlockLessonDTO } from '../dto/unlock.dto';
 import { updateLessonProgressDTO } from '../dto/updateLessonProgress.dto';
 import { LessonProgress } from '../entity/lessonProgress.entity';
+import { TypeUnlockEnum } from '../enums/type-unlock.enum';
 import { LessonProgressService } from '../services/lessonProgress.service';
 
 @ApiBearerAuth()
@@ -41,7 +41,7 @@ export class LessonProgressController {
     },
   })
   @ApiOperation({ summary: 'Mark a lesson as fully completed' })
-  @Put(':uuid/complete')
+  @Patch('complete/:uuid')
   async completeLesson(
     @User() userUUID: string,
     @Param('uuid') lessonUUID: string,
@@ -54,17 +54,19 @@ export class LessonProgressController {
     description: 'Unlock lesson',
     type: LessonProgress,
   })
+  @ApiQuery({ name: 'type', enum: TypeUnlockEnum })
+  @ApiParam({ name: 'uuid', type: String })
   @ApiOperation({ summary: 'Unlock a specific lesson using coins or premium' })
-  @Post(':uuid/unlock')
+  @Patch('unlock/:uuid')
   async unlockLesson(
     @User() userUUID: string,
     @Param('uuid') lessonUUID: string,
-    @Body() dto: UnlockLessonDTO,
+    @Query('type', new ParseEnumPipe(TypeUnlockEnum)) type: TypeUnlockEnum,
   ): Promise<ApiResponse<LessonProgress>> {
     const lessonProgress = await this.lessonProgressService.unlockLesson(
       userUUID,
       lessonUUID,
-      dto.type,
+      type,
     );
     return new ApiResponse(true, 'Lesson unlocked successfully', lessonProgress);
   }
