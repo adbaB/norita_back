@@ -17,7 +17,7 @@ import { TypeFileEnum } from '../enums/type-file.enum';
 import { FileService } from '../services/file.service';
 
 @ApiBearerAuth()
-@Controller('files')
+@Controller('api/files')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
