@@ -120,11 +120,16 @@ export class GoalsService {
         );
       }
 
-      const progress = totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
-      const completed = totalLessons > 0 && completedCount === totalLessons;
+      let progress = totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+      let completed = totalLessons > 0 && completedCount === totalLessons;
 
       const userGoal = userGoalMap.get(goal.uuid);
       const isClaimed = userGoal?.isClaimed || false;
+
+      if (isClaimed) {
+        progress = 100;
+        completed = true;
+      }
 
       return {
         ...goal,
