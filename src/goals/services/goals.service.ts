@@ -7,6 +7,7 @@ import { Section } from '../../lessons/entities/section.entity';
 import { LessonProgressService } from 'src/lessonProgress/services/lessonProgress.service';
 import { UsersService } from 'src/users/services/users.service';
 import { UpdateGoalDto } from '../dto/update-goal.dto';
+import { GoalProgressResponseDto } from '../dto/goal-progress-response.dto';
 import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
@@ -67,12 +68,19 @@ export class GoalsService {
       throw new BadRequestException('Not all lessons in the section are completed.');
     }
 
-    const userGoal = this.userGoalRepo.create({
-      user: { uuid: userUuid },
-      goal,
-      isClaimed: true,
-      claimedAt: new Date(),
-    });
+    let userGoal = existingUserGoal;
+
+    if (userGoal) {
+      userGoal.isClaimed = true;
+      userGoal.claimedAt = new Date();
+    } else {
+      userGoal = this.userGoalRepo.create({
+        user: { uuid: userUuid },
+        goal,
+        isClaimed: true,
+        claimedAt: new Date(),
+      });
+    }
 
     await this.userGoalRepo.save(userGoal);
 
@@ -85,6 +93,53 @@ export class GoalsService {
 
   async findAll(): Promise<Goal[]> {
     return this.goalRepo.find();
+  }
+
+  async findAllWithProgress(userUuid: string): Promise<GoalProgressResponseDto[]> {
+    const goals = await this.goalRepo.find({
+      relations: { section: { lessons: true } },
+    });
+
+    const userGoals = await this.userGoalRepo.find({
+      where: { user: { uuid: userUuid } },
+      relations: { goal: true },
+    });
+
+    const userGoalMap = new Map(userGoals.map((ug) => [ug.goal.uuid, ug]));
+
+    const progressPromises = goals.map(async (goal) => {
+      const sectionLessons = goal.section?.lessons || [];
+      const totalLessons = sectionLessons.length;
+      let completedCount = 0;
+
+      if (totalLessons > 0) {
+        const lessonUuids = sectionLessons.map((l) => l.uuid);
+        completedCount = await this.lessonProgressService.countCompletedLessons(
+          userUuid,
+          lessonUuids,
+        );
+      }
+
+      let progress = totalLessons > 0 ? (completedCount / totalLessons) * 100 : 0;
+      let completed = totalLessons > 0 && completedCount === totalLessons;
+
+      const userGoal = userGoalMap.get(goal.uuid);
+      const isClaimed = userGoal?.isClaimed || false;
+
+      if (isClaimed) {
+        progress = 100;
+        completed = true;
+      }
+
+      return {
+        ...goal,
+        progress: Math.round(progress), // Round to nearest integer for percentage
+        completed,
+        isClaimed,
+      } as GoalProgressResponseDto;
+    });
+
+    return Promise.all(progressPromises);
   }
 
   async update(uuid: string, updateGoalDto: UpdateGoalDto): Promise<Goal> {

@@ -6,6 +6,7 @@ import { UserGoal } from '../entities/user-goal.entity';
 import { Goal } from '../entities/goal.entity';
 import { User } from 'src/users/decorators/user.decorator';
 import { UpdateGoalDto } from '../dto/update-goal.dto';
+import { GoalProgressResponseDto } from '../dto/goal-progress-response.dto';
 import { RoleEnum } from 'src/users/enum/role.enum';
 import { Roles } from 'src/auth/decorators/role.decorator';
 
@@ -24,9 +25,9 @@ export class GoalsController {
 
   @ApiOperation({ summary: 'List all available goals and their current progression state' })
   @Get()
-  @ApiOkResponse({ type: [Goal] })
-  async findAll(): Promise<Goal[]> {
-    return this.goalsService.findAll();
+  @ApiOkResponse({ type: [GoalProgressResponseDto] })
+  async findAll(@User() userUUID: string): Promise<GoalProgressResponseDto[]> {
+    return this.goalsService.findAllWithProgress(userUUID);
   }
 
   @ApiOperation({ summary: 'Update the requirements or rewards for an existing goal' })
