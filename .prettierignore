@@ -9,3 +9,4 @@ tsconfig.build.json
 tsconfig.json
 jest-e2e.json
 .github
+test-artillery.yml
