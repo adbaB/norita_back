@@ -96,8 +96,10 @@ export class ScheduleService {
         "(schedule.lastSend IS NULL OR schedule.lastSend < (DATE_TRUNC('day', NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC')) AT TIME ZONE COALESCE(schedule.timezone, 'UTC')))",
       )
       .getMany();
-
-    this.logger.log(`Found ${schedulesToSend.length} SCHEDULED notifications to send`);
+    if (schedulesToSend.length > 0) {
+      this.logger.debug('Checking SCHEDULED notifications');
+      this.logger.log(`Found ${schedulesToSend.length} SCHEDULED notifications to send`);
+    }
 
     await this.sendNotifications(
       schedulesToSend,
