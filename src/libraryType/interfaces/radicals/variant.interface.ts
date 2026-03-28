@@ -1,8 +1,6 @@
-import { VariantPosition } from './variantPosition.interface';
-
 export interface Variant {
   variantHiragana: string;
-  variantPosition: VariantPosition[];
+  variantPosition: number | null;
   variantRadical: string;
   variantRomaji: string;
   variantStepsInteger: number;

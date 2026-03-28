@@ -41,11 +41,13 @@ export class VariantDTO implements Variant {
   @IsNotEmpty()
   variantHiragana: string;
 
-  @ApiProperty({ type: () => VariantPositionDTO, isArray: true, required: true, nullable: false })
-  @Type(() => VariantPositionDTO)
-  @ValidateNested({ each: true })
-  @IsArray({ message: 'variantPosition must be an array' })
-  variantPosition: VariantPositionDTO[];
+  @ApiProperty({ type: () => Number, nullable: true })
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
+    { message: 'variantPosition must be a number' },
+  )
+  variantPosition: number | null;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'variantRadical' })
   @IsString({ message: 'variantRadical must be a string' })
