@@ -8,9 +8,13 @@ import { useContainer } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 
+import { json } from 'express';
+
 async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
   const app = await NestFactory.create(AppModule);
+
+  app.use(json({ limit: '500kb' }));
 
   const config = new DocumentBuilder()
     .setDescription('The norita API description')
