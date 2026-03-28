@@ -41,13 +41,10 @@ export class VariantDTO implements Variant {
   @IsNotEmpty()
   variantHiragana: string;
 
-  @ApiProperty({ type: () => Number, nullable: true })
+  @ApiProperty({ type: () => String, nullable: true })
   @IsOptional()
-  @IsNumber(
-    { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },
-    { message: 'variantPosition must be a number' },
-  )
-  variantPosition: number | null;
+  @IsString({ message: 'variantPosition must be a string' })
+  variantPosition: string | null;
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'variantRadical' })
   @IsString({ message: 'variantRadical must be a string' })
