@@ -52,7 +52,7 @@ export class TypeormFilterCatch implements ExceptionFilter {
 
       this.logger.error(
         `[${request.method}] ${request.url} → ${status} ${message} (code: ${errorCode ?? 'unknown'})`,
-        `Query: ${queryError.query ?? 'N/A'}\nParams: ${JSON.stringify(queryError.parameters ?? [])}\n${exception.stack}`,
+        `Query: ${queryError.query ?? 'N/A'}\nParams count: ${(queryError.parameters ?? []).length}\n${exception.stack}`,
       );
     } else if (exception instanceof EntityNotFoundError) {
       status = HttpStatus.NOT_FOUND;
