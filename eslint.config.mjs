@@ -58,6 +58,7 @@ export default [
       'dist',
       'src/database/migrations',
       '.github',
+      'test-artillery.yml',
     ],
   },
   { languageOptions: { globals: globals.browser } },

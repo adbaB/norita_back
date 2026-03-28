@@ -109,8 +109,6 @@ export class ScheduleService {
   private async handleLessonNotifications(): Promise<void> {
     const now = new Date();
 
-    this.logger.debug('Checking LESSON notifications');
-
     // Buscar schedules LESSON que deben enviarse ahora
     const schedulesToSend = await this.scheduleRepo
       .createQueryBuilder('schedule')
@@ -120,7 +118,10 @@ export class ScheduleService {
       .andWhere('schedule.lastSend IS NULL')
       .getMany();
 
-    this.logger.log(`Found ${schedulesToSend.length} LESSON notifications to send`);
+    if (schedulesToSend.length > 0) {
+      this.logger.debug('Checking LESSON notifications');
+      this.logger.log(`Found ${schedulesToSend.length} LESSON notifications to send`);
+    }
 
     await this.sendNotifications(
       schedulesToSend,
