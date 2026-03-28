@@ -45,7 +45,6 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
   ],
   controllers: [],
   providers: [
-    TypeormFilterCatch,
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,

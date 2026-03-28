@@ -1,5 +1,5 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { CannotCreateEntityIdMapError, EntityNotFoundError, QueryFailedError } from 'typeorm';
 import { ApiResponse } from '../responses';
 
@@ -12,10 +12,13 @@ type DatabaseError = {
 
 @Catch(QueryFailedError, EntityNotFoundError, CannotCreateEntityIdMapError)
 export class TypeormFilterCatch implements ExceptionFilter {
+  private readonly logger = new Logger(TypeormFilterCatch.name);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Database error';
     let errorCode: string | undefined;
@@ -46,12 +49,22 @@ export class TypeormFilterCatch implements ExceptionFilter {
         status = HttpStatus.UNPROCESSABLE_ENTITY;
         message = 'Database query failed';
       }
+
+      this.logger.error(
+        `[${request.method}] ${request.url} → ${status} ${message} (code: ${errorCode ?? 'unknown'})`,
+        `Query: ${queryError.query ?? 'N/A'}\nParams: ${JSON.stringify(queryError.parameters ?? [])}\n${exception.stack}`,
+      );
     } else if (exception instanceof EntityNotFoundError) {
       status = HttpStatus.NOT_FOUND;
       message = 'Resource not found';
+      this.logger.warn(`[${request.method}] ${request.url} → ${status} ${message}`);
     } else if (exception instanceof CannotCreateEntityIdMapError) {
       status = HttpStatus.UNPROCESSABLE_ENTITY;
       message = 'Invalid entity data';
+      this.logger.error(
+        `[${request.method}] ${request.url} → ${status} ${message}`,
+        exception.stack,
+      );
     }
 
     response.status(status).json(
