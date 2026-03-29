@@ -24,7 +24,7 @@ export class Radicals {
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   variants: Variant[];
 
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })

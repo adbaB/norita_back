@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 import { ConjugationPair } from '../interfaces/adjectives/common/conjugationPair.interface';
 import { FormValue } from '../interfaces/adjectives/common/formValue.interface';
@@ -11,6 +18,7 @@ import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
+import { SearchKanji } from '../interfaces/adjectives/searchKanji.interface';
 
 export class FormValueDTO implements FormValue {
   @ApiProperty({
@@ -107,6 +115,18 @@ export class TerminationDTO implements Termination {
   romaji: string;
 }
 
+export class SearchKanjiDTO implements SearchKanji {
+  @ApiProperty({ type: String, required: true, nullable: false, description: 'kanji' })
+  @IsString({ message: 'kanji must be a string' })
+  @IsNotEmpty()
+  kanji: string;
+
+  @ApiProperty({ type: Number, required: true, nullable: false, description: 'order' })
+  @IsNumber()
+  @IsNotEmpty()
+  order: number;
+}
+
 export class AdjectivesDTO {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'adjectiveType' })
   @IsString({ message: 'adjectiveType must be a string' })
@@ -117,7 +137,7 @@ export class AdjectivesDTO {
   @Type(() => AudioDTO)
   @ValidateNested()
   @IsOptional()
-  audio: AudioDTO;
+  audio?: AudioDTO;
 
   @ApiProperty({ type: () => ConditionalsDTO, required: true, nullable: false })
   @Type(() => ConditionalsDTO)
@@ -192,4 +212,11 @@ export class AdjectivesDTO {
   @IsString({ message: 'wordRomaji must be a string' })
   @IsNotEmpty()
   wordRomaji: string;
+
+  @ApiProperty({ type: () => SearchKanjiDTO, isArray: true, required: false, nullable: true })
+  @Type(() => SearchKanjiDTO)
+  @ValidateNested({ each: true })
+  @IsOptional()
+  @IsArray({ message: 'searchKanji must be an array' })
+  searchKanji: SearchKanjiDTO[];
 }

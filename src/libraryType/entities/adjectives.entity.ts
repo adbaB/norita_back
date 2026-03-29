@@ -7,6 +7,7 @@ import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Example } from '../interfaces/commons/example.interface';
 import { Note } from '../interfaces/commons/note.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
+import { SearchKanji } from '../interfaces/adjectives/searchKanji.interface';
 
 @Entity('library_item_adjectives')
 export class Adjectives {
@@ -16,8 +17,8 @@ export class Adjectives {
   @Column({ type: 'varchar', length: 255, nullable: true })
   adjectiveType: string;
 
-  @Column({ type: 'jsonb', default: { male: '', female: '' } })
-  audio: LibraryAudio;
+  @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
+  audio: LibraryAudio | null;
 
   @Column({ type: 'jsonb', default: {} })
   conditionals: Conditionals;
@@ -57,6 +58,9 @@ export class Adjectives {
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   wordRomaji: string;
+
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  searchKanji: SearchKanji[] | null;
 
   @OneToOne(() => LibraryItem, (libraryItem) => libraryItem.adjectives, {
     onDelete: 'CASCADE',
