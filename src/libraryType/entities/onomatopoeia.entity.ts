@@ -10,8 +10,8 @@ export class Onomatopoeia {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'jsonb', default: { male: '', female: '' } })
-  audio: LibraryAudio;
+  @Column({ type: 'jsonb', default: { male: '', female: '' }, nullable: true })
+  audio: LibraryAudio | null;
 
   @Column({ type: 'jsonb', default: [] })
   example: Example[];

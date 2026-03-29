@@ -14,29 +14,33 @@ export class Kanji {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @Column({ type: 'jsonb', default: { hyougai: '', jinmeiyou: '', kyuujitai: '', shinjitai: '' } })
-  kind: Kind;
+  @Column({
+    type: 'jsonb',
+    default: { hyougai: '', jinmeiyou: '', kyuujitai: '', shinjitai: '' },
+    nullable: true,
+  })
+  kind: Kind | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  kunyomi: Kunyomi[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  kunyomi: Kunyomi[] | null;
 
   @Column({ type: 'jsonb', default: { jouyou: '', jlpt: '' } })
   level: Level;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  lottie: string;
+  lottie: string | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  name: Name[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  name: Name[] | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  notes: Note[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  notes: Note[] | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  onyomi: Onyomi[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  onyomi: Onyomi[] | null;
 
-  @Column({ type: 'jsonb', default: [] })
-  images: StepImage[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  images: StepImage[] | null;
 
   @Column({ type: 'jsonb', default: [] })
   traductionSpanish: TraductionSpanish[];

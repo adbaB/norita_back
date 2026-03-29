@@ -77,8 +77,6 @@ export class ScheduleService {
   }
 
   private async handleScheduledNotifications(): Promise<void> {
-    this.logger.debug('Checking SCHEDULED notifications with timezone support');
-
     const schedulesToSend = await this.scheduleRepo
       .createQueryBuilder('schedule')
       .leftJoinAndSelect('schedule.user', 'user')
