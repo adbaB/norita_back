@@ -26,14 +26,14 @@ export class Adjectives {
   @Column({ type: 'jsonb', default: {} })
   conjugations: Conjugations;
 
-  @Column({ type: 'jsonb', default: [] })
-  example: Example[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  example: Example[] | null;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   jltp: string;
 
-  @Column({ type: 'jsonb', default: [] })
-  note: Note[];
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  note: Note[] | null;
 
   @Column({ type: 'jsonb', default: {} })
   termination: Termination;
