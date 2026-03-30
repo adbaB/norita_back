@@ -129,8 +129,8 @@ export class KanjiDto {
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
-  @IsArray({ message: 'traductionsSpanish must be an array' })
-  traductionsSpanish: TraductionSpanishDTO[];
+  @IsArray({ message: 'traductionSpanish must be an array' })
+  traductionSpanish: TraductionSpanishDTO[];
 
   @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
   @IsString()
