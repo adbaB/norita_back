@@ -14,7 +14,7 @@ async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
   const app = await NestFactory.create(AppModule);
 
-  app.use(express.json({ limit: '500kb' }));
+  app.use(express.json({ limit: '2mb' }));
 
   const config = new DocumentBuilder()
     .setDescription('The norita API description')

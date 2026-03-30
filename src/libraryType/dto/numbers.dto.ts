@@ -55,7 +55,7 @@ export class NumbersDTO {
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'traductionsSpanish must be an array' })
-  traductionsSpanish: TraductionSpanishDTO[];
+  traductionSpanish: TraductionSpanishDTO[];
 
   @ApiProperty({ type: String, required: false, nullable: true, description: 'word' })
   @IsOptional()
