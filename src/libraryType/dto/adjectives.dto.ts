@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { ConjugationPair } from '../interfaces/adjectives/common/conjugationPair.interface';
 import { FormValue } from '../interfaces/adjectives/common/formValue.interface';
@@ -17,8 +10,8 @@ import { Termination } from '../interfaces/adjectives/termination.interface';
 import { AudioDTO } from './commons/audio.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
+import { SearchKanjiDTO } from './commons/searchKanji.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
-import { SearchKanji } from '../interfaces/adjectives/searchKanji.interface';
 
 export class FormValueDTO implements FormValue {
   @ApiProperty({
@@ -113,18 +106,6 @@ export class TerminationDTO implements Termination {
   @IsString({ message: 'romaji must be a string' })
   @IsNotEmpty()
   romaji: string;
-}
-
-export class SearchKanjiDTO implements SearchKanji {
-  @ApiProperty({ type: String, required: true, nullable: false, description: 'kanji' })
-  @IsString({ message: 'kanji must be a string' })
-  @IsNotEmpty()
-  kanji: string;
-
-  @ApiProperty({ type: Number, required: true, nullable: false, description: 'order' })
-  @IsNumber()
-  @IsNotEmpty()
-  order: number;
 }
 
 export class AdjectivesDTO {

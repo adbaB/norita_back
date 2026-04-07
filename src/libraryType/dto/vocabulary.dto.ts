@@ -5,6 +5,7 @@ import { AudioDTO } from './commons/audio.dto';
 import { CategoryDTO } from './commons/category.dto';
 import { ExampleDTO } from './commons/example.dto';
 import { NoteDTO } from './commons/note.dto';
+import { SearchKanjiDTO } from './commons/searchKanji.dto';
 import { TraductionSpanishDTO } from './commons/traductionSpanish.dto';
 
 export class VocabularyDTO {
@@ -67,11 +68,6 @@ export class VocabularyDTO {
   @IsOptional()
   loanRomaji?: string;
 
-  @ApiProperty({ type: String, required: false, nullable: true, description: 'searchKanji' })
-  @IsString({ message: 'searchKanji must be a string' })
-  @IsOptional()
-  searchKanji?: string;
-
   @ApiProperty({ type: String, required: true, nullable: false, description: 'word' })
   @IsString({ message: 'word must be a string' })
   @IsNotEmpty()
@@ -86,4 +82,11 @@ export class VocabularyDTO {
   @IsString({ message: 'wordRomaji must be a string' })
   @IsNotEmpty()
   wordRomaji: string;
+
+  @ApiProperty({ type: () => SearchKanjiDTO, isArray: true, required: false, nullable: true })
+  @Type(() => SearchKanjiDTO)
+  @ValidateNested({ each: true })
+  @IsOptional()
+  @IsArray({ message: 'searchKanji must be an array' })
+  searchKanji: SearchKanjiDTO[];
 }

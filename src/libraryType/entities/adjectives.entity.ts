@@ -6,8 +6,8 @@ import { Termination } from '../interfaces/adjectives/termination.interface';
 import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Example } from '../interfaces/commons/example.interface';
 import { Note } from '../interfaces/commons/note.interface';
+import { SearchKanji } from '../interfaces/commons/searchKanji.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
-import { SearchKanji } from '../interfaces/adjectives/searchKanji.interface';
 
 @Entity('library_item_adjectives')
 export class Adjectives {

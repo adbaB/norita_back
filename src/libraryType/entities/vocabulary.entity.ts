@@ -4,6 +4,7 @@ import { LibraryAudio } from '../interfaces/commons/audio.interface';
 import { Category } from '../interfaces/commons/category.interface';
 import { Example } from '../interfaces/commons/example.interface';
 import { Note } from '../interfaces/commons/note.interface';
+import { SearchKanji } from '../interfaces/commons/searchKanji.interface';
 import { TraductionSpanish } from '../interfaces/commons/traductionSpanish.interface';
 
 @Entity('library_item_vocabulary')
@@ -17,7 +18,7 @@ export class Vocabulary {
   @Column({ type: 'jsonb', default: [] })
   category: Category[];
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   example: Example[];
 
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -26,7 +27,7 @@ export class Vocabulary {
   @Column({ type: 'varchar', length: 100, nullable: true })
   jltp: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: 'jsonb', default: [], nullable: true })
   note: Note[];
 
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -35,8 +36,8 @@ export class Vocabulary {
   @Column({ type: 'varchar', length: 100, nullable: true })
   loanRomaji?: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  searchKanji?: string;
+  @Column({ type: 'jsonb', default: [], nullable: true })
+  searchKanji?: SearchKanji[];
 
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
   word: string;
