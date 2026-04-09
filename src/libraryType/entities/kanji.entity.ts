@@ -54,6 +54,9 @@ export class Kanji {
   @Column({ name: 'radical_key', type: 'varchar', length: 255, nullable: true })
   radicalKey: string;
 
+  @Column({ type: 'integer', nullable: false })
+  strokes: number;
+
   @OneToOne(() => LibraryItem, (library) => library.kanji, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
