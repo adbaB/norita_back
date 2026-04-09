@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -146,4 +147,14 @@ export class KanjiDto {
   @IsString()
   @IsNotEmpty()
   radicalKey: string;
+
+  @ApiProperty({ type: Number, required: true, nullable: false, description: 'strokes' })
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0,
+  })
+  @IsPositive()
+  @IsNotEmpty()
+  strokes: number;
 }
