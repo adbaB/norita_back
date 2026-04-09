@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SearchResponse } from 'src/libraryType/interfaces/response/search.interface';
 import { Repository } from 'typeorm';
 import { IsolationLevel, Transactional } from 'typeorm-transactional';
 import { LibraryTypeService } from '../../libraryType/services/libraryType.service';
@@ -8,7 +9,6 @@ import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateLibraryItemDTO, UpdateLibraryItemDTO } from '../dto/libraryItem.dto';
 import { LibraryItem } from '../entities/libraryItem.entity';
 import { LibrarySectionService } from './librarySection.service';
-import { SearchResponse } from 'src/libraryType/interfaces/response/search.interface';
 
 @Injectable()
 export class LibraryItemService {
@@ -57,12 +57,24 @@ export class LibraryItemService {
     return response;
   }
 
+  @Transactional({ isolationLevel: IsolationLevel.SERIALIZABLE })
   async update(uuid: string, libraryItem: UpdateLibraryItemDTO): Promise<UpdateResponse> {
     const { order, sectionUuid, ...rest } = libraryItem;
 
+    // Load the item with ALL OneToOne relations so TypeORM can cascade updates
     const existingLibraryItem = await this.libraryItemRepo.findOne({
       where: { uuid },
-      relations: { section: true },
+      relations: {
+        section: true,
+        kana: true,
+        adjectives: true,
+        counters: true,
+        kanji: true,
+        numbers: true,
+        onomatopoeia: true,
+        radicals: true,
+        vocabulary: true,
+      },
     });
 
     if (!existingLibraryItem) {
@@ -79,16 +91,18 @@ export class LibraryItemService {
 
     const updatedLibraryItem = this.libraryItemRepo.merge(existingLibraryItem, rest);
 
-    await this.libraryItemRepo.save(updatedLibraryItem);
-
-    if (order && order !== existingLibraryItem.order) {
+    const originalOrder = existingLibraryItem.order;
+    if (order !== undefined && order !== null && order !== originalOrder) {
       const items = await this.libraryItemRepo.find({
         where: { section: { uuid: existingLibraryItem.section.uuid } },
       });
 
-      const newItems = moveItem(items, updatedLibraryItem.order, order);
+      const newItems = moveItem(items, originalOrder, order);
+      updatedLibraryItem.order = order;
       await this.libraryItemRepo.save(newItems);
     }
+
+    await this.libraryItemRepo.save(updatedLibraryItem);
 
     return {
       status: 200,
