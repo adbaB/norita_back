@@ -91,13 +91,14 @@ export class LibraryItemService {
 
     const updatedLibraryItem = this.libraryItemRepo.merge(existingLibraryItem, rest);
 
-    if (order && order !== existingLibraryItem.order) {
+    const originalOrder = existingLibraryItem.order;
+    if (order !== undefined && order !== null && order !== originalOrder) {
       const items = await this.libraryItemRepo.find({
         where: { section: { uuid: existingLibraryItem.section.uuid } },
       });
 
+      const newItems = moveItem(items, originalOrder, order);
       updatedLibraryItem.order = order;
-      const newItems = moveItem(items, existingLibraryItem.order, order);
       await this.libraryItemRepo.save(newItems);
     }
 
