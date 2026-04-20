@@ -36,7 +36,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST_DNS }}
-          username: ${{ secrets.USERNAME }}
+          username: ${{ secrets.USERNAME }} # Asegúrate que este secret sea 'norita'
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "deploy.tar.gz"
           target: "/tmp"
@@ -48,18 +48,23 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-
             # =========================================================
             # 0. FORZAR LA CARGA DE VARIABLES DE ENTORNO
             # =========================================================
             set -a
-            source /etc/environment
+            [ -f /etc/environment ] && source /etc/environment
             set +a
             
             # =========================================================
-            # 1. CARGAR RUTAS DEL SISTEMA (PATH)
+            # 1. CARGAR RUTAS DEL SISTEMA (PATH DINÁMICO)
             # =========================================================
-            export PATH="/home/ubuntu/.nvm/versions/node/v24.11.0/bin:$PATH"
+            # Intentamos cargar nvm si existe, o usamos el path estándar
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Si instalaste Node globalmente con pnpm o apt, esto asegura que se encuentre:
+            export PATH="$HOME/.local/share/pnpm:$PATH"
+            export PATH="$PATH:$(pnpm bin -g 2>/dev/null)"
             
             # 2. Crear staging temporal y extraer
             mkdir -p /tmp/norita_staging
@@ -73,12 +78,13 @@ jobs:
             pnpm run migrations:run:prod
             
             # =========================================================
-            # 5. PASAR A PRODUCCIÓN
+            # 5. PASAR A PRODUCCIÓN (Ruta actualizada a /home/norita)
             # =========================================================
-            rsync -a --delete --exclude='public' --exclude='.git' /tmp/norita_staging/ /home/ubuntu/norita_back/
+            mkdir -p /home/norita/norita_back
+            rsync -a --delete --exclude='public' --exclude='.git' /tmp/norita_staging/ /home/norita/norita_back/
             
             # 6. Recargar PM2
-            cd /home/ubuntu/norita_back
+            cd /home/norita/norita_back
             pm2 reload norita_back --update-env || pm2 start dist/main.js --name "norita_back"
             
             # 7. Limpiar
