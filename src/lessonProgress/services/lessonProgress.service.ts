@@ -75,9 +75,15 @@ export class LessonProgressService {
       lessonProgress.hasSeenAlertShip = dto.hasSeenAlertShip;
     }
 
+    if (dto.forwardSkipsCount !== undefined) {
+      lessonProgress.forwardSkipsCount = dto.forwardSkipsCount;
+    }
+
     if (dto.rewardClaimed && !lessonProgress.rewardClaimed) {
-      if (lessonProgress.hasSeenAlertShip) {
-        throw new ConflictException('Cannot claim reward if the user has seen the alert ship');
+      if (lessonProgress.hasSeenAlertShip || lessonProgress.forwardSkipsCount >= 7) {
+        throw new ConflictException(
+          'Cannot claim reward if the user has seen the alert ship or skipped 7 times',
+        );
       }
       lessonProgress.rewardClaimed = true;
       lessonProgress.dateRewardClaimed = new Date();
