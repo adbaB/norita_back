@@ -31,4 +31,16 @@ export class updateLessonProgressDTO {
   })
   @IsOptional()
   hasSeenAlertShip: boolean;
+
+  @ApiProperty({
+    description: 'Forward skips count',
+    nullable: true,
+    required: false,
+    type: Number,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  forwardSkipsCount: number;
 }

@@ -51,6 +51,9 @@ export class LessonProgress {
   @Column({ name: 'has_seen_alert_ship', type: 'boolean', default: false })
   hasSeenAlertShip: boolean;
 
+  @Column({ name: 'forward_skips_count', type: 'int', default: 0 })
+  forwardSkipsCount: number;
+
   @ManyToOne(() => User, (user) => user.lessonProgress, {
     onDelete: 'CASCADE',
   })
