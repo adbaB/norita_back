@@ -5,20 +5,36 @@ import { DeleteResponse } from '../../utils/responses';
 import { DialogDTO } from '../dtos/dialog.dto';
 import { Content } from '../entities/content.entity';
 import { Dialog } from '../entities/dialog.entity';
+import { TypeStructure } from '../entities/type-structure.entity';
 
 @Injectable()
 export class DialogService {
-  constructor(@InjectRepository(Dialog) private readonly dialogRepo: Repository<Dialog>) {}
+  constructor(
+    @InjectRepository(Dialog) private readonly dialogRepo: Repository<Dialog>,
+    @InjectRepository(TypeStructure)
+    private readonly typeStructureRepo: Repository<TypeStructure>,
+  ) {}
 
   async create(contentLesson: Content, dialogs: DialogDTO[]): Promise<Dialog[]> {
     if (dialogs.length === 0) {
       return [];
     }
-    const newDialogs = dialogs.map((dialog) => {
-      const newDialog = this.dialogRepo.create(dialog);
-      newDialog.lessonContent = contentLesson;
-      return newDialog;
-    });
+
+    const newDialogs = await Promise.all(
+      dialogs.map(async ({ typeStructureId, ...rest }) => {
+        const typeStructure = await this.typeStructureRepo.findOne({
+          where: { id: typeStructureId },
+        });
+        if (!typeStructure) {
+          throw new NotFoundException(`TypeStructure with id ${typeStructureId} not found`);
+        }
+        const newDialog = this.dialogRepo.create(rest);
+        newDialog.lessonContent = contentLesson;
+        newDialog.typeStructure = typeStructure;
+        return newDialog;
+      }),
+    );
+
     return this.dialogRepo.save(newDialogs);
   }
 

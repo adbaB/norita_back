@@ -2,15 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
+  IsPositive,
   IsString,
 } from 'class-validator';
 import { ContentJSON } from '../entities/dialog.entity';
 import { StoryStructureEnum } from '../enums/story-structure.enum';
-import { TypeStructureEnum } from '../enums/type-structure.enum';
 
 export class DialogDTO {
   @ApiProperty({
@@ -36,14 +37,15 @@ export class DialogDTO {
   storyStructure: StoryStructureEnum;
 
   @ApiProperty({
-    description: 'Type structure',
-    enum: TypeStructureEnum,
+    description: 'ID of the type structure (FK to type_structure table)',
+    type: Number,
     nullable: false,
     required: true,
   })
-  @IsNotEmpty({ message: 'typeStructure should not be empty' })
-  @IsEnum(TypeStructureEnum, { message: 'typeStructure must be a valid TypeStructureEnum value' })
-  typeStructure: TypeStructureEnum;
+  @IsNotEmpty({ message: 'typeStructureId should not be empty' })
+  @IsInt({ message: 'typeStructureId must be an integer' })
+  @IsPositive({ message: 'typeStructureId must be a positive number' })
+  typeStructureId: number;
 
   @ApiProperty({
     description: 'Focused',
