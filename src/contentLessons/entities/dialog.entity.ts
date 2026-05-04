@@ -12,8 +12,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { StoryStructureEnum } from '../enums/story-structure.enum';
-import { TypeStructureEnum } from '../enums/type-structure.enum';
 import { Content } from './content.entity';
+import { TypeStructure } from './type-structure.entity';
 
 export class ContentJSON {
   paragraph?: string; // opcional
@@ -48,14 +48,10 @@ export class Dialog {
   @Column({ type: 'integer', name: 'order', nullable: true })
   order: number;
 
-  @ApiProperty({ description: 'Type structure', enum: TypeStructureEnum })
-  @Column({
-    type: 'enum',
-    enum: TypeStructureEnum,
-    name: 'type_structure',
-    comment: '1: Paragraph, 2: Image , 3: Lottie , 4: Gif, 5: Next point, 6: Subtopic point',
-  })
-  typeStructure: TypeStructureEnum;
+  @ApiProperty({ description: 'Type structure', type: () => TypeStructure })
+  @ManyToOne(() => TypeStructure, { eager: true, nullable: false })
+  @JoinColumn({ name: 'type_structure_id' })
+  typeStructure: TypeStructure;
 
   @ApiProperty({ description: 'Focused of the dialog', type: Boolean })
   @Column({ type: 'boolean', default: false })
