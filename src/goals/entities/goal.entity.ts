@@ -29,6 +29,10 @@ export class Goal {
   @Column({ type: 'int', default: 0 })
   reward: number;
 
+  @ApiProperty({ description: 'Icon of the goal', type: String, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  icon: string | null;
+
   @ApiProperty({ description: 'Section associated with the goal', type: () => Section })
   @ManyToOne(() => Section, (section) => section.goals)
   @JoinColumn({ name: 'section_uuid' })

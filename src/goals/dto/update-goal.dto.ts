@@ -17,4 +17,9 @@ export class UpdateGoalDto {
   @Min(0)
   @IsOptional()
   reward?: number;
+
+  @ApiPropertyOptional({ description: 'Icon of the goal', type: String })
+  @IsString()
+  @IsOptional()
+  icon?: string;
 }
