@@ -1,4 +1,13 @@
-import { Body, Controller, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  NotFoundException,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthService } from '../services/auth.service';
 
@@ -77,6 +86,7 @@ export class AuthController {
   @IsPublic()
   @ApiOperation({ summary: 'Renew an expired access token using a refresh token' })
   @Post('/renew-access-token')
+  @HttpCode(200)
   @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
   async renewAccessToken(

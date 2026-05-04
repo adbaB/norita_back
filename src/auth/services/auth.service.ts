@@ -64,7 +64,7 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(payload);
 
     return {
-      status: 200,
+      status: 201,
       message: 'success',
       data: {
         accessToken: accessToken,
@@ -107,7 +107,7 @@ export class AuthService {
         refreshToken: refreshToken,
       },
       message: 'success',
-      status: 200,
+      status: 201,
     };
   }
 
