@@ -54,6 +54,7 @@ export class LessonsService {
       .createQueryBuilder('lesson')
       .leftJoinAndSelect('lesson.lessonContent', 'lessonContent')
       .leftJoinAndSelect('lessonContent.dialogs', 'dialog')
+      .leftJoinAndSelect('dialog.typeStructure', 'typeStructure')
       .leftJoinAndSelect('lessonContent.notes', 'notes')
       .leftJoinAndSelect('lessonContent.bibliographies', 'bibliography')
       .leftJoinAndSelect('lessonContent.glossaries', 'glossary')
