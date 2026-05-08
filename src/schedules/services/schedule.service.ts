@@ -88,7 +88,7 @@ export class ScheduleService {
   private async handleScheduledNotifications(): Promise<void> {
     const schedulesToSend = await this.scheduleRepo
       .createQueryBuilder('schedule')
-      .leftJoinAndSelect('schedule.user', 'user')
+      .leftJoinAndSelect('schedule.user', 'usr')
       .where('schedule.type = :type', { type: ScheduleTypeEnum.SCHEDULED })
 
       .andWhere(
@@ -103,7 +103,7 @@ export class ScheduleService {
         "(schedule.lastSend IS NULL OR schedule.lastSend < (DATE_TRUNC('day', NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC')) AT TIME ZONE COALESCE(schedule.timezone, 'UTC')))",
       )
       .andWhere('schedule.isActive = true')
-      .andWhere('schedule.user.notificationToken IS NOT NULL')
+      .andWhere('usr.notificationToken IS NOT NULL')
       .getMany();
     if (schedulesToSend.length > 0) {
       this.logger.debug('Checking SCHEDULED notifications');
@@ -123,11 +123,11 @@ export class ScheduleService {
     // Buscar schedules LESSON que deben enviarse ahora
     const schedulesToSend = await this.scheduleRepo
       .createQueryBuilder('schedule')
-      .leftJoinAndSelect('schedule.user', 'user')
+      .leftJoinAndSelect('schedule.user', 'usr')
       .where('schedule.type = :type', { type: ScheduleTypeEnum.LESSON })
       .andWhere('schedule.scheduledFor <= :now', { now })
       .andWhere('schedule.isActive = true')
-      .andWhere('schedule.user.notificationToken IS NOT NULL')
+      .andWhere('usr.notificationToken IS NOT NULL')
       .andWhere('schedule.lastSend IS NULL')
       .getMany();
 
