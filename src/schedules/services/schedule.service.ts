@@ -1,5 +1,5 @@
 /* eslint-disable @stylistic/ts/quotes */
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import { NotificationService } from '../../firebase/service/notification.service
 import { Schedule } from '../entities/schedule.entity';
 import { ScheduleTypeEnum } from '../enums/schedule-type.enum';
 import { CreateScheduleDto } from '../dto/create-schedule.dto';
+import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
 export class ScheduleService {
@@ -15,13 +16,19 @@ export class ScheduleService {
   constructor(
     @InjectRepository(Schedule) private readonly scheduleRepo: Repository<Schedule>,
     private readonly notificationService: NotificationService,
+    private readonly userService: UsersService,
   ) {}
 
   async createOrUpdateSchedule(
     userId: string,
     createScheduleDto: CreateScheduleDto,
   ): Promise<Schedule> {
-    const { dayOfWeek, hour, timezone } = createScheduleDto;
+    const { dayOfWeek, hour, timezone, isActive } = createScheduleDto;
+
+    const user = await this.userService.findByUUID(userId);
+    if (!user.notificationToken) {
+      throw new BadRequestException('user does not have a notification token');
+    }
 
     let schedule = await this.scheduleRepo.findOne({
       where: {
@@ -34,6 +41,7 @@ export class ScheduleService {
     if (schedule) {
       schedule.hour = hour;
       if (timezone) schedule.timezone = timezone;
+      if (isActive != undefined) schedule.isActive = isActive;
     } else {
       schedule = this.scheduleRepo.create({
         user: { uuid: userId },
@@ -41,6 +49,7 @@ export class ScheduleService {
         hour,
         timezone,
         type: ScheduleTypeEnum.SCHEDULED,
+        isActive,
       });
     }
 
@@ -93,6 +102,8 @@ export class ScheduleService {
       .andWhere(
         "(schedule.lastSend IS NULL OR schedule.lastSend < (DATE_TRUNC('day', NOW() AT TIME ZONE COALESCE(schedule.timezone, 'UTC')) AT TIME ZONE COALESCE(schedule.timezone, 'UTC')))",
       )
+      .andWhere('schedule.isActive = true')
+      .andWhere('schedule.user.notificationToken IS NOT NULL')
       .getMany();
     if (schedulesToSend.length > 0) {
       this.logger.debug('Checking SCHEDULED notifications');
@@ -115,6 +126,8 @@ export class ScheduleService {
       .leftJoinAndSelect('schedule.user', 'user')
       .where('schedule.type = :type', { type: ScheduleTypeEnum.LESSON })
       .andWhere('schedule.scheduledFor <= :now', { now })
+      .andWhere('schedule.isActive = true')
+      .andWhere('schedule.user.notificationToken IS NOT NULL')
       .andWhere('schedule.lastSend IS NULL')
       .getMany();
 

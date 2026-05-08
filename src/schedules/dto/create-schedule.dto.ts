@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min, Matches } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  Matches,
+  IsBoolean,
+} from 'class-validator';
 
 export class CreateScheduleDto {
   @ApiProperty({ description: 'Day of the week (1-7, where 1 is Monday)', example: 1 })
@@ -23,4 +32,9 @@ export class CreateScheduleDto {
   @IsString()
   @IsOptional()
   timezone?: string;
+
+  @ApiProperty({ description: 'Is active', example: true, required: false })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }
