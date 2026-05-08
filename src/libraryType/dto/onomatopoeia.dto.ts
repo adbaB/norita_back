@@ -13,7 +13,7 @@ export class OnomatopoeiaDTO {
   @IsNotEmpty()
   audio: AudioDTO;
 
-  @ApiProperty({ type: () => ExampleDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [ExampleDTO], required: false, nullable: true })
   @Type(() => ExampleDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -25,7 +25,7 @@ export class OnomatopoeiaDTO {
   @IsOptional()
   frequency: string;
 
-  @ApiProperty({ type: () => NoteDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true })
   @Type(() => NoteDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -37,7 +37,7 @@ export class OnomatopoeiaDTO {
   @IsNotEmpty()
   onomatopoeiaType: string;
 
-  @ApiProperty({ type: () => TraductionSpanishDTO, isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [TraductionSpanishDTO], required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()

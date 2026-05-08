@@ -51,7 +51,6 @@ export class CreateLibraryItemDTO {
     type: () => [WordTypeDTO],
     required: false,
     nullable: true,
-    isArray: true,
     description: 'wordType',
   })
   @Type(() => WordTypeDTO)

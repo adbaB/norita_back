@@ -32,28 +32,28 @@ export class ExampleSpanishDTO implements ExampleSpanish {
 }
 
 export class CountersDTO {
-  @ApiProperty({ type: () => [CategoryDTO], required: true, nullable: false, isArray: true })
+  @ApiProperty({ type: () => [CategoryDTO], required: true, nullable: false })
   @Type(() => CategoryDTO)
   @IsNotEmpty()
   @IsArray({ message: 'category must be an array' })
   @ValidateNested({ each: true })
   category: CategoryDTO[];
 
-  @ApiProperty({ type: () => [ExampleDTO], required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [ExampleDTO], required: false, nullable: true })
   @Type(() => ExampleDTO)
   @IsOptional()
   @IsArray({ message: 'example must be an array' })
   @ValidateNested({ each: true })
   example: ExampleDTO[];
 
-  @ApiProperty({ type: () => [ExampleSpanishDTO], required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [ExampleSpanishDTO], required: false, nullable: true })
   @Type(() => ExampleSpanishDTO)
   @IsOptional()
   @IsArray({ message: 'exampleSpanish must be an array' })
   @ValidateNested({ each: true })
   exampleSpanish: ExampleSpanishDTO[];
 
-  @ApiProperty({ type: () => [NumberDTO], required: true, nullable: false, isArray: true })
+  @ApiProperty({ type: () => [NumberDTO], required: true, nullable: false })
   @Type(() => NumberDTO)
   @IsNotEmpty()
   @IsArray({ message: 'numbers must be an array' })
@@ -65,7 +65,7 @@ export class CountersDTO {
   @IsNotEmpty()
   jltp: string;
 
-  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true })
   @Type(() => NoteDTO)
   @IsOptional()
   @IsArray({ message: 'note must be an array' })
@@ -76,7 +76,6 @@ export class CountersDTO {
     type: () => [TraductionSpanishDTO],
     required: true,
     nullable: false,
-    isArray: true,
   })
   @Type(() => TraductionSpanishDTO)
   @IsNotEmpty()

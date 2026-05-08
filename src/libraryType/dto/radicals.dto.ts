@@ -81,7 +81,7 @@ export class RadicalsDTO {
   @IsOptional()
   note: string;
 
-  @ApiProperty({ type: () => PositionDTO, isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [PositionDTO], required: true, nullable: false })
   @Type(() => PositionDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
@@ -101,14 +101,14 @@ export class RadicalsDTO {
   @IsNotEmpty()
   stepsInteger: number;
 
-  @ApiProperty({ type: () => TraductionSpanishDTO, isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [TraductionSpanishDTO], required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'traductionSpanish must be an array' })
   traductionSpanish: TraductionSpanishDTO[];
 
-  @ApiProperty({ type: () => VariantDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [VariantDTO], required: false, nullable: true })
   @Type(() => VariantDTO)
   @ValidateNested({ each: true })
   @IsOptional()

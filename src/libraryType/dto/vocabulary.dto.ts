@@ -15,14 +15,14 @@ export class VocabularyDTO {
   @IsOptional()
   audio: AudioDTO;
 
-  @ApiProperty({ type: () => [CategoryDTO], isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [CategoryDTO], required: true, nullable: false })
   @Type(() => CategoryDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @IsArray({ message: 'category must be an array' })
   category: CategoryDTO[];
 
-  @ApiProperty({ type: () => [ExampleDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [ExampleDTO], required: false, nullable: true })
   @Type(() => ExampleDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -39,7 +39,7 @@ export class VocabularyDTO {
   @IsNotEmpty()
   jltp: string;
 
-  @ApiProperty({ type: () => [NoteDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true })
   @Type(() => NoteDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -48,7 +48,6 @@ export class VocabularyDTO {
 
   @ApiProperty({
     type: () => [TraductionSpanishDTO],
-    isArray: true,
     required: true,
     nullable: false,
   })
@@ -83,7 +82,7 @@ export class VocabularyDTO {
   @IsNotEmpty()
   wordRomaji: string;
 
-  @ApiProperty({ type: () => SearchKanjiDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [SearchKanjiDTO], required: false, nullable: true })
   @Type(() => SearchKanjiDTO)
   @ValidateNested({ each: true })
   @IsOptional()
