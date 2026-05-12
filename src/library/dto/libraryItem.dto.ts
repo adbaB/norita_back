@@ -21,6 +21,7 @@ import { RadicalsDTO } from '../../libraryType/dto/radicals.dto';
 import { VocabularyDTO } from '../../libraryType/dto/vocabulary.dto';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
+import { SimpleNumbersDTO } from 'src/libraryType/dto/simpleNumbers.dto';
 
 export class WordTypeDTO implements WordType {
   @ApiProperty({ type: String, required: true, nullable: false, description: 'type' })
@@ -93,13 +94,18 @@ export class CreateLibraryItemDTO {
   kanji?: KanjiDto;
 
   @ApiProperty({ type: () => NumbersDTO, required: false, nullable: true })
-  @ValidateIf(
-    (o) => o.type === LibraryItemTypeEnum.NUMBER || o.type === LibraryItemTypeEnum.NUMBERS,
-  )
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.NUMBERS)
   @IsNotEmpty({ message: 'numbers cannot be empty' })
   @Type(() => NumbersDTO)
   @ValidateNested()
   numbers?: NumbersDTO;
+
+  @ApiProperty({ type: () => SimpleNumbersDTO, required: false, nullable: true })
+  @ValidateIf((o) => o.type === LibraryItemTypeEnum.NUMBER)
+  @IsNotEmpty({ message: 'simpleNumbers cannot be empty' })
+  @Type(() => SimpleNumbersDTO)
+  @ValidateNested()
+  simpleNumbers?: SimpleNumbersDTO;
 
   @ApiProperty({ type: () => CountersDTO, required: false, nullable: true })
   @ValidateIf((o) => o.type === LibraryItemTypeEnum.COUNTER)

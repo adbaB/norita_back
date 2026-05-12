@@ -22,6 +22,7 @@ import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 import { LibrarySection } from './librarySection.entity';
+import { SimpleNumbers } from '../../libraryType/entities/simpleNumbers.entity';
 
 @Entity('library_item')
 export class LibraryItem implements IOrder {
@@ -66,6 +67,15 @@ export class LibraryItem implements IOrder {
     nullable: true,
   })
   kanji?: Kanji;
+
+  @Exclude({ toPlainOnly: true })
+  @OneToOne(() => SimpleNumbers, (simpleNumbers) => simpleNumbers.libraryItem, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
+  simpleNumbers?: SimpleNumbers;
 
   @Exclude({ toPlainOnly: true })
   @OneToOne(() => Numbers, (numbers) => numbers.libraryItem, {
