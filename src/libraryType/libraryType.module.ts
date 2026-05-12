@@ -9,6 +9,7 @@ import { Numbers } from './entities/numbers.entity';
 import { Onomatopoeia } from './entities/onomatopoeia.entity';
 import { Radicals } from './entities/radicals.entity';
 import { Vocabulary } from './entities/vocabulary.entity';
+import { SimpleNumbers } from './entities/simpleNumbers.entity';
 
 import { LibraryTypeService } from './services/libraryType.service';
 
@@ -19,6 +20,7 @@ import { LibraryTypeService } from './services/libraryType.service';
       Counters,
       Kana,
       Kanji,
+      SimpleNumbers,
       Numbers,
       Onomatopoeia,
       Radicals,

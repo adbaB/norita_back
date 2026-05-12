@@ -70,6 +70,7 @@ export class LibraryItemService {
         adjectives: true,
         counters: true,
         kanji: true,
+        simpleNumbers: true,
         numbers: true,
         onomatopoeia: true,
         radicals: true,
