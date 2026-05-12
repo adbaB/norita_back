@@ -80,7 +80,7 @@ export class KanjiDto {
   @IsOptional()
   kind: KindDTO;
 
-  @ApiProperty({ type: () => KunyomiDTO, required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [KunyomiDTO], required: false, nullable: true })
   @Type(() => KunyomiDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -98,35 +98,35 @@ export class KanjiDto {
   @IsOptional()
   lottie: string;
 
-  @ApiProperty({ type: () => NameDTO, required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [NameDTO], required: false, nullable: true })
   @Type(() => NameDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'name must be an array' })
   name: NameDTO[];
 
-  @ApiProperty({ type: () => NoteDTO, required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true })
   @Type(() => NoteDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'notes must be an array' })
   notes: NoteDTO[];
 
-  @ApiProperty({ type: () => OnyomiDTO, required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [OnyomiDTO], required: false, nullable: true })
   @Type(() => OnyomiDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'onyomi must be an array' })
   onyomi: OnyomiDTO[];
 
-  @ApiProperty({ type: () => StepImageDTO, required: false, nullable: true, isArray: true })
+  @ApiProperty({ type: () => [StepImageDTO], required: false, nullable: true })
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'images must be an array' })
   images: StepImageDTO[];
 
-  @ApiProperty({ type: () => TraductionSpanishDTO, required: true, nullable: false, isArray: true })
+  @ApiProperty({ type: () => [TraductionSpanishDTO], required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()

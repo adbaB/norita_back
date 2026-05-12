@@ -14,7 +14,7 @@ export class NumbersDTO {
   @IsOptional()
   audio: AudioDTO;
 
-  @ApiProperty({ type: () => [KunyomiDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [KunyomiDTO], required: false, nullable: true })
   @Type(() => KunyomiDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -31,7 +31,7 @@ export class NumbersDTO {
   @IsString()
   note?: string;
 
-  @ApiProperty({ type: () => [OnyomiDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [OnyomiDTO], required: false, nullable: true })
   @Type(() => OnyomiDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -43,14 +43,14 @@ export class NumbersDTO {
   @IsString()
   romanNumber: string;
 
-  @ApiProperty({ type: () => [StepImageDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [StepImageDTO], required: false, nullable: true })
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'stepImage must be an array' })
   stepImage?: StepImageDTO[];
 
-  @ApiProperty({ type: () => TraductionSpanishDTO, required: true, nullable: false, isArray: true })
+  @ApiProperty({ type: () => [TraductionSpanishDTO], required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()

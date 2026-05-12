@@ -132,7 +132,7 @@ export class AdjectivesDTO {
   @IsNotEmpty()
   conjugations: ConjugationsDTO;
 
-  @ApiProperty({ type: () => [ExampleDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [ExampleDTO], required: false, nullable: true })
   @Type(() => ExampleDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -144,7 +144,7 @@ export class AdjectivesDTO {
   @IsNotEmpty()
   jltp: string;
 
-  @ApiProperty({ type: () => NoteDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [NoteDTO], required: false, nullable: true })
   @Type(() => NoteDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -157,7 +157,7 @@ export class AdjectivesDTO {
   @IsNotEmpty()
   termination: TerminationDTO;
 
-  @ApiProperty({ type: () => TraductionSpanishDTO, isArray: true, required: true, nullable: false })
+  @ApiProperty({ type: () => [TraductionSpanishDTO], required: true, nullable: false })
   @Type(() => TraductionSpanishDTO)
   @ValidateNested({ each: true })
   @IsNotEmpty()
@@ -194,7 +194,7 @@ export class AdjectivesDTO {
   @IsNotEmpty()
   wordRomaji: string;
 
-  @ApiProperty({ type: () => SearchKanjiDTO, isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [SearchKanjiDTO], required: false, nullable: true })
   @Type(() => SearchKanjiDTO)
   @ValidateNested({ each: true })
   @IsOptional()

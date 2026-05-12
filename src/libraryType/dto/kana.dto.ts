@@ -84,14 +84,14 @@ export class KanaDTO {
   @IsOptional()
   audio: AudioDTO;
 
-  @ApiProperty({ type: () => [ConsonantDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [ConsonantDTO], required: false, nullable: true })
   @Type(() => ConsonantDTO)
   @ValidateNested({ each: true })
   @IsOptional()
   @IsArray({ message: 'consonant must be an array' })
   consonant: ConsonantDTO[];
 
-  @ApiProperty({ type: () => [ErrorItemDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [ErrorItemDTO], required: false, nullable: true })
   @Type(() => ErrorItemDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -103,7 +103,7 @@ export class KanaDTO {
   @IsOptional()
   lottie: string;
 
-  @ApiProperty({ type: () => [PronunciationDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [PronunciationDTO], required: false, nullable: true })
   @Type(() => PronunciationDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -116,7 +116,7 @@ export class KanaDTO {
   @IsNotEmpty()
   romaji: RomajiDTO;
 
-  @ApiProperty({ type: () => [StepImageDTO], isArray: true, required: false, nullable: true })
+  @ApiProperty({ type: () => [StepImageDTO], required: false, nullable: true })
   @Type(() => StepImageDTO)
   @ValidateNested({ each: true })
   @IsOptional()
@@ -142,7 +142,6 @@ export class KanaDTO {
     type: () => [TraductionSpanishDTO],
     required: true,
     nullable: false,
-    isArray: true,
   })
   @Type(() => TraductionSpanishDTO)
   @IsNotEmpty()
