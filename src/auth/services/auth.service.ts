@@ -263,9 +263,15 @@ export class AuthService {
   }
 
   private async verifyGoogleToken(token: string): Promise<TokenPayload> {
+    const allowedAudiences = [
+      this.configService.google.client,
+      this.configService.google.clientAndroid,
+      this.configService.google.clientIos,
+    ].filter(Boolean);
+
     const ticket = await this.googleClient.verifyIdToken({
       idToken: token,
-      audience: this.configService.google.client,
+      audience: allowedAudiences,
     });
     const payloadGoogle = ticket.getPayload();
     if (!payloadGoogle || !payloadGoogle.email_verified) {

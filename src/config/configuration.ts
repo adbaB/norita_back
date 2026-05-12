@@ -26,6 +26,8 @@ export default registerAs('config', () => {
     google: {
       client: process.env.GOOGLE_CLIENT_ID,
       secret: process.env.GOOGLE_CLIENT_SECRET,
+      clientAndroid: process.env.GOOGLE_CLIENT_ID_ANDROID,
+      clientIos: process.env.GOOGLE_CLIENT_ID_IOS,
       firebase: {
         type: process.env.FIREBASE_TYPE,
         project_id: process.env.FIREBASE_PROJECT_ID,

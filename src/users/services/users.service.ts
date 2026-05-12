@@ -267,11 +267,11 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
       return false;
     }
 
-    if (!user && user.deviceJWT !== sessionUUID) {
+    if (user.deviceJWT !== sessionUUID) {
       return false;
     }
 
-    return !!user;
+    return true;
   }
 
   /**
