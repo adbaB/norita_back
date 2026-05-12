@@ -116,6 +116,4 @@ export class RegisterWithGoogleDTO extends OmitType(RegisterDto, [
   @IsNotEmpty()
   @IsString()
   token: string;
-
-  signInGoogle: boolean;
 }
