@@ -17,12 +17,12 @@ import { Kanji } from '../../libraryType/entities/kanji.entity';
 import { Numbers } from '../../libraryType/entities/numbers.entity';
 import { Onomatopoeia } from '../../libraryType/entities/onomatopoeia.entity';
 import { Radicals } from '../../libraryType/entities/radicals.entity';
+import { SimpleNumbers } from '../../libraryType/entities/simpleNumbers.entity';
 import { Vocabulary } from '../../libraryType/entities/vocabulary.entity';
 import { IOrder } from '../../utils/interfaces/order.interface';
 import { LibraryItemTypeEnum } from '../enums/library.enum';
 import { WordType } from '../interfaces/wordType.interface';
 import { LibrarySection } from './librarySection.entity';
-import { SimpleNumbers } from '../../libraryType/entities/simpleNumbers.entity';
 
 @Entity('library_item')
 export class LibraryItem implements IOrder {
@@ -170,11 +170,21 @@ export class LibraryItem implements IOrder {
   romaji?: string | null;
 
   @Expose({ toPlainOnly: true, name: 'info' })
-  info(): Adjectives | Counters | Kana | Kanji | Numbers | Onomatopoeia | Radicals | Vocabulary {
+  info():
+    | Adjectives
+    | Counters
+    | Kana
+    | Kanji
+    | Numbers
+    | Onomatopoeia
+    | Radicals
+    | Vocabulary
+    | SimpleNumbers
+    | null {
     if (this.type === LibraryItemTypeEnum.KANA) return this.kana;
     if (this.type === LibraryItemTypeEnum.KANJI) return this.kanji;
-    if (this.type === LibraryItemTypeEnum.NUMBER || this.type === LibraryItemTypeEnum.NUMBERS)
-      return this.numbers;
+    if (this.type === LibraryItemTypeEnum.NUMBERS) return this.numbers;
+    if (this.type === LibraryItemTypeEnum.NUMBER) return this.simpleNumbers;
     if (this.type === LibraryItemTypeEnum.COUNTER) return this.counters;
     if (this.type === LibraryItemTypeEnum.ADJECTIVE) return this.adjectives;
     if (this.type === LibraryItemTypeEnum.ONOMATOPOEIA) return this.onomatopoeia;
