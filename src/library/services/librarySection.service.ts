@@ -112,6 +112,7 @@ export class LibrarySectionService {
           kanji: true,
           numbers: true,
           onomatopoeia: true,
+          simpleNumbers: true,
           radicals: true,
           vocabulary: true,
         },
