@@ -130,6 +130,7 @@ export class LibraryItemService {
         counters: true,
         kanji: true,
         numbers: true,
+        simpleNumbers: true,
         onomatopoeia: true,
         radicals: true,
         vocabulary: true,
