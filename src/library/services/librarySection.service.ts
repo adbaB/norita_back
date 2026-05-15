@@ -8,6 +8,7 @@ import { CreateLibrarySectionDTO, UpdateLibrarySectionDTO } from '../dto/library
 import { Library } from '../entities/library.entity';
 import { LibrarySection } from '../entities/librarySection.entity';
 import { LibraryService } from './library.service';
+import { RoleEnum } from '../../users/enum/role.enum';
 
 @Injectable()
 export class LibrarySectionService {
@@ -94,16 +95,24 @@ export class LibrarySectionService {
     };
   }
 
-  async findAll(libraryUuid: string): Promise<LibrarySection[]> {
+  async findAll(libraryUuid: string, role?: string): Promise<LibrarySection[]> {
+    const isAdmin = role === RoleEnum.ADMIN;
     return this.librarySectionRepo.find({
-      where: { library: { uuid: libraryUuid } },
+      where: {
+        library: { uuid: libraryUuid },
+        ...(!isAdmin && { isPublic: true }),
+      },
       order: { order: 'ASC' },
     });
   }
 
-  async findOne(uuid: string, userUUID?: string): Promise<LibrarySection> {
+  async findOne(uuid: string, userUUID?: string, role?: string): Promise<LibrarySection> {
+    const isAdmin = role === RoleEnum.ADMIN;
     return this.librarySectionRepo.findOne({
-      where: [{ uuid, sectionUser: { user: { uuid: userUUID } } }, { uuid }],
+      where: [
+        { uuid, sectionUser: { user: { uuid: userUUID } }, ...(!isAdmin && { isPublic: true }) },
+        { uuid, ...(!isAdmin && { isPublic: true }) },
+      ],
       relations: {
         items: {
           kana: true,

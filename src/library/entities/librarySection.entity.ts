@@ -39,6 +39,10 @@ export class LibrarySection implements IOrder {
   @Column({ type: 'int', nullable: false })
   order: number;
 
+  @ApiProperty({ description: 'Is the library section public', type: Boolean })
+  @Column({ type: 'boolean', default: true })
+  isPublic: boolean;
+
   @Exclude({ toPlainOnly: true })
   @ManyToOne(() => Library, (library) => library.sections)
   @JoinColumn({ name: 'library_uuid' })

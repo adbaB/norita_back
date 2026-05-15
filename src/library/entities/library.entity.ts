@@ -85,6 +85,10 @@ export class Library implements IOrder {
   @Index('idx_library_type')
   type: LibraryTypeEnum;
 
+  @ApiProperty({ description: 'Is the library public', type: Boolean })
+  @Column({ type: 'boolean', nullable: false, default: false })
+  isPublic: boolean;
+
   @ApiProperty({ description: 'Sections of the library', type: [LibrarySection] })
   @OneToMany(() => LibrarySection, (section) => section.library, {
     cascade: true,

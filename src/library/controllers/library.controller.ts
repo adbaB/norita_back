@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -24,6 +25,8 @@ import { CreateLibraryDTO, UpdateLibraryDTO } from '../dto/library.dto';
 import { Library } from '../entities/library.entity';
 import { ResponseLibrary } from '../interfaces/responseLibrary.interface';
 import { LibraryService } from '../services/library.service';
+import { Request } from 'express';
+import { PayloadToken } from '../../libs/Auth/token';
 
 @ApiBearerAuth()
 @Controller('library')
@@ -69,11 +72,15 @@ export class LibraryController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiOperation({ summary: 'Retrieve all available libraries for the user' })
   @Get()
-  async findAll(@User() userUUID: string): Promise<ClassApiResponse<ResponseLibrary>> {
+  async findAll(
+    @User() userUUID: string,
+    @Req() req: Request,
+  ): Promise<ClassApiResponse<ResponseLibrary>> {
+    const role = (req.user as PayloadToken)?.role;
     return new ClassApiResponse(
       true,
       'Libraries found successfully',
-      await this.libraryService.findAll(userUUID),
+      await this.libraryService.findAll(userUUID, role),
     );
   }
 
@@ -87,8 +94,10 @@ export class LibraryController {
   async findOne(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @User() userUUID: string,
+    @Req() req: Request,
   ): Promise<ClassApiResponse<Library>> {
-    const library = await this.libraryService.findOne(uuid, userUUID);
+    const role = (req.user as PayloadToken)?.role;
+    const library = await this.libraryService.findOne(uuid, userUUID, role);
 
     if (!library) {
       throw new NotFoundException('Library not found');
