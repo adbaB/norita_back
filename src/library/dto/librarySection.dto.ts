@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateLibrarySectionDTO {
   @ApiProperty({
@@ -43,6 +43,16 @@ export class CreateLibrarySectionDTO {
     { message: 'Order must be a number' },
   )
   order: number;
+
+  @ApiProperty({
+    description: 'Whether the library section is public',
+    example: true,
+    type: Boolean,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'isPublic must be a boolean' })
+  isPublic: boolean;
 }
 
 export class UpdateLibrarySectionDTO extends PartialType(CreateLibrarySectionDTO) {

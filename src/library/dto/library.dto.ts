@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { LibraryTypeEnum } from '../enums/library.enum';
 
 export class CreateLibraryDTO {
@@ -78,6 +78,16 @@ export class CreateLibraryDTO {
   @IsNotEmpty({ message: 'Type is required' })
   @IsEnum(LibraryTypeEnum, { message: 'Type must be a valid enum value' })
   type: LibraryTypeEnum;
+
+  @ApiProperty({
+    description: 'Whether the library is public',
+    type: Boolean,
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'isPublic must be a boolean' })
+  isPublic: boolean;
 }
 
 export class UpdateLibraryDTO extends PartialType(CreateLibraryDTO) {}
