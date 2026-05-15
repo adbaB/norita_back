@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -24,6 +25,8 @@ import {
 import { CreateLibrarySectionDTO, UpdateLibrarySectionDTO } from '../dto/librarySection.dto';
 import { LibrarySection } from '../entities/librarySection.entity';
 import { LibrarySectionService } from '../services/librarySection.service';
+import { Request } from 'express';
+import { PayloadToken } from '../../libs/Auth/token';
 
 @ApiBearerAuth()
 @Controller('library/section')
@@ -92,11 +95,13 @@ export class LibrarySectionController {
   async findOne(
     @Param('uuid', ParseUUIDPipe) sectionUuid: string,
     @User() userUUID: string,
+    @Req() req: Request,
   ): Promise<ClassApiResponse<LibrarySection>> {
+    const role = (req.user as PayloadToken)?.role;
     return new ClassApiResponse(
       true,
       'Library section found successfully',
-      await this.librarySectionService.findOne(sectionUuid, userUUID),
+      await this.librarySectionService.findOne(sectionUuid, userUUID, role),
     );
   }
 

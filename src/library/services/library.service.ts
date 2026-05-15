@@ -10,6 +10,7 @@ import { CreateLibraryDTO, UpdateLibraryDTO } from '../dto/library.dto';
 import { Library } from '../entities/library.entity';
 import { LibraryTypeEnum } from '../enums/library.enum';
 import { ResponseLibrary } from '../interfaces/responseLibrary.interface';
+import { RoleEnum } from '../../users/enum/role.enum';
 
 @Injectable()
 export class LibraryService {
@@ -54,32 +55,27 @@ export class LibraryService {
     };
   }
 
-  async findAll(userUUID: string): Promise<ResponseLibrary> {
-    const promiseGrammars = this.libraryRepo
-      .createQueryBuilder('library')
-      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
-      .where('library.type = :type', { type: LibraryTypeEnum.GRAMMAR })
-      .orderBy('library.order', 'ASC')
-      .getMany();
+  async findAll(userUUID: string, role?: string): Promise<ResponseLibrary> {
+    const isAdmin = role === RoleEnum.ADMIN;
 
-    const promiseVocabularies = this.libraryRepo
-      .createQueryBuilder('library')
-      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
-      .where('library.type = :type', { type: LibraryTypeEnum.VOCABULARY })
-      .orderBy('library.order', 'ASC')
-      .getMany();
+    const buildQuery = (type: LibraryTypeEnum): Promise<Library[]> => {
+      const qb = this.libraryRepo
+        .createQueryBuilder('library')
+        .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
+        .where('library.type = :type', { type })
+        .orderBy('library.order', 'ASC');
 
-    const promiseSpecialized = this.libraryRepo
-      .createQueryBuilder('library')
-      .leftJoinAndSelect('library.user', 'user', 'user.user_uuid = :userUUID', { userUUID })
-      .where('library.type = :type', { type: LibraryTypeEnum.SPECIALIZED })
-      .orderBy('library.order', 'ASC')
-      .getMany();
+      if (!isAdmin) {
+        qb.andWhere('library.isPublic = true');
+      }
+
+      return qb.getMany();
+    };
 
     const [grammars, vocabularies, specialized] = await Promise.all([
-      promiseGrammars,
-      promiseVocabularies,
-      promiseSpecialized,
+      buildQuery(LibraryTypeEnum.GRAMMAR),
+      buildQuery(LibraryTypeEnum.VOCABULARY),
+      buildQuery(LibraryTypeEnum.SPECIALIZED),
     ]);
 
     return {
@@ -89,8 +85,9 @@ export class LibraryService {
     };
   }
 
-  async findOne(uuid: string, userUUID?: string): Promise<Library> {
-    return this.libraryRepo
+  async findOne(uuid: string, userUUID?: string, role?: string): Promise<Library> {
+    const isAdmin = role === RoleEnum.ADMIN;
+    const qb = this.libraryRepo
       .createQueryBuilder('library')
       .leftJoinAndSelect('library.sections', 'section')
       .leftJoinAndSelect(
@@ -102,8 +99,13 @@ export class LibraryService {
         },
       )
       .where('library.uuid = :uuid', { uuid })
-      .orderBy('section.order', 'ASC')
-      .getOne();
+      .orderBy('section.order', 'ASC');
+
+    if (!isAdmin) {
+      qb.andWhere('library.isPublic = true');
+    }
+
+    return qb.getOne();
   }
 
   async delete(uuid: string): Promise<DeleteResponse> {
