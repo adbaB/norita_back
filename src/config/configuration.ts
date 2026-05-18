@@ -13,7 +13,11 @@ export default registerAs('config', () => {
       tutorial: parseInt(process.env.REWARD_POINTS_TUTORIAL, 10) || 50,
     },
     mail: {
-      port: parseInt(process.env.PORT, 10),
+      host: process.env.MAIL_HOST,
+      port: parseInt(process.env.MAIL_PORT, 10) || 587,
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+      from: process.env.MAIL_FROM || 'noreply@norita-app.com',
     },
     jwt: {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

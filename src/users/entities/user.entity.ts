@@ -63,6 +63,14 @@ export class User {
   @Column({ name: 'subscription_expires_at', type: 'timestamp', nullable: true })
   subscriptionExpiresAt: Date;
 
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'reset_password_otp', type: 'varchar', length: 255, nullable: true })
+  resetPasswordOtp: string | null;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'reset_password_otp_expires_at', type: 'timestamp', nullable: true })
+  resetPasswordOtpExpiresAt: Date | null;
+
   @ApiProperty({ description: 'first tutorial of the user', type: Boolean })
   @Column({ name: 'first_tutorial', type: 'boolean', default: false })
   firstTutorial: boolean;

@@ -31,64 +31,21 @@ export class UsersService {
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
-  @Transactional()
-  async registerWithGoogle(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
-
-    // Inicializar monedas y recompensas
-    let initialCoins = 0;
-
-    if (firstRewards) {
-      initialCoins += this.configService.coins.tutorial;
-    }
-    if (secondRewards) {
-      initialCoins += this.configService.coins.tutorial;
-    }
-
-    const passwordHash = await hashPassword(password);
-    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
-    const user = this.userRepo.create({
-      password: passwordHash,
-      deviceJWT: jwt,
-      ...rest,
-      image,
-      coin: initialCoins,
-      firstRewards: firstRewards || false,
-      secondRewards: secondRewards || false,
-      username: rest.username ? rest.username : `user-${jwt}`,
-      signInGoogle: true,
-      isGuest: false,
-      isActive: true,
-    });
-
-    if (levelUuid) {
-      const levelEntity = await this.levelService.findByUUID(levelUuid);
-      if (!levelEntity) {
-        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
-      }
-      user.level = levelEntity;
-    }
-
-    const userCreated = await this.userRepo.save(user);
-
-    await this.lessonProgressService.addInitialProgress(userCreated);
-
-    return userCreated;
-  }
-
   /**
-   * Registers a new user.
+   * Registers a new user (regular or via Google).
    * @param {RegisterDto} dto - The request body containing the user's information.
+   * @param dto.signInGoogle - Set to true when registering via Google Sign-In.
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
   @Transactional()
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+    const { password, jwt, levelUuid, firstRewards, secondRewards, signInGoogle, ...rest } = dto;
 
     const userFound = await this.userRepo.findOne({ where: { email: rest.email } });
     if (userFound) {
       throw new ConflictException('Email already exists');
     }
+
     // Inicializar monedas y recompensas
     let initialCoins = 0;
 
@@ -110,6 +67,7 @@ export class UsersService {
       firstRewards: firstRewards || false,
       secondRewards: secondRewards || false,
       username: rest.username ? rest.username : `user-${jwt}`,
+      signInGoogle: signInGoogle ?? false,
     });
 
     if (levelUuid) {

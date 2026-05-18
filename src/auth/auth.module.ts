@@ -11,10 +11,12 @@ import { RolesGuard } from './guards/roles.guard';
 import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategys/jwt.strategy';
 import { JwtRefreshStrategy } from './strategys/refresh.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     JwtModule.registerAsync({
       inject: [configuration.KEY],
       useFactory: (configService: ConfigType<typeof configuration>) => {

@@ -16,6 +16,8 @@ import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
 import { RegisterInterface } from '../interfaces/register.interface';
+import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
+import { MailService } from '../../mail/services/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +26,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
+    private readonly emailService: MailService,
   ) {
     this.googleClient = new OAuth2Client({
       clientId: this.configService.google.client,
@@ -121,7 +124,7 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
     const sessionUUID = randomUUID();
-    const userCreated = await this.usersService.registerWithGoogle({
+    const userCreated = await this.usersService.register({
       email: payloadGoogle.email,
       username: payloadGoogle.name,
       firstRewards,
@@ -131,6 +134,7 @@ export class AuthService {
       levelUuid,
       jwt: sessionUUID,
       password: randomUUID(),
+      signInGoogle: true,
     });
     const payload: PayloadToken = {
       email: userCreated.email,
@@ -219,6 +223,10 @@ export class AuthService {
     };
   }
 
+  async attachAccountToGuest(): Promise<void> {
+    // TODO: implement attachAccountToGuest
+  }
+
   async renewAccessToken(
     payload: JwtTokenPayload,
     refreshToken: string,
@@ -249,6 +257,66 @@ export class AuthService {
 
   async logOut(userUUID: string): Promise<void> {
     await this.usersService.updateSession(userUUID, null);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      // Return success even if not found to prevent email enumeration
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+    await this.usersService.update(user.uuid, {
+      resetPasswordOtp: otp,
+      resetPasswordOtpExpiresAt: expiresAt,
+    });
+
+    await this.emailService.sendPasswordResetOtp(user.email, otp);
+  }
+
+  async validateOtp(dto: ValidateOtpDto): Promise<{ token: string }> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user || user.resetPasswordOtp !== dto.otp) {
+      throw new BadRequestException('Invalid OTP or email');
+    }
+
+    if (!user.resetPasswordOtpExpiresAt || new Date() > user.resetPasswordOtpExpiresAt) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    // Clear the OTP to prevent reuse
+    await this.usersService.update(user.uuid, {
+      resetPasswordOtp: null,
+      resetPasswordOtpExpiresAt: null,
+    });
+
+    const resetToken = await this.jwtService.signAsync(
+      { email: user.email, uuid: user.uuid, purpose: 'reset-password' },
+      { expiresIn: '15m' },
+    );
+
+    return { token: resetToken };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    try {
+      const payload = await this.jwtService.verifyAsync(dto.token);
+      if (payload.purpose !== 'reset-password') {
+        throw new BadRequestException('Invalid token');
+      }
+
+      const user = await this.usersService.findByEmail(payload.email);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      await this.usersService.update(user.uuid, { password: dto.password });
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
+    }
   }
 
   private async generateAccessToken(payload: PayloadToken): Promise<string> {

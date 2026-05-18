@@ -91,6 +91,7 @@ export class RegisterDto {
   username?: string;
 
   isGuest?: boolean;
+  signInGoogle?: boolean;
 }
 
 export class RegisterGuestDTO extends OmitType(RegisterDto, [

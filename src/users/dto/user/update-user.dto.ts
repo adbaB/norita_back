@@ -36,4 +36,11 @@ export class UpdateUserDto extends PartialType(RegisterDto) {
   @IsOptional()
   @IsString()
   notificationToken?: string;
+
+  @IsOptional()
+  @IsString()
+  resetPasswordOtp?: string | null;
+
+  @IsOptional()
+  resetPasswordOtpExpiresAt?: Date | null;
 }
