@@ -1,4 +1,10 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -16,6 +22,7 @@ import { User } from '../entities/user.entity';
 import { IStatistics } from '../interfaces/statistics.interface';
 import { LevelService } from './level.service';
 import { UserImagesService } from './userImages.service';
+import { GoogleService } from 'src/firebase/service/google.service';
 
 /**
  * UsersService is a service that handles user-related operations.
@@ -28,6 +35,7 @@ export class UsersService {
     private readonly levelService: LevelService,
     private readonly lessonProgressService: LessonProgressService,
     private readonly userImagesService: UserImagesService,
+    private readonly googleService: GoogleService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
@@ -395,7 +403,15 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
 
   @Transactional()
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { levelUuid, password, firstRewards, secondRewards, isGuest, ...updateData } = dto;
+    const {
+      levelUuid,
+      password,
+      firstRewards,
+      secondRewards,
+      isGuest,
+      googleToken,
+      ...updateData
+    } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
 
@@ -413,6 +429,19 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     if (user.isGuest && isGuest === false) {
       user.isGuest = false;
       user.username = `user-${randomUUID()}`;
+      if (googleToken) {
+        const payloadGoogle = await this.googleService.verifyGoogleToken(googleToken);
+        if (!payloadGoogle.email) {
+          throw new BadRequestException('Invalid Google token');
+        }
+        const emailExists = await this.userRepo.findOne({ where: { email: payloadGoogle.email } });
+        if (emailExists && emailExists.uuid !== uuid) {
+          throw new ConflictException('Email already exists');
+        }
+        user.email = payloadGoogle.email;
+        user.signInGoogle = true;
+        user.username = payloadGoogle.name;
+      }
     }
 
     let coinsToAdd = 0;
