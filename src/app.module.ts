@@ -18,6 +18,7 @@ import { EntitlementsModule } from './products/products.module';
 import { ScheduleModule } from './schedules/schedule.module';
 import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
+import { HealthModule } from './health/health.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
 import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 import { ResponseInterceptor } from './utils/interceptors/apiResponse.interceptor';
@@ -42,6 +43,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     GoalsModule,
     DiaryAikoModule,
     EntitlementsModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [
