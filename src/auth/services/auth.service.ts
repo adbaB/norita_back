@@ -5,7 +5,6 @@ import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
-import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import configuration from '../../config/configuration';
 import {
   RegisterDto,
@@ -16,20 +15,16 @@ import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
 import { RegisterInterface } from '../interfaces/register.interface';
+import { GoogleService } from 'src/firebase/service/google.service';
 
 @Injectable()
 export class AuthService {
-  private googleClient: OAuth2Client;
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly googleService: GoogleService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
-  ) {
-    this.googleClient = new OAuth2Client({
-      clientId: this.configService.google.client,
-      clientSecret: this.configService.google.secret,
-    });
-  }
+  ) {}
 
   /**
    * Sign in with the provided credentials.
@@ -74,7 +69,7 @@ export class AuthService {
   }
 
   async signInWithGoogle(token: string): Promise<LoginResponse> {
-    const payloadGoogle = await this.verifyGoogleToken(token);
+    const payloadGoogle = await this.googleService.verifyGoogleToken(token);
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (!user) {
       throw new BadRequestException('Email not found');
@@ -114,7 +109,7 @@ export class AuthService {
   async registerWithGoogle(dto: RegisterWithGoogleDTO): Promise<RegisterInterface> {
     const { token, firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } = dto;
 
-    const payloadGoogle = await this.verifyGoogleToken(token);
+    const payloadGoogle = await this.googleService.verifyGoogleToken(token);
 
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (user) {
@@ -260,23 +255,5 @@ export class AuthService {
       expiresIn: this.configService.jwtRefresh.expiresIn,
       secret: this.configService.jwtRefresh.secret,
     });
-  }
-
-  private async verifyGoogleToken(token: string): Promise<TokenPayload> {
-    const allowedAudiences = [
-      this.configService.google.client,
-      this.configService.google.clientAndroid,
-      this.configService.google.clientIos,
-    ].filter(Boolean);
-
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: token,
-      audience: allowedAudiences,
-    });
-    const payloadGoogle = ticket.getPayload();
-    if (!payloadGoogle || !payloadGoogle.email_verified) {
-      throw new BadRequestException('Invalid Google token');
-    }
-    return payloadGoogle;
   }
 }

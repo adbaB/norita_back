@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 import config from 'src/config/configuration';
 import { FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING } from './constants/firebase.constant';
 import { NotificationService } from './service/notification.service';
+import { GoogleService } from './service/google.service';
 
 @Global()
 @Module({
@@ -36,7 +37,8 @@ import { NotificationService } from './service/notification.service';
       useFactory: (app: admin.app.App): admin.messaging.Messaging => app.messaging(),
     },
     NotificationService,
+    GoogleService,
   ],
-  exports: [FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING, NotificationService],
+  exports: [FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING, NotificationService, GoogleService],
 })
 export class FirebaseModule {}
