@@ -7,7 +7,9 @@ import configuration from 'src/config/configuration';
 export class GoogleService {
   private googleClient: OAuth2Client;
 
-  constructor(@Inject(configuration.KEY) private configService: ConfigType<typeof configuration>) {}
+  constructor(@Inject(configuration.KEY) private configService: ConfigType<typeof configuration>) {
+    this.googleClient = new OAuth2Client();
+  }
 
   async verifyGoogleToken(token: string): Promise<TokenPayload> {
     const allowedAudiences = [
