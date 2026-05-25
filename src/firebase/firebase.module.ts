@@ -5,6 +5,7 @@ import config from 'src/config/configuration';
 import { FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING } from './constants/firebase.constant';
 import { NotificationService } from './service/notification.service';
 import { GoogleService } from './service/google.service';
+import { AppleService } from './service/apple.service';
 
 @Global()
 @Module({
@@ -38,7 +39,14 @@ import { GoogleService } from './service/google.service';
     },
     NotificationService,
     GoogleService,
+    AppleService,
   ],
-  exports: [FIREBASE_ADMIN_INJECT, FIREBASE_MESSAGING, NotificationService, GoogleService],
+  exports: [
+    FIREBASE_ADMIN_INJECT,
+    FIREBASE_MESSAGING,
+    NotificationService,
+    GoogleService,
+    AppleService,
+  ],
 })
 export class FirebaseModule {}

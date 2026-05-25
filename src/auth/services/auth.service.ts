@@ -10,12 +10,14 @@ import {
   RegisterDto,
   RegisterGuestDTO,
   RegisterWithGoogleDTO,
+  RegisterWithAppleDTO,
 } from '../../users/dto/user/create-user.dto';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
 import { RegisterInterface } from '../interfaces/register.interface';
 import { GoogleService } from 'src/firebase/service/google.service';
+import { AppleService } from 'src/firebase/service/apple.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +25,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleService: GoogleService,
+    private readonly appleService: AppleService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
   ) {}
 
@@ -140,6 +143,78 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(payload);
 
     return { accessToken: accessToken, refreshToken: refreshToken, user: userCreated };
+  }
+
+  async signInWithApple(identityToken: string): Promise<LoginResponse> {
+    const applePayload = await this.appleService.verifyAppleToken(identityToken);
+    const user = await this.usersService.findByEmail(applePayload.email);
+
+    if (!user) {
+      throw new BadRequestException('Email not found');
+    }
+
+    if (!user.isActive) {
+      throw new BadRequestException('User is inactive');
+    }
+
+    if (!user.signInApple) {
+      throw new BadRequestException('User not registered with Apple');
+    }
+
+    const sessionUUID = randomUUID();
+    const payload: PayloadToken = {
+      email: user.email,
+      uuid: user.uuid,
+      role: user.role,
+      sessionUUID,
+    };
+
+    await this.usersService.updateSession(user.uuid, sessionUUID);
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return {
+      data: { accessToken, refreshToken },
+      message: 'success',
+      status: 201,
+    };
+  }
+
+  async registerWithApple(dto: RegisterWithAppleDTO): Promise<RegisterInterface> {
+    const { identityToken, firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } =
+      dto;
+
+    const applePayload = await this.appleService.verifyAppleToken(identityToken);
+
+    const user = await this.usersService.findByEmail(applePayload.email);
+    if (user) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const sessionUUID = randomUUID();
+    const userCreated = await this.usersService.registerWithApple({
+      email: applePayload.email,
+      username: applePayload.email.split('@')[0],
+      firstRewards,
+      firstTutorial,
+      secondRewards,
+      secondTutorial,
+      levelUuid,
+      jwt: sessionUUID,
+      password: randomUUID(),
+    });
+
+    const payload: PayloadToken = {
+      email: userCreated.email,
+      uuid: userCreated.uuid,
+      role: userCreated.role,
+      sessionUUID,
+    };
+
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return { accessToken, refreshToken, user: userCreated };
   }
 
   /**

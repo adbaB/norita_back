@@ -42,6 +42,10 @@ export default registerAs('config', () => {
         universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
       },
     },
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID,
+      clientIdAndroid: process.env.APPLE_CLIENT_ID_ANDROID,
+    },
     file: {
       maxSize: parseInt(process.env.FILE_MAX_SIZE, 10) || 100 * 1024 * 1024,
     },

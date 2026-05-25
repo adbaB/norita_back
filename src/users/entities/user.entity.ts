@@ -43,6 +43,10 @@ export class User {
   @Column({ name: 'sign_in_google', type: 'boolean', default: false })
   signInGoogle: boolean;
 
+  @ApiProperty({ description: 'is sign in apple', type: Boolean })
+  @Column({ name: 'sign_in_apple', type: 'boolean', default: false })
+  signInApple: boolean;
+
   @ApiProperty({ description: 'is guest of the user', type: Boolean })
   @Column({ name: 'is_guest', type: 'boolean', default: false })
   isGuest: boolean;
