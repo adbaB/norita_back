@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
+import { AppUpdateNewsModule } from './appUpdateNews/appUpdateNews.module';
 import { AuthModule } from './auth/auth.module';
 import { EnvConfigModule } from './config/EnvConfig.module';
 import { DatabaseModule } from './database/database.module';
@@ -42,6 +43,7 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     GoalsModule,
     DiaryAikoModule,
     EntitlementsModule,
+    AppUpdateNewsModule,
   ],
   controllers: [],
   providers: [
