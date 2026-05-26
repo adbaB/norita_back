@@ -22,9 +22,7 @@ export class AppleService {
   private readonly logger = new Logger(AppleService.name);
   private readonly client: jwksClient.JwksClient;
 
-  constructor(
-    @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
-  ) {
+  constructor(@Inject(configuration.KEY) private configService: ConfigType<typeof configuration>) {
     this.client = jwksClient({
       jwksUri: 'https://appleid.apple.com/auth/keys',
       cache: true,
