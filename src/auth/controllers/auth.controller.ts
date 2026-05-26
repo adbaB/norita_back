@@ -12,9 +12,9 @@ import {
 import { AuthService } from '../services/auth.service';
 
 import {
-  ApiOperation,
   ApiBearerAuth,
   ApiHeader,
+  ApiOperation,
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -23,14 +23,15 @@ import { JwtTokenPayload } from '../../libs/Auth/token';
 import {
   RegisterDto,
   RegisterGuestDTO,
+  RegisterWithAppleDTO,
   RegisterWithGoogleDTO,
 } from '../../users/dto/user/create-user.dto';
 import { LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
-import { LoginDto, LoginWithGoogleDTO } from '../dto/logIn.dto';
+import { LoginDto, LoginWithAppleDTO, LoginWithGoogleDTO } from '../dto/logIn.dto';
+import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
 import { JwtRefreshGuard } from '../guards/jwtRefresh.guard';
 import { RegisterInterface } from '../interfaces/register.interface';
-import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
 import { ApiResponse as ClassApiResponse } from './../../utils/responses';
 
 @Controller('auth')
@@ -172,5 +173,24 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<ClassApiResponse<null>> {
     await this.authService.resetPassword(dto);
     return new ClassApiResponse(true, 'Password reset successfully', null);
+  }
+
+  @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
+  @IsPublic()
+  @ApiOperation({ summary: 'Register a new user account using Apple Sign In' })
+  @Post('register-with-apple')
+  async registerWithApple(
+    @Body() body: RegisterWithAppleDTO,
+  ): Promise<ClassApiResponse<RegisterInterface>> {
+    const user = await this.authService.registerWithApple(body);
+    return new ClassApiResponse(true, 'User created successfully', user);
+  }
+
+  @ApiOperation({ summary: 'Authenticate a user using Apple Sign In' })
+  @Post('login-with-apple')
+  @IsPublic()
+  async loginWithApple(@Body() body: LoginWithAppleDTO): Promise<ClassApiResponse<LoginResponse>> {
+    const login = await this.authService.signInWithApple(body.identityToken);
+    return new ClassApiResponse(true, 'Login successful', login);
   }
 }

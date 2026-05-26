@@ -1,4 +1,10 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -16,6 +22,8 @@ import { User } from '../entities/user.entity';
 import { IStatistics } from '../interfaces/statistics.interface';
 import { LevelService } from './level.service';
 import { UserImagesService } from './userImages.service';
+import { GoogleService } from 'src/firebase/service/google.service';
+import { AppleService } from 'src/firebase/service/apple.service';
 
 /**
  * UsersService is a service that handles user-related operations.
@@ -28,8 +36,99 @@ export class UsersService {
     private readonly levelService: LevelService,
     private readonly lessonProgressService: LessonProgressService,
     private readonly userImagesService: UserImagesService,
+    private readonly googleService: GoogleService,
+    private readonly appleService: AppleService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
+
+  @Transactional()
+  async registerWithGoogle(dto: RegisterDto): Promise<User> {
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    // Inicializar monedas y recompensas
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
+    const passwordHash = await hashPassword(password);
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
+    const user = this.userRepo.create({
+      password: passwordHash,
+      deviceJWT: jwt,
+      ...rest,
+      image,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
+      username: rest.username ? rest.username : `user-${jwt}`,
+      signInGoogle: true,
+      isGuest: false,
+      isActive: true,
+    });
+
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      if (!levelEntity) {
+        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
+      }
+      user.level = levelEntity;
+    }
+
+    const userCreated = await this.userRepo.save(user);
+
+    await this.lessonProgressService.addInitialProgress(userCreated);
+
+    return userCreated;
+  }
+
+  @Transactional()
+  async registerWithApple(dto: RegisterDto): Promise<User> {
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
+    const passwordHash = await hashPassword(password);
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
+    const user = this.userRepo.create({
+      password: passwordHash,
+      deviceJWT: jwt,
+      ...rest,
+      image,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
+      username: rest.username ? rest.username : `user-${jwt}`,
+      signInApple: true,
+      isGuest: false,
+      isActive: true,
+    });
+
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      if (!levelEntity) {
+        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
+      }
+      user.level = levelEntity;
+    }
+
+    const userCreated = await this.userRepo.save(user);
+
+    await this.lessonProgressService.addInitialProgress(userCreated);
+
+    return userCreated;
+  }
 
   /**
    * Registers a new user (regular or via Google).
@@ -353,7 +452,16 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
 
   @Transactional()
   async update(uuid: string, dto: UpdateUserDto): Promise<UpdateResponse> {
-    const { levelUuid, password, firstRewards, secondRewards, isGuest, ...updateData } = dto;
+    const {
+      levelUuid,
+      password,
+      firstRewards,
+      secondRewards,
+      isGuest,
+      googleToken,
+      appleToken,
+      ...updateData
+    } = dto;
 
     let user = await this.userRepo.findOne({ where: { uuid } });
 
@@ -371,6 +479,33 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
     if (user.isGuest && isGuest === false) {
       user.isGuest = false;
       user.username = `user-${randomUUID()}`;
+      if (googleToken) {
+        const payloadGoogle = await this.googleService.verifyGoogleToken(googleToken);
+        if (!payloadGoogle.email) {
+          throw new BadRequestException('Invalid Google token');
+        }
+        const emailExists = await this.userRepo.findOne({ where: { email: payloadGoogle.email } });
+        if (emailExists && emailExists.uuid !== uuid) {
+          throw new ConflictException('Email already exists');
+        }
+        user.email = payloadGoogle.email;
+        user.signInGoogle = true;
+        user.username = payloadGoogle.name;
+      }
+
+      if (appleToken) {
+        const applePayload = await this.appleService.verifyAppleToken(appleToken);
+        if (!applePayload.email) {
+          throw new BadRequestException('Invalid Apple token');
+        }
+        const emailExists = await this.userRepo.findOne({ where: { email: applePayload.email } });
+        if (emailExists && emailExists.uuid !== uuid) {
+          throw new ConflictException('Email already exists');
+        }
+        user.email = applePayload.email;
+        user.signInApple = true;
+        user.username = applePayload.email.split('@')[0];
+      }
     }
 
     let coinsToAdd = 0;

@@ -5,19 +5,22 @@ import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
-import { OAuth2Client, TokenPayload } from 'google-auth-library';
+import { OAuth2Client } from 'google-auth-library';
+import { AppleService } from 'src/firebase/service/apple.service';
+import { GoogleService } from 'src/firebase/service/google.service';
 import configuration from '../../config/configuration';
+import { MailService } from '../../mail/services/mail.service';
 import {
   RegisterDto,
   RegisterGuestDTO,
+  RegisterWithAppleDTO,
   RegisterWithGoogleDTO,
 } from '../../users/dto/user/create-user.dto';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
-import { RegisterInterface } from '../interfaces/register.interface';
 import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
-import { MailService } from '../../mail/services/mail.service';
+import { RegisterInterface } from '../interfaces/register.interface';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +28,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly googleService: GoogleService,
+    private readonly appleService: AppleService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
     private readonly emailService: MailService,
   ) {
@@ -77,7 +82,7 @@ export class AuthService {
   }
 
   async signInWithGoogle(token: string): Promise<LoginResponse> {
-    const payloadGoogle = await this.verifyGoogleToken(token);
+    const payloadGoogle = await this.googleService.verifyGoogleToken(token);
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (!user) {
       throw new BadRequestException('Email not found');
@@ -117,7 +122,7 @@ export class AuthService {
   async registerWithGoogle(dto: RegisterWithGoogleDTO): Promise<RegisterInterface> {
     const { token, firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } = dto;
 
-    const payloadGoogle = await this.verifyGoogleToken(token);
+    const payloadGoogle = await this.googleService.verifyGoogleToken(token);
 
     const user = await this.usersService.findByEmail(payloadGoogle.email);
     if (user) {
@@ -149,6 +154,78 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(payload);
 
     return { accessToken: accessToken, refreshToken: refreshToken, user: userCreated };
+  }
+
+  async signInWithApple(identityToken: string): Promise<LoginResponse> {
+    const applePayload = await this.appleService.verifyAppleToken(identityToken);
+    const user = await this.usersService.findByEmail(applePayload.email);
+
+    if (!user) {
+      throw new BadRequestException('Email not found');
+    }
+
+    if (!user.isActive) {
+      throw new BadRequestException('User is inactive');
+    }
+
+    if (!user.signInApple) {
+      throw new BadRequestException('User not registered with Apple');
+    }
+
+    const sessionUUID = randomUUID();
+    const payload: PayloadToken = {
+      email: user.email,
+      uuid: user.uuid,
+      role: user.role,
+      sessionUUID,
+    };
+
+    await this.usersService.updateSession(user.uuid, sessionUUID);
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return {
+      data: { accessToken, refreshToken },
+      message: 'success',
+      status: 201,
+    };
+  }
+
+  async registerWithApple(dto: RegisterWithAppleDTO): Promise<RegisterInterface> {
+    const { identityToken, firstRewards, firstTutorial, secondRewards, secondTutorial, levelUuid } =
+      dto;
+
+    const applePayload = await this.appleService.verifyAppleToken(identityToken);
+
+    const user = await this.usersService.findByEmail(applePayload.email);
+    if (user) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const sessionUUID = randomUUID();
+    const userCreated = await this.usersService.registerWithApple({
+      email: applePayload.email,
+      username: applePayload.email.split('@')[0],
+      firstRewards,
+      firstTutorial,
+      secondRewards,
+      secondTutorial,
+      levelUuid,
+      jwt: sessionUUID,
+      password: randomUUID(),
+    });
+
+    const payload: PayloadToken = {
+      email: userCreated.email,
+      uuid: userCreated.uuid,
+      role: userCreated.role,
+      sessionUUID,
+    };
+
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = await this.generateRefreshToken(payload);
+
+    return { accessToken, refreshToken, user: userCreated };
   }
 
   /**
@@ -328,23 +405,5 @@ export class AuthService {
       expiresIn: this.configService.jwtRefresh.expiresIn,
       secret: this.configService.jwtRefresh.secret,
     });
-  }
-
-  private async verifyGoogleToken(token: string): Promise<TokenPayload> {
-    const allowedAudiences = [
-      this.configService.google.client,
-      this.configService.google.clientAndroid,
-      this.configService.google.clientIos,
-    ].filter(Boolean);
-
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: token,
-      audience: allowedAudiences,
-    });
-    const payloadGoogle = ticket.getPayload();
-    if (!payloadGoogle || !payloadGoogle.email_verified) {
-      throw new BadRequestException('Invalid Google token');
-    }
-    return payloadGoogle;
   }
 }

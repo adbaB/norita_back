@@ -43,4 +43,23 @@ export class UpdateUserDto extends PartialType(RegisterDto) {
 
   @IsOptional()
   resetPasswordOtpExpiresAt?: Date | null;
+  @ApiProperty({
+    description: 'google token of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  googleToken?: string;
+
+  @ApiProperty({
+    description: 'apple identity token of the user',
+    nullable: true,
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  appleToken?: string;
 }
