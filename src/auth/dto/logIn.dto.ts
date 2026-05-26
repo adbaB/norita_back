@@ -24,3 +24,15 @@ export class LoginWithGoogleDTO {
   @IsString()
   token: string;
 }
+
+export class LoginWithAppleDTO {
+  @ApiProperty({
+    description: 'Apple identity token',
+    nullable: false,
+    required: true,
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  identityToken: string;
+}
