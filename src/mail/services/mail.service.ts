@@ -1,39 +1,33 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import configuration from '../../config/configuration';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
 
   constructor(
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
   ) {
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.mail.host || 'smtp.gmail.com',
-      port: this.configService.mail.port || 587,
-      secure: this.configService.mail.port === 465,
-      auth: {
-        user: this.configService.mail.user,
-        pass: this.configService.mail.pass,
-      },
-    });
+    this.resend = new Resend(this.configService.resend.apiKey);
   }
 
   async sendPasswordResetOtp(email: string, otp: string): Promise<void> {
-    const mailOptions = {
-      from: this.configService.mail.from,
-      to: email,
-      subject: 'Password Reset OTP',
-      text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
-      html: `<p>Your OTP for password reset is: <b>${otp}</b>. It will expire in 10 minutes.</p>`,
-    };
-
     try {
-      await this.transporter.sendMail(mailOptions);
+      const { error } = await this.resend.emails.send({
+        from: this.configService.mail.from,
+        to: email,
+        subject: 'Password Reset OTP',
+        text: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
+        html: `<p>Your OTP for password reset is: <b>${otp}</b>. It will expire in 10 minutes.</p>`,
+      });
+
+      if (error) {
+        Logger.error('Error sending email via Resend:', error);
+      }
     } catch (error) {
-      Logger.error('Error sending email:', error);
+      Logger.error('Exception sending email via Resend:', error);
     }
   }
 }

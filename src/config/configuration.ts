@@ -19,6 +19,9 @@ export default registerAs('config', () => {
       pass: process.env.MAIL_PASS,
       from: process.env.MAIL_FROM || 'noreply@norita-app.com',
     },
+    resend: {
+      apiKey: process.env.RESEND_API_KEY,
+    },
     jwt: {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
