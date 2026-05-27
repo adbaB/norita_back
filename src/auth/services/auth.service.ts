@@ -5,29 +5,39 @@ import { JwtTokenPayload, PayloadToken } from '../../libs/Auth/token';
 import { LoginResponse } from '../../utils/responses';
 
 import { ConfigType } from '@nestjs/config';
+import { OAuth2Client } from 'google-auth-library';
+import { AppleService } from 'src/firebase/service/apple.service';
+import { GoogleService } from 'src/firebase/service/google.service';
 import configuration from '../../config/configuration';
+import { MailService } from '../../mail/services/mail.service';
 import {
   RegisterDto,
   RegisterGuestDTO,
-  RegisterWithGoogleDTO,
   RegisterWithAppleDTO,
+  RegisterWithGoogleDTO,
 } from '../../users/dto/user/create-user.dto';
 import { UsersService } from '../../users/services/users.service';
 import { comparePassword } from '../../utils/bcrypt.utils';
 import { LoginDto } from '../dto/logIn.dto';
+import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
 import { RegisterInterface } from '../interfaces/register.interface';
-import { GoogleService } from 'src/firebase/service/google.service';
-import { AppleService } from 'src/firebase/service/apple.service';
 
 @Injectable()
 export class AuthService {
+  private googleClient: OAuth2Client;
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleService: GoogleService,
     private readonly appleService: AppleService,
     @Inject(configuration.KEY) private readonly configService: ConfigType<typeof configuration>,
-  ) {}
+    private readonly emailService: MailService,
+  ) {
+    this.googleClient = new OAuth2Client({
+      clientId: this.configService.google.client,
+      clientSecret: this.configService.google.secret,
+    });
+  }
 
   /**
    * Sign in with the provided credentials.
@@ -119,7 +129,7 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
     const sessionUUID = randomUUID();
-    const userCreated = await this.usersService.registerWithGoogle({
+    const userCreated = await this.usersService.register({
       email: payloadGoogle.email,
       username: payloadGoogle.name,
       firstRewards,
@@ -129,6 +139,7 @@ export class AuthService {
       levelUuid,
       jwt: sessionUUID,
       password: randomUUID(),
+      signInGoogle: true,
     });
     const payload: PayloadToken = {
       email: userCreated.email,
@@ -289,6 +300,10 @@ export class AuthService {
     };
   }
 
+  async attachAccountToGuest(): Promise<void> {
+    // TODO: implement attachAccountToGuest
+  }
+
   async renewAccessToken(
     payload: JwtTokenPayload,
     refreshToken: string,
@@ -319,6 +334,66 @@ export class AuthService {
 
   async logOut(userUUID: string): Promise<void> {
     await this.usersService.updateSession(userUUID, null);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user) {
+      // Return success even if not found to prevent email enumeration
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+    await this.usersService.update(user.uuid, {
+      resetPasswordOtp: otp,
+      resetPasswordOtpExpiresAt: expiresAt,
+    });
+
+    await this.emailService.sendPasswordResetOtp(user.email, otp);
+  }
+
+  async validateOtp(dto: ValidateOtpDto): Promise<{ token: string }> {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user || user.resetPasswordOtp !== dto.otp) {
+      throw new BadRequestException('Invalid OTP or email');
+    }
+
+    if (!user.resetPasswordOtpExpiresAt || new Date() > user.resetPasswordOtpExpiresAt) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    // Clear the OTP to prevent reuse
+    await this.usersService.update(user.uuid, {
+      resetPasswordOtp: null,
+      resetPasswordOtpExpiresAt: null,
+    });
+
+    const resetToken = await this.jwtService.signAsync(
+      { email: user.email, uuid: user.uuid, purpose: 'reset-password' },
+      { expiresIn: '15m' },
+    );
+
+    return { token: resetToken };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    try {
+      const payload = await this.jwtService.verifyAsync(dto.token);
+      if (payload.purpose !== 'reset-password') {
+        throw new BadRequestException('Invalid token');
+      }
+
+      const user = await this.usersService.findByEmail(payload.email);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      await this.usersService.update(user.uuid, { password: dto.password });
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
+    }
   }
 
   private async generateAccessToken(payload: PayloadToken): Promise<string> {

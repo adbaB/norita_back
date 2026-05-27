@@ -131,18 +131,20 @@ export class UsersService {
   }
 
   /**
-   * Registers a new user.
+   * Registers a new user (regular or via Google).
    * @param {RegisterDto} dto - The request body containing the user's information.
+   * @param dto.signInGoogle - Set to true when registering via Google Sign-In.
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
   @Transactional()
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+    const { password, jwt, levelUuid, firstRewards, secondRewards, signInGoogle, ...rest } = dto;
 
     const userFound = await this.userRepo.findOne({ where: { email: rest.email } });
     if (userFound) {
       throw new ConflictException('Email already exists');
     }
+
     // Inicializar monedas y recompensas
     let initialCoins = 0;
 
@@ -164,6 +166,7 @@ export class UsersService {
       firstRewards: firstRewards || false,
       secondRewards: secondRewards || false,
       username: rest.username ? rest.username : `user-${jwt}`,
+      signInGoogle: signInGoogle ?? false,
     });
 
     if (levelUuid) {
