@@ -8,9 +8,9 @@ export class UpdateSection {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ description: 'Referente al titulo de la seccion' })
-  @Column({ type: 'varchar', length: 255 })
-  title: string;
+  @ApiProperty({ description: 'Referente al titulo de la seccion', nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  title?: string;
 
   @ApiProperty({
     description:

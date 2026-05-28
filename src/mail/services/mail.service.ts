@@ -36,7 +36,8 @@ export class MailService {
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td align="left" style="font-weight: bold; font-size: 18px; color: #111;">
-                    <span style="background: linear-gradient(135deg, #00E5FF, #00E676); color: #111; border-radius: 4px; padding: 4px 8px; font-size: 14px; margin-right: 8px;">N</span> Norita
+                    <img src="https://api.norita-app.com/files/image/logo_original_norita.png" width="32" height="32" alt="Norita Logo" style="vertical-align: middle; margin-right: 8px; border-radius: 6px; display: inline-block;" />
+                    <span style="vertical-align: middle;">Norita</span>
                   </td>
                   <td align="right" style="font-size: 12px; color: #888; letter-spacing: 1px; text-transform: uppercase;">
                     RECUPERACIÓN DE CONTRASEÑA

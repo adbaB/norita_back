@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { UpdateSection } from './updateSection.entity';
 
 @Entity({ name: 'app_update_news' })
 export class AppUpdateNews {
   @ApiProperty({ description: 'Referente al identificador unico de la actualización' })
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({ type: 'varchar', length: 100 })
   id: string;
 
   @ApiProperty({ description: 'Referente a la version' })
@@ -27,6 +27,13 @@ export class AppUpdateNews {
   @ApiProperty({ description: 'Referente al mensaje final de la actualizacion', nullable: true })
   @Column({ type: 'text', nullable: true })
   closingMessage?: string;
+
+  @ApiProperty({
+    description: 'Indica si la novedad está activa y visible para los clientes',
+    default: false,
+  })
+  @Column({ type: 'boolean', default: false })
+  isActive: boolean;
 
   @ApiProperty({
     type: () => [UpdateSection],
