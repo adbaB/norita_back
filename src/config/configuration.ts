@@ -13,7 +13,14 @@ export default registerAs('config', () => {
       tutorial: parseInt(process.env.REWARD_POINTS_TUTORIAL, 10) || 50,
     },
     mail: {
-      port: parseInt(process.env.PORT, 10),
+      host: process.env.MAIL_HOST,
+      port: parseInt(process.env.MAIL_PORT, 10) || 587,
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+      from: process.env.MAIL_FROM || 'noreply@norita-app.com',
+    },
+    resend: {
+      apiKey: process.env.RESEND_API_KEY,
     },
     jwt: {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -41,6 +48,10 @@ export default registerAs('config', () => {
         client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
         universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
       },
+    },
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID,
+      clientIdAndroid: process.env.APPLE_CLIENT_ID_ANDROID,
     },
     file: {
       maxSize: parseInt(process.env.FILE_MAX_SIZE, 10) || 100 * 1024 * 1024,

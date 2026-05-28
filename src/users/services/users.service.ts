@@ -23,6 +23,7 @@ import { IStatistics } from '../interfaces/statistics.interface';
 import { LevelService } from './level.service';
 import { UserImagesService } from './userImages.service';
 import { GoogleService } from 'src/firebase/service/google.service';
+import { AppleService } from 'src/firebase/service/apple.service';
 
 /**
  * UsersService is a service that handles user-related operations.
@@ -36,6 +37,7 @@ export class UsersService {
     private readonly lessonProgressService: LessonProgressService,
     private readonly userImagesService: UserImagesService,
     private readonly googleService: GoogleService,
+    private readonly appleService: AppleService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
@@ -84,19 +86,65 @@ export class UsersService {
     return userCreated;
   }
 
+  @Transactional()
+  async registerWithApple(dto: RegisterDto): Promise<User> {
+    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+
+    let initialCoins = 0;
+
+    if (firstRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+    if (secondRewards) {
+      initialCoins += this.configService.coins.tutorial;
+    }
+
+    const passwordHash = await hashPassword(password);
+    const image = rest.image ? rest.image : (await this.userImagesService.getRandomImage()).url;
+    const user = this.userRepo.create({
+      password: passwordHash,
+      deviceJWT: jwt,
+      ...rest,
+      image,
+      coin: initialCoins,
+      firstRewards: firstRewards || false,
+      secondRewards: secondRewards || false,
+      username: rest.username ? rest.username : `user-${jwt}`,
+      signInApple: true,
+      isGuest: false,
+      isActive: true,
+    });
+
+    if (levelUuid) {
+      const levelEntity = await this.levelService.findByUUID(levelUuid);
+      if (!levelEntity) {
+        throw new NotFoundException(`Level with UUID ${levelUuid} not found`);
+      }
+      user.level = levelEntity;
+    }
+
+    const userCreated = await this.userRepo.save(user);
+
+    await this.lessonProgressService.addInitialProgress(userCreated);
+
+    return userCreated;
+  }
+
   /**
-   * Registers a new user.
+   * Registers a new user (regular or via Google).
    * @param {RegisterDto} dto - The request body containing the user's information.
+   * @param dto.signInGoogle - Set to true when registering via Google Sign-In.
    * @returns {Promise<User>} - A promise that resolves with the newly created user.
    */
   @Transactional()
   async register(dto: RegisterDto): Promise<User> {
-    const { password, jwt, levelUuid, firstRewards, secondRewards, ...rest } = dto;
+    const { password, jwt, levelUuid, firstRewards, secondRewards, signInGoogle, ...rest } = dto;
 
     const userFound = await this.userRepo.findOne({ where: { email: rest.email } });
     if (userFound) {
       throw new ConflictException('Email already exists');
     }
+
     // Inicializar monedas y recompensas
     let initialCoins = 0;
 
@@ -118,6 +166,7 @@ export class UsersService {
       firstRewards: firstRewards || false,
       secondRewards: secondRewards || false,
       username: rest.username ? rest.username : `user-${jwt}`,
+      signInGoogle: signInGoogle ?? false,
     });
 
     if (levelUuid) {
@@ -410,6 +459,7 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
       secondRewards,
       isGuest,
       googleToken,
+      appleToken,
       ...updateData
     } = dto;
 
@@ -441,6 +491,20 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
         user.email = payloadGoogle.email;
         user.signInGoogle = true;
         user.username = payloadGoogle.name;
+      }
+
+      if (appleToken) {
+        const applePayload = await this.appleService.verifyAppleToken(appleToken);
+        if (!applePayload.email) {
+          throw new BadRequestException('Invalid Apple token');
+        }
+        const emailExists = await this.userRepo.findOne({ where: { email: applePayload.email } });
+        if (emailExists && emailExists.uuid !== uuid) {
+          throw new ConflictException('Email already exists');
+        }
+        user.email = applePayload.email;
+        user.signInApple = true;
+        user.username = applePayload.email.split('@')[0];
       }
     }
 

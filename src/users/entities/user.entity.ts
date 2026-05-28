@@ -43,6 +43,10 @@ export class User {
   @Column({ name: 'sign_in_google', type: 'boolean', default: false })
   signInGoogle: boolean;
 
+  @ApiProperty({ description: 'is sign in apple', type: Boolean })
+  @Column({ name: 'sign_in_apple', type: 'boolean', default: false })
+  signInApple: boolean;
+
   @ApiProperty({ description: 'is guest of the user', type: Boolean })
   @Column({ name: 'is_guest', type: 'boolean', default: false })
   isGuest: boolean;
@@ -62,6 +66,14 @@ export class User {
   @Exclude({ toPlainOnly: true })
   @Column({ name: 'subscription_expires_at', type: 'timestamp', nullable: true })
   subscriptionExpiresAt: Date;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'reset_password_otp', type: 'varchar', length: 255, nullable: true })
+  resetPasswordOtp: string | null;
+
+  @Exclude({ toPlainOnly: true })
+  @Column({ name: 'reset_password_otp_expires_at', type: 'timestamp', nullable: true })
+  resetPasswordOtpExpiresAt: Date | null;
 
   @ApiProperty({ description: 'first tutorial of the user', type: Boolean })
   @Column({ name: 'first_tutorial', type: 'boolean', default: false })

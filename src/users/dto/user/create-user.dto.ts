@@ -91,6 +91,7 @@ export class RegisterDto {
   username?: string;
 
   isGuest?: boolean;
+  signInGoogle?: boolean;
 }
 
 export class RegisterGuestDTO extends OmitType(RegisterDto, [
@@ -116,4 +117,22 @@ export class RegisterWithGoogleDTO extends OmitType(RegisterDto, [
   @IsNotEmpty()
   @IsString()
   token: string;
+}
+
+export class RegisterWithAppleDTO extends OmitType(RegisterDto, [
+  'email',
+  'password',
+  'image',
+  'username',
+  'isGuest',
+] as const) {
+  @ApiProperty({
+    description: 'Apple identity token',
+    nullable: false,
+    required: true,
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  identityToken: string;
 }

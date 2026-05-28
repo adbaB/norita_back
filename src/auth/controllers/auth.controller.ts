@@ -12,9 +12,9 @@ import {
 import { AuthService } from '../services/auth.service';
 
 import {
-  ApiOperation,
   ApiBearerAuth,
   ApiHeader,
+  ApiOperation,
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -23,11 +23,13 @@ import { JwtTokenPayload } from '../../libs/Auth/token';
 import {
   RegisterDto,
   RegisterGuestDTO,
+  RegisterWithAppleDTO,
   RegisterWithGoogleDTO,
 } from '../../users/dto/user/create-user.dto';
 import { LoginResponse } from '../../utils/responses';
 import { IsPublic } from '../decorators/isPublic.decorator';
-import { LoginDto, LoginWithGoogleDTO } from '../dto/logIn.dto';
+import { LoginDto, LoginWithAppleDTO, LoginWithGoogleDTO } from '../dto/logIn.dto';
+import { ForgotPasswordDto, ResetPasswordDto, ValidateOtpDto } from '../dto/password-reset.dto';
 import { JwtRefreshGuard } from '../guards/jwtRefresh.guard';
 import { RegisterInterface } from '../interfaces/register.interface';
 import { ApiResponse as ClassApiResponse } from './../../utils/responses';
@@ -140,6 +142,55 @@ export class AuthController {
   ): Promise<ClassApiResponse<LoginResponse>> {
     const login = await this.authService.signInWithGoogle(body.token);
 
+    return new ClassApiResponse(true, 'Login successful', login);
+  }
+
+  @IsPublic()
+  @ApiResponse({ status: 200, description: 'OTP sent to email' })
+  @ApiOperation({ summary: 'Request an OTP for password reset' })
+  @Post('forgot-password')
+  @HttpCode(200)
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<ClassApiResponse<null>> {
+    await this.authService.forgotPassword(dto);
+    return new ClassApiResponse(true, 'If your email is registered, you will receive an OTP', null);
+  }
+
+  @IsPublic()
+  @ApiResponse({ status: 200, description: 'OTP validated successfully' })
+  @ApiOperation({ summary: 'Validate OTP and receive a reset token' })
+  @Post('validate-otp')
+  @HttpCode(200)
+  async validateOtp(@Body() dto: ValidateOtpDto): Promise<ClassApiResponse<{ token: string }>> {
+    const response = await this.authService.validateOtp(dto);
+    return new ClassApiResponse(true, 'OTP validated successfully', response);
+  }
+
+  @IsPublic()
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiOperation({ summary: 'Reset password using the reset token' })
+  @Post('reset-password')
+  @HttpCode(200)
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<ClassApiResponse<null>> {
+    await this.authService.resetPassword(dto);
+    return new ClassApiResponse(true, 'Password reset successfully', null);
+  }
+
+  @ApiResponse({ status: 201, type: ClassApiResponse<RegisterInterface>, description: 'success' })
+  @IsPublic()
+  @ApiOperation({ summary: 'Register a new user account using Apple Sign In' })
+  @Post('register-with-apple')
+  async registerWithApple(
+    @Body() body: RegisterWithAppleDTO,
+  ): Promise<ClassApiResponse<RegisterInterface>> {
+    const user = await this.authService.registerWithApple(body);
+    return new ClassApiResponse(true, 'User created successfully', user);
+  }
+
+  @ApiOperation({ summary: 'Authenticate a user using Apple Sign In' })
+  @Post('login-with-apple')
+  @IsPublic()
+  async loginWithApple(@Body() body: LoginWithAppleDTO): Promise<ClassApiResponse<LoginResponse>> {
+    const login = await this.authService.signInWithApple(body.identityToken);
     return new ClassApiResponse(true, 'Login successful', login);
   }
 }
