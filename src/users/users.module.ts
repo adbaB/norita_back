@@ -10,12 +10,13 @@ import { User } from './entities/user.entity';
 import { UserImages } from './entities/userImages.entity';
 
 import { LessonProgressModule } from '../lessonProgress/lessonProgress.module';
+import { MailModule } from '../mail/mail.module';
 import { LevelService } from './services/level.service';
 import { UserImagesService } from './services/userImages.service';
 import { UsersService } from './services/users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Level, UserImages]), LessonProgressModule],
+  imports: [TypeOrmModule.forFeature([User, Level, UserImages]), LessonProgressModule, MailModule],
   controllers: [UsersController, LevelController, UserImagesController],
   providers: [UsersService, LevelService, UserImagesService],
   exports: [UsersService],

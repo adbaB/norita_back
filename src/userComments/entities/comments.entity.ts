@@ -25,7 +25,7 @@ export class Comments {
   @Column({ type: 'integer', default: 0 })
   rating: number;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 

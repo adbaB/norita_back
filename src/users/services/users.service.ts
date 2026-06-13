@@ -14,6 +14,7 @@ import { Transactional } from 'typeorm-transactional';
 
 import configuration from '../../config/configuration';
 import { LessonProgressService } from '../../lessonProgress/services/lessonProgress.service';
+import { MailService } from '../../mail/services/mail.service';
 import { hashPassword } from '../../utils/bcrypt.utils';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { RegisterDto } from '../dto/user/create-user.dto';
@@ -38,6 +39,7 @@ export class UsersService {
     private readonly userImagesService: UserImagesService,
     private readonly googleService: GoogleService,
     private readonly appleService: AppleService,
+    private readonly mailService: MailService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
   ) {}
 
@@ -552,20 +554,41 @@ where lsu.user_uuid  = $1 and ls.deleted_at is null `,
   }
 
   /**
-   * Deletes a user by UUID.
+   * Deletes a user by UUID along with all related data.
+   * Related tables with onDelete: 'CASCADE' are cleaned automatically by the DB:
+   *   lesson_progress, schedules, user_diary_aiko_items,
+   *   comment, user_likes, library_section_user, library_user.
+   * If the user has a registered email, a farewell email is sent after deletion.
    * @param {string} uuid - The UUID of the user to be deleted.
-   * @returns {Promise<DeleteResponse>} - A promise that resolves with a DeleteResponse object containing the result of the deletion.
+   * @returns {Promise<DeleteResponse>} - A promise that resolves with a DeleteResponse object.
    */
   async delete(uuid: string): Promise<DeleteResponse> {
-    const user = await this.userRepo.delete({ uuid });
+    const user = await this.userRepo.findOne({ where: { uuid } });
 
-    if (user.affected === 0) {
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
+    // La BD limpia automáticamente todas las relaciones via ON DELETE CASCADE
+    const result = await this.userRepo.delete({ uuid });
+
+    // Enviar correo de despedida si el usuario tiene email registrado
+    if (user.email && !user.isGuest) {
+      const displayName = user.username || user.email.split('@')[0];
+      void this.mailService.sendFarewellEmail(user.email, displayName);
+    }
+
     return {
-      affected: user.affected,
+      affected: result.affected,
       status: 200,
     };
+  }
+
+  /**
+   * Clears the notification token for a user (e.g., when the token is no longer registered in Firebase).
+   * @param {string} uuid - The UUID of the user.
+   */
+  async clearNotificationToken(uuid: string): Promise<void> {
+    await this.userRepo.update({ uuid }, { notificationToken: null });
   }
 }
