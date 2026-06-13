@@ -149,9 +149,12 @@ export class ScheduleService {
     body: string,
   ): Promise<void> {
     const now = new Date();
-
+    const clearedUsers = new Set<string>();
     for (const schedule of schedules) {
       try {
+        if (schedule.user?.uuid && clearedUsers.has(schedule.user.uuid)) {
+          continue;
+        }
         if (!schedule.user?.notificationToken) {
           this.logger.warn(`User ${schedule.user?.uuid} has no notification token`);
           continue;
@@ -195,6 +198,8 @@ export class ScheduleService {
               `FCM token for user ${schedule.user.uuid} is invalid or not registered. Clearing token to avoid repeated failures.`,
             );
             await this.userService.clearNotificationToken(schedule.user.uuid);
+            clearedUsers.add(schedule.user.uuid);
+            schedule.user.notificationToken = null;
           } catch (dbError) {
             const dbErr = dbError as Record<string, unknown>;
             const dbErrMessage = String(dbErr.message || '');
