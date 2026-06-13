@@ -173,10 +173,38 @@ export class ScheduleService {
           `Notification sent to user ${schedule.user.uuid} for schedule ${schedule.uuid} (${schedule.type})`,
         );
       } catch (error) {
+        const err = error as Record<string, unknown>;
+        const errMessage = String(err.message || '');
+        const errStack = String(err.stack || '');
+        const errCode = String(err.code || '');
+
         this.logger.error(
-          `Error sending notification for schedule ${schedule.uuid}: ${error.message}`,
-          error.stack,
+          `Error sending notification for schedule ${schedule.uuid}: ${errMessage}`,
+          errStack,
         );
+
+        // Check if the error is due to an invalid/unregistered FCM token
+        const isInvalidToken =
+          errCode === 'messaging/registration-token-not-registered' ||
+          errCode === 'messaging/invalid-registration-token' ||
+          errMessage.includes('Requested entity was not found');
+
+        if (isInvalidToken && schedule.user?.uuid) {
+          try {
+            this.logger.warn(
+              `FCM token for user ${schedule.user.uuid} is invalid or not registered. Clearing token to avoid repeated failures.`,
+            );
+            await this.userService.clearNotificationToken(schedule.user.uuid);
+          } catch (dbError) {
+            const dbErr = dbError as Record<string, unknown>;
+            const dbErrMessage = String(dbErr.message || '');
+            const dbErrStack = String(dbErr.stack || '');
+            this.logger.error(
+              `Failed to clear FCM token for user ${schedule.user.uuid}: ${dbErrMessage}`,
+              dbErrStack,
+            );
+          }
+        }
       }
     }
   }

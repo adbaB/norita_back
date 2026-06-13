@@ -1,8 +1,8 @@
 {
-  "name": "sit-back",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "norita-backend",
+  "version": "1.0.0",
+  "description": " Norita backend application built with NestJS and TypeORM for PostgreSQL. Provides RESTful APIs for user authentication, file management, and email notifications.",
+  "author": "Alberto Basabe <albertobasabe487@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

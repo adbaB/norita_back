@@ -24,7 +24,7 @@ export class LibraryUser {
   @JoinColumn({ name: 'library_uuid' })
   library: Library;
 
-  @ManyToOne(() => User, (user) => user.libraries)
+  @ManyToOne(() => User, (user) => user.libraries, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 }

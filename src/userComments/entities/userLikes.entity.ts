@@ -19,11 +19,11 @@ export class UserLikes {
   @Column({ type: 'boolean', default: true, nullable: true })
   isLike: boolean | null;
 
-  @ManyToOne(() => User, (user) => user.likes)
+  @ManyToOne(() => User, (user) => user.likes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 
-  @ManyToOne(() => Comments, (comment) => comment.Userlikes)
+  @ManyToOne(() => Comments, (comment) => comment.Userlikes, { onDelete: 'CASCADE' })
   @Index()
   @JoinColumn({ name: 'comment_uuid' })
   comment: Comments;

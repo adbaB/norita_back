@@ -24,7 +24,7 @@ export class LibrarySectionUser {
   @JoinColumn({ name: 'library_section_uuid' })
   section: LibrarySection;
 
-  @ManyToOne(() => User, (user) => user.sections)
+  @ManyToOne(() => User, (user) => user.sections, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_uuid' })
   user: User;
 }
