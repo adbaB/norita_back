@@ -22,6 +22,7 @@ const allowedMimes = {
     'audio/x-wav',
     'audio/m4a',
     'audio/mp4',
+    'audio/x-m4a',
   ],
   json: ['application/json'],
 };
