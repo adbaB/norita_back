@@ -12,6 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Lesson } from '../../lessons/entities/lesson.entity';
+import { Activity } from './activity.entity';
 import { Bibliography } from './biblography.entity';
 import { Dialog } from './dialog.entity';
 import { Glossary } from './glossary.entity';
@@ -50,8 +51,12 @@ export class Content {
   @OneToMany(() => Bibliography, (bibliography) => bibliography.lessonContent)
   bibliographies: Bibliography[];
 
-  //pending exercise entity
-  exercises: unknown[];
+  @ApiProperty({
+    description: 'Activities/exercises associated with the content',
+    type: () => [Activity],
+  })
+  @OneToMany(() => Activity, (activity) => activity.lessonContent)
+  activities: Activity[];
 
   @OneToOne(() => Lesson, (lesson) => lesson.lessonContent, {
     onUpdate: 'CASCADE',
