@@ -58,7 +58,7 @@ export class Activity {
       'Type-specific configuration stored as JSONB (DragDropImageConfig | DragDropTextConfig | WordSelectionConfig | ...)',
     type: Object,
   })
-  @Column({ name: 'config', type: 'jsonb', default: '{}' })
+  @Column({ name: 'config', type: 'jsonb' })
   config: ActivityConfig;
 
   @ApiProperty({

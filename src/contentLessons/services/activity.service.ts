@@ -26,14 +26,25 @@ export class ActivityService {
       return [];
     }
 
-    const saved: Activity[] = [];
-
-    for (const dto of activities) {
-      const { options = [], ...activityData } = dto;
-
+    // 1. Instanciar y asociar todas las actividades al content
+    const activityEntities = activities.map((dto) => {
+      const activityData = { ...dto };
+      delete activityData.options;
       const activity = this.activityRepo.create(activityData);
       activity.lessonContent = lessonContent;
-      const savedActivity = await this.activityRepo.save(activity);
+      return activity;
+    });
+
+    // 2. Guardar todas las actividades en un solo batch
+    const savedActivities = await this.activityRepo.save(activityEntities);
+
+    // 3. Recopilar todas las opciones en una lista plana asociándolas a su actividad guardada
+    const allOptionEntities: ActivityOption[] = [];
+    const optionsByActivityIndex = new Map<number, ActivityOption[]>();
+
+    activities.forEach((dto, index) => {
+      const savedActivity = savedActivities[index];
+      const { options = [] } = dto;
 
       if (options.length > 0) {
         const optionEntities = options.map((opt) => {
@@ -41,14 +52,27 @@ export class ActivityService {
           option.activity = savedActivity;
           return option;
         });
-        await this.optionRepo.save(optionEntities);
-        savedActivity.options = optionEntities;
-      }
 
-      saved.push(savedActivity);
+        allOptionEntities.push(...optionEntities);
+        optionsByActivityIndex.set(index, optionEntities);
+      }
+    });
+
+    // 4. Guardar todas las opciones juntas si hay alguna
+    if (allOptionEntities.length > 0) {
+      await this.optionRepo.save(allOptionEntities);
+
+      // 5. Asignar las opciones guardadas en memoria para retornar la estructura correcta
+      savedActivities.forEach((activity, index) => {
+        activity.options = optionsByActivityIndex.get(index) || [];
+      });
+    } else {
+      savedActivities.forEach((activity) => {
+        activity.options = [];
+      });
     }
 
-    return saved;
+    return savedActivities;
   }
 
   // ── READ ────────────────────────────────────────────────────────────────────
@@ -86,17 +110,15 @@ export class ActivityService {
 
   // ── UPDATE ──────────────────────────────────────────────────────────────────
 
-  /**
-   * Full replace strategy (same as DialogService.update):
-   * Deletes all existing activities for a content and re-creates them.
-   */
   @Transactional()
   async update(lessonContent: Content, activities: CreateActivityDTO[]): Promise<void> {
-    if (!activities || activities.length === 0) {
-      return;
-    }
+    // Siempre eliminamos todas las actividades existentes para este contenido
     await this.activityRepo.delete({ lessonContent: { uuid: lessonContent.uuid } });
-    await this.create(lessonContent, activities);
+
+    // Si la lista no viene vacía, creamos las nuevas actividades
+    if (activities && activities.length > 0) {
+      await this.create(lessonContent, activities);
+    }
   }
 
   /**

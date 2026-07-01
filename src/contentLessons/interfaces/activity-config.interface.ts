@@ -1,3 +1,5 @@
+import { ActivityTypeEnum } from '../enums/activity-type.enum';
+
 // ── Fase 1: Implementados ──────────────────────────────────────────────────────
 
 /**
@@ -7,6 +9,7 @@
  * Validación: chip.groupKey === dropZone.groupKey
  */
 export interface DragDropImageConfig {
+  type: ActivityTypeEnum.DRAG_AND_DROP_IMAGE;
   /** Número de columnas del grid de imágenes (ej: 2 para 2×2) */
   columns: number;
   /** Mostrar label vacío debajo de cada imagen antes de soltar */
@@ -39,6 +42,7 @@ export interface DragDropImageConfig {
  * Validación: chip.groupKey === drop_zone.groupKey
  */
 export interface DragDropTextConfig {
+  type: ActivityTypeEnum.DRAG_AND_DROP_TEXT;
   /** Mostrar kana en los destinos */
   showKana: boolean;
   /** Mostrar kanji en los destinos */
@@ -56,6 +60,7 @@ export interface DragDropTextConfig {
  * Validación: comparar opciones seleccionadas vs isCorrect
  */
 export interface WordSelectionConfig {
+  type: ActivityTypeEnum.WORD_SELECTION;
   /** Término o categoría mostrado arriba (ej: "Animales") */
   categoryTerm: string;
   /** Número de columnas del grid de chips (ej: 3) */
@@ -91,6 +96,7 @@ export interface WordSelectionConfig {
  * Validación: para cada groupKey, la opción seleccionada debe tener isCorrect = true
  */
 export interface MultipleChoiceConfig {
+  type: ActivityTypeEnum.MULTIPLE_CHOICE;
   /**
    * Lista de preguntas/oraciones en el idioma fuente.
    * El índice coincide con el groupKey "q0", "q1", "q2"...
@@ -127,6 +133,7 @@ export interface MultipleChoiceConfig {
  * Validación: chip seleccionado para groupKey debe tener isCorrect = true
  */
 export interface FillInTheBlankConfig {
+  type: ActivityTypeEnum.FILL_IN_THE_BLANK;
   /**
    * Lista de oraciones con template donde "___" marca el blanco.
    * Ejemplo: "Ella ama la música y siempre está ___ nuevas canciones"
@@ -162,6 +169,7 @@ export interface FillInTheBlankConfig {
  * Validación: la secuencia de chips colocados coincide con correctPosition ordenado
  */
 export interface WordOrderConfig {
+  type: ActivityTypeEnum.WORD_ORDER;
   /**
    * Oración fuente a traducir (idioma del usuario, ej: español).
    * Se muestra en la parte superior como referencia.
@@ -193,6 +201,7 @@ export interface WordOrderConfig {
  * Nota: si no hay options, es solo "escuchar y ver la transcripción".
  */
 export interface ListenAndSelectConfig {
+  type: ActivityTypeEnum.LISTEN_AND_SELECT;
   /** URL del archivo de audio principal */
   audioUrl: string;
   /** Reproducir automáticamente al iniciar la actividad */
@@ -222,6 +231,7 @@ export interface ListenAndSelectConfig {
  * Validación: normalize(input) ∈ correctAnswers.map(normalize)
  */
 export interface FreeWritingConfig {
+  type: ActivityTypeEnum.FREE_WRITING;
   /** URL del audio que el usuario debe transcribir */
   audioUrl: string;
   /** Reproducir automáticamente al iniciar */
@@ -248,12 +258,14 @@ export interface FreeWritingConfig {
 // ── Futuro ─────────────────────────────────────────────────────────────────────
 
 export interface TrueFalseConfig {
+  type: ActivityTypeEnum.TRUE_FALSE;
   statement: string;
   correctAnswer: boolean;
   explanation: string;
 }
 
 export interface MatchColumnsConfig {
+  type: ActivityTypeEnum.MATCH_COLUMNS;
   leftColumnTitle: string;
   rightColumnTitle: string;
   shuffleRight: boolean;

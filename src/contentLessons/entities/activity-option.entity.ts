@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Activity } from './activity.entity';
+import { ActivityOptionRoleEnum } from '../enums/activity-option-role.enum';
 
 @Entity('activity_options')
 export class ActivityOption {
@@ -28,16 +29,16 @@ export class ActivityOption {
       '"chip" = elemento arrastrable. ' +
       '"drop_zone" = zona de destino donde se suelta el chip. ' +
       '"option" = opción seleccionable (WordSelection, MultipleChoice, FillInTheBlank).',
-    enum: ['chip', 'drop_zone', 'option'],
-    default: 'option',
+    enum: ActivityOptionRoleEnum,
+    default: ActivityOptionRoleEnum.OPTION,
   })
   @Column({
     name: 'role',
-    type: 'varchar',
-    length: 20,
-    default: 'option',
+    type: 'enum',
+    enum: ActivityOptionRoleEnum,
+    default: ActivityOptionRoleEnum.OPTION,
   })
-  role: 'chip' | 'drop_zone' | 'option';
+  role: ActivityOptionRoleEnum;
 
   @ApiProperty({
     description: 'Visible text of the option (word, phrase, translation)',

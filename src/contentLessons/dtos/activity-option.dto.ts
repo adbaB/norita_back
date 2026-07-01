@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsIn,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
+import { ActivityOptionRoleEnum } from '../enums/activity-option-role.enum';
 
 export class ActivityOptionDTO {
   @ApiProperty({ description: 'Display order of this option within the activity', type: Number })
@@ -21,13 +14,13 @@ export class ActivityOptionDTO {
       '"chip" = elemento arrastrable, ' +
       '"drop_zone" = zona de destino, ' +
       '"option" = opción seleccionable.',
-    enum: ['chip', 'drop_zone', 'option'],
-    default: 'option',
+    enum: ActivityOptionRoleEnum,
+    default: ActivityOptionRoleEnum.OPTION,
     required: false,
   })
   @IsOptional()
-  @IsIn(['chip', 'drop_zone', 'option'], { message: 'role must be chip | drop_zone | option' })
-  role?: 'chip' | 'drop_zone' | 'option' = 'option';
+  @IsEnum(ActivityOptionRoleEnum, { message: 'role must be a valid ActivityOptionRoleEnum value' })
+  role?: ActivityOptionRoleEnum = ActivityOptionRoleEnum.OPTION;
 
   @ApiProperty({
     description: 'Visible text of the option (word, phrase, translation)',
@@ -121,67 +114,5 @@ export class ActivityOptionDTO {
   @IsOptional()
   @IsInt({ message: 'correctPosition must be an integer' })
   @IsPositive({ message: 'correctPosition must be a positive number' })
-  correctPosition?: number;
-}
-
-export class UpdateActivityOptionDTO {
-  @ApiProperty({ description: 'UUID of the option to update', type: String })
-  @IsString()
-  uuid: string;
-
-  @ApiProperty({ type: Number, required: false })
-  @IsOptional()
-  @IsNumber({}, { message: 'order must be a number' })
-  order?: number;
-
-  @ApiProperty({ enum: ['chip', 'drop_zone', 'option'], required: false })
-  @IsOptional()
-  @IsIn(['chip', 'drop_zone', 'option'])
-  role?: 'chip' | 'drop_zone' | 'option';
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  text?: string;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  kana?: string;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  kanji?: string;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  romaji?: string;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  audio?: string;
-
-  @ApiProperty({ type: Boolean, required: false })
-  @IsOptional()
-  @IsBoolean()
-  isCorrect?: boolean;
-
-  @ApiProperty({ type: String, nullable: true, required: false })
-  @IsOptional()
-  @IsString()
-  groupKey?: string;
-
-  @ApiProperty({ type: Number, nullable: true, required: false })
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
   correctPosition?: number;
 }
