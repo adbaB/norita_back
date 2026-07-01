@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 
 import { Lesson } from '../../lessons/entities/lesson.entity';
 import { Content } from '../entities/content.entity';
+import { ActivityService } from './activity.service';
 import { BibliographyService } from './biblography.service';
-
 import { DialogService } from './dialog.service';
 import { GlossaryService } from './glossary.service';
 import { NoteService } from './note.service';
@@ -19,6 +19,7 @@ export class ContentService {
     private readonly glossaryService: GlossaryService,
     private readonly noteService: NoteService,
     private readonly bibliographyService: BibliographyService,
+    private readonly activityService: ActivityService,
   ) {}
 
   async create(lesson: Lesson, content: ContentDTO): Promise<Content> {
@@ -31,6 +32,7 @@ export class ContentService {
       this.glossaryService.create(newContentSaved, content.glossaries),
       this.noteService.create(newContentSaved, content.notes),
       this.bibliographyService.create(content.bibliographies, newContentSaved),
+      this.activityService.create(newContentSaved, content.activities ?? []),
     ]);
 
     return newContentSaved;
@@ -47,5 +49,6 @@ export class ContentService {
     await this.glossaryService.update(contentFound, content?.glossaries);
     await this.noteService.update(contentFound, content?.notes);
     await this.bibliographyService.update(contentFound, content?.bibliographies);
+    await this.activityService.update(contentFound, content?.activities);
   }
 }
