@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ArgumentsHost,
   Catch,
@@ -29,7 +28,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message =
         typeof exceptionResponse === 'string'
           ? exceptionResponse
-          : (exceptionResponse as any).message || exception.message;
+          : ((exceptionResponse as Record<string, unknown>).message as string) || exception.message;
 
       if (status >= 500) {
         this.logger.error(

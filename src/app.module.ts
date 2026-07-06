@@ -10,6 +10,7 @@ import { DiaryAikoModule } from './diaryAiko/diaryAiko.module';
 import { FileModule } from './files/file.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { GoalsModule } from './goals/goals.module';
+import { LearningModule } from './learning/learning.module';
 import { LessonProgressModule } from './lessonProgress/lessonProgress.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { LibraryModule } from './library/library.module';
@@ -21,6 +22,7 @@ import { UserCommentsModule } from './userComments/userComments.module';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { HealthModule } from './health/health.module';
+import { LessonSessionsModule } from './lesson-sessions/lesson-sessions.module';
 import { HttpExceptionFilter } from './utils/filters/http-exception.catch';
 import { TypeormFilterCatch } from './utils/filters/typeormFilter.catch';
 import { ResponseInterceptor } from './utils/interceptors/apiResponse.interceptor';
@@ -48,6 +50,8 @@ import { ResponseInterceptor } from './utils/interceptors/apiResponse.intercepto
     AppUpdateNewsModule,
     MailModule,
     HealthModule,
+    LearningModule,
+    LessonSessionsModule,
   ],
   controllers: [],
   providers: [

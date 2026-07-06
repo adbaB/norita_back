@@ -1,7 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { CreateActivityDTO } from './activity.dto';
 import { BibliographyDTO } from './biblography.dto';
 import { DialogDTO } from './dialog.dto';
 import { GlossaryDTO } from './glossary.dto';
@@ -75,18 +74,6 @@ export class ContentDTO {
   @IsArray({ message: 'bibliographies must be an array' })
   @IsOptional()
   bibliographies?: BibliographyDTO[] = [];
-
-  @ApiProperty({
-    description: 'Activities/exercises associated with the content',
-    type: () => [CreateActivityDTO],
-    nullable: true,
-    required: false,
-  })
-  @ValidateNested({ each: true })
-  @Type(() => CreateActivityDTO)
-  @IsArray({ message: 'activities must be an array' })
-  @IsOptional()
-  activities?: CreateActivityDTO[] = [];
 }
 
 export class UpdateContentDTO extends PartialType(ContentDTO) {}
