@@ -1,13 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { DeleteResponse } from '../../utils/responses';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
+import { Lesson } from '../../lessons/entities/lesson.entity';
 import { CreateActivityDTO, UpdateActivityDTO } from '../dtos/activity.dto';
 import { Activity } from '../entities/activity.entity';
 import { ActivityOption } from '../entities/activity-option.entity';
-import { Content } from '../entities/content.entity';
 
 @Injectable()
 export class ActivityService {
@@ -16,90 +16,181 @@ export class ActivityService {
     private readonly activityRepo: Repository<Activity>,
     @InjectRepository(ActivityOption)
     private readonly optionRepo: Repository<ActivityOption>,
+    @InjectRepository(Lesson)
+    private readonly lessonRepo: Repository<Lesson>,
   ) {}
 
   // ── CREATE ──────────────────────────────────────────────────────────────────
 
+  /**
+   * Crea una Activity standalone (sin Content), sin vincularla a ninguna lección.
+   * Usar attachToLesson() para vincularla posteriormente.
+   */
   @Transactional()
-  async create(lessonContent: Content, activities: CreateActivityDTO[]): Promise<Activity[]> {
-    if (!activities || activities.length === 0) {
-      return [];
-    }
+  async createStandalone(dto: CreateActivityDTO): Promise<Activity> {
+    const { options, ...activityData } = dto;
 
-    // 1. Instanciar y asociar todas las actividades al content
-    const activityEntities = activities.map((dto) => {
-      const activityData = { ...dto };
-      delete activityData.options;
-      const activity = this.activityRepo.create(activityData);
-      activity.lessonContent = lessonContent;
-      return activity;
-    });
+    const activity = this.activityRepo.create(activityData);
+    const savedActivity = await this.activityRepo.save(activity);
 
-    // 2. Guardar todas las actividades en un solo batch
-    const savedActivities = await this.activityRepo.save(activityEntities);
-
-    // 3. Recopilar todas las opciones en una lista plana asociándolas a su actividad guardada
-    const allOptionEntities: ActivityOption[] = [];
-    const optionsByActivityIndex = new Map<number, ActivityOption[]>();
-
-    activities.forEach((dto, index) => {
-      const savedActivity = savedActivities[index];
-      const { options = [] } = dto;
-
-      if (options.length > 0) {
-        const optionEntities = options.map((opt) => {
-          const option = this.optionRepo.create(opt);
-          option.activity = savedActivity;
-          return option;
-        });
-
-        allOptionEntities.push(...optionEntities);
-        optionsByActivityIndex.set(index, optionEntities);
-      }
-    });
-
-    // 4. Guardar todas las opciones juntas si hay alguna
-    if (allOptionEntities.length > 0) {
-      await this.optionRepo.save(allOptionEntities);
-
-      // 5. Asignar las opciones guardadas en memoria para retornar la estructura correcta
-      savedActivities.forEach((activity, index) => {
-        activity.options = optionsByActivityIndex.get(index) || [];
+    if (options && options.length > 0) {
+      const optionEntities = options.map((opt) => {
+        const option = this.optionRepo.create(opt);
+        option.activity = savedActivity;
+        return option;
       });
+      savedActivity.options = await this.optionRepo.save(optionEntities);
     } else {
-      savedActivities.forEach((activity) => {
-        activity.options = [];
-      });
+      savedActivity.options = [];
     }
 
-    return savedActivities;
+    return savedActivity;
+  }
+
+  // ── LINK / UNLINK ────────────────────────────────────────────────────────────
+
+  /**
+   * Vincula una Activity existente a una Lesson.
+   * El campo order se guarda en la tabla pivote lesson_activities
+   * actualizando la relación N:M directamente.
+   */
+  @Transactional()
+  async attachToLesson(activityUuid: string, lessonUuid: string, order: number): Promise<void> {
+    const activity = await this.activityRepo.findOne({
+      where: { uuid: activityUuid },
+      relations: ['lessons'],
+    });
+    if (!activity) {
+      throw new NotFoundException(`Activity with uuid ${activityUuid} not found`);
+    }
+
+    const lesson = await this.lessonRepo.findOne({ where: { uuid: lessonUuid } });
+    if (!lesson) {
+      throw new NotFoundException(`Lesson with uuid ${lessonUuid} not found`);
+    }
+
+    const alreadyLinked = activity.lessons?.some((l) => l.uuid === lessonUuid);
+    if (alreadyLinked) {
+      throw new BadRequestException(
+        `Activity ${activityUuid} is already linked to lesson ${lessonUuid}`,
+      );
+    }
+
+    // Añadir la lección al array de relaciones y guardar (TypeORM actualiza la tabla pivote)
+    activity.lessons = [...(activity.lessons ?? []), lesson];
+    await this.activityRepo.save(activity);
+
+    // Actualizar el campo order en la tabla pivote directamente
+    await this.activityRepo.query(
+      'UPDATE lesson_activities SET "order" = $1 WHERE activity_uuid = $2 AND lesson_uuid = $3',
+      [order, activityUuid, lessonUuid],
+    );
+  }
+
+  /**
+   * Desvincula una Activity de una Lesson (elimina el registro de la tabla pivote).
+   */
+  @Transactional()
+  async detachFromLesson(activityUuid: string, lessonUuid: string): Promise<void> {
+    const activity = await this.activityRepo.findOne({
+      where: { uuid: activityUuid },
+      relations: ['lessons'],
+    });
+    if (!activity) {
+      throw new NotFoundException(`Activity with uuid ${activityUuid} not found`);
+    }
+
+    const linkedLesson = activity.lessons?.find((l) => l.uuid === lessonUuid);
+    if (!linkedLesson) {
+      throw new NotFoundException(`Activity ${activityUuid} is not linked to lesson ${lessonUuid}`);
+    }
+
+    activity.lessons = activity.lessons.filter((l) => l.uuid !== lessonUuid);
+    await this.activityRepo.save(activity);
   }
 
   // ── READ ────────────────────────────────────────────────────────────────────
 
-  async findByContent(lessonContentUuid: string): Promise<Activity[]> {
-    return this.activityRepo.find({
-      where: { lessonContent: { uuid: lessonContentUuid } },
-      relations: ['options'],
-      order: { order: 'ASC', options: { order: 'ASC' } },
-    });
+  /**
+   * Obtiene todas las activities de una lección, ordenadas por el campo order
+   * de la tabla pivote lesson_activities.
+   */
+  async findByLesson(lessonUuid: string): Promise<Activity[]> {
+    return this.activityRepo
+      .createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.options', 'options')
+      .innerJoin(
+        'lesson_activities',
+        'la',
+        'la.activity_uuid = activity.uuid AND la.lesson_uuid = :lessonUuid',
+        { lessonUuid },
+      )
+      .where('activity.deletedAt IS NULL')
+      .orderBy('la.order', 'ASC')
+      .addOrderBy('options.order', 'ASC')
+      .getMany();
   }
 
+  /**
+   * Obtiene activities de una lección filtradas por dificultad.
+   * Usa JOIN a través de la tabla pivote lesson_activities.
+   */
   async findByDifficulty(lessonUuid: string, difficulty: DifficultyEnum): Promise<Activity[]> {
-    return this.activityRepo.find({
-      where: {
-        difficulty,
-        lessonContent: { lesson: { uuid: lessonUuid } },
-      },
-      relations: ['options'],
-      order: { order: 'ASC', options: { order: 'ASC' } },
-    });
+    return this.activityRepo
+      .createQueryBuilder('activity')
+      .innerJoin('activity.lessons', 'lesson', 'lesson.uuid = :lessonUuid', { lessonUuid })
+      .leftJoinAndSelect('activity.options', 'options')
+      .where('activity.difficulty = :difficulty', { difficulty })
+      .andWhere('activity.deletedAt IS NULL')
+      .getMany();
+  }
+
+  /**
+   * Obtiene ejercicios aleatorios de una dificultad, y un número opcional
+   * de ejercicios del siguiente nivel (preview).
+   */
+  async findRandomByDifficulty(
+    lessonUuid: string,
+    difficulty: DifficultyEnum,
+    count: number,
+    previewCount: number = 3,
+  ): Promise<{ requested: Activity[]; preview: Activity[] }> {
+    // 1. Obtener los de la dificultad solicitada
+    const allRequested = await this.findByDifficulty(lessonUuid, difficulty);
+    const requested = this.shuffleArray(allRequested).slice(0, count);
+
+    let preview: Activity[] = [];
+
+    // 2. Determinar la siguiente dificultad
+    let nextDifficulty: DifficultyEnum | null = null;
+    if (difficulty === DifficultyEnum.EASY) {
+      nextDifficulty = DifficultyEnum.INTERMEDIATE;
+    } else if (difficulty === DifficultyEnum.INTERMEDIATE) {
+      nextDifficulty = DifficultyEnum.HARD;
+    }
+
+    // 3. Obtener los de la siguiente dificultad (si aplica)
+    if (nextDifficulty && previewCount > 0) {
+      const allPreview = await this.findByDifficulty(lessonUuid, nextDifficulty);
+      preview = this.shuffleArray(allPreview).slice(0, previewCount);
+    }
+
+    return { requested, preview };
+  }
+
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   async findOne(uuid: string): Promise<Activity> {
     const activity = await this.activityRepo.findOne({
       where: { uuid },
-      relations: ['options'],
+      relations: ['options', 'lessons'],
       order: { options: { order: 'ASC' } },
     });
     if (!activity) {
@@ -110,19 +201,8 @@ export class ActivityService {
 
   // ── UPDATE ──────────────────────────────────────────────────────────────────
 
-  @Transactional()
-  async update(lessonContent: Content, activities: CreateActivityDTO[]): Promise<void> {
-    // Siempre eliminamos todas las actividades existentes para este contenido
-    await this.activityRepo.delete({ lessonContent: { uuid: lessonContent.uuid } });
-
-    // Si la lista no viene vacía, creamos las nuevas actividades
-    if (activities && activities.length > 0) {
-      await this.create(lessonContent, activities);
-    }
-  }
-
   /**
-   * Partial update of a single activity (fields + options replacement).
+   * Actualización parcial de una activity standalone (campos + reemplazo de opciones).
    */
   @Transactional()
   async updateOne(uuid: string, dto: UpdateActivityDTO): Promise<Activity> {

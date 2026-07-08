@@ -8,7 +8,7 @@ import { ApiResponse, PaginatedResponse } from '../responses';
 export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data: any) => {
+      map((data: unknown) => {
         // Si ya es una respuesta estándar, la dejamos tal cual
         if (data instanceof ApiResponse || data instanceof PaginatedResponse) {
           return data;
@@ -20,15 +20,22 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
         // Determinar mensaje por defecto según el método HTTP
         const defaultMessage = this.getDefaultMessage(request.method);
 
+        const res = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>;
+
         // Para respuestas paginadas
-        if (data?.items !== undefined && data?.info) {
-          const message = data.message || defaultMessage;
-          return new PaginatedResponse(true, message, data.items, data.meta);
+        if (res.items !== undefined && res.info !== undefined) {
+          const message = (res.message as string) || defaultMessage;
+          return new PaginatedResponse(
+            true,
+            message,
+            res.items as unknown[],
+            res.meta as Record<string, unknown>,
+          );
         }
 
         // Para respuestas que ya tienen estructura con mensaje
-        if (data?.message !== undefined && data?.data !== undefined) {
-          return new ApiResponse(true, data.message, data.data);
+        if (res.message !== undefined && res.data !== undefined) {
+          return new ApiResponse(true, res.message as string, res.data);
         }
 
         // Para datos simples - usar mensaje por defecto

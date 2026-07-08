@@ -14,8 +14,7 @@ type DatabaseError = {
 export class TypeormFilterCatch implements ExceptionFilter {
   private readonly logger = new Logger(TypeormFilterCatch.name);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-  catch(exception: any, host: ArgumentsHost): void {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -25,8 +24,8 @@ export class TypeormFilterCatch implements ExceptionFilter {
 
     if (exception instanceof QueryFailedError) {
       // Type assertion para acceder a driverError
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const queryError = exception as any;
+
+      const queryError = exception as unknown as Record<string, unknown>;
       const driverError: DatabaseError = queryError.driverError || {};
 
       errorCode = driverError.code;
@@ -52,7 +51,7 @@ export class TypeormFilterCatch implements ExceptionFilter {
 
       this.logger.error(
         `[${request.method}] ${request.url} → ${status} ${message} (code: ${errorCode ?? 'unknown'})`,
-        `Query: ${queryError.query ?? 'N/A'}\nParams count: ${(queryError.parameters ?? []).length}\n${exception.stack}`,
+        `Query: ${queryError.query ?? 'N/A'}\nParams count: ${((queryError.parameters as unknown[]) ?? []).length}\n${exception.stack}`,
       );
     } else if (exception instanceof EntityNotFoundError) {
       status = HttpStatus.NOT_FOUND;

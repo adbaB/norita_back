@@ -10,8 +10,8 @@ export class NotificationService {
     token: string,
     title: string,
     body: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-    data?: any,
+
+    data?: Record<string, string>,
   ): Promise<{ success: boolean; messageId: string }> {
     const message: messaging.Message = {
       notification: { title, body },

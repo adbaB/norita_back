@@ -5,21 +5,19 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { ActivityConfig } from '../interfaces/activity-config.interface';
 import { ActivityTypeEnum } from '../enums/activity-type.enum';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
-import { Content } from './content.entity';
 import { ActivityOption } from './activity-option.entity';
+import { Lesson } from '../../lessons/entities/lesson.entity';
 
 @Entity('activities')
-@Unique(['lessonContent', 'order'])
 export class Activity {
   @ApiProperty({ description: 'UUID of the activity', type: String })
   @PrimaryGeneratedColumn('uuid')
@@ -36,10 +34,6 @@ export class Activity {
   })
   @Column({ name: 'difficulty', type: 'enum', enum: DifficultyEnum, default: DifficultyEnum.EASY })
   difficulty: DifficultyEnum;
-
-  @ApiProperty({ description: 'Order of this activity within the lesson content', type: Number })
-  @Column({ name: 'order', type: 'integer' })
-  order: number;
 
   @ApiProperty({ description: 'Instruction text shown to the user', type: String })
   @Column({ name: 'instruction', type: 'text' })
@@ -108,13 +102,17 @@ export class Activity {
   @OneToMany(() => ActivityOption, (option) => option.activity, { cascade: true })
   options: ActivityOption[];
 
-  @ManyToOne(() => Content, (content) => content.activities, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    nullable: false,
+  /**
+   * Relación N:M con Lesson a través de la tabla pivote `lesson_activities`.
+   * Activity es el dueño de la relación (@JoinTable aquí).
+   */
+  @ManyToMany(() => Lesson, (lesson) => lesson.activities)
+  @JoinTable({
+    name: 'lesson_activities',
+    joinColumn: { name: 'activity_uuid', referencedColumnName: 'uuid' },
+    inverseJoinColumn: { name: 'lesson_uuid', referencedColumnName: 'uuid' },
   })
-  @JoinColumn({ name: 'lesson_content_uuid' })
-  lessonContent: Content;
+  lessons: Lesson[];
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({

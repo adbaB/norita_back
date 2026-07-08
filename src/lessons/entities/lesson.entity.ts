@@ -6,12 +6,14 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Activity } from '../../contentLessons/entities/activity.entity';
 import { Content } from '../../contentLessons/entities/content.entity';
 import { LessonProgress } from '../../lessonProgress/entity/lessonProgress.entity';
 import { Comments } from '../../userComments/entities/comments.entity';
@@ -95,6 +97,10 @@ export class Lesson implements IOrder {
 
   @OneToOne(() => LessonProgress, (lessonProgress) => lessonProgress.lesson)
   progress: LessonProgress;
+
+  /** Actividades vinculadas a esta lección (N:M). Lado inverso de la relación. */
+  @ManyToMany(() => Activity, (activity) => activity.lessons)
+  activities: Activity[];
 
   @ApiProperty({ description: 'Order of the lesson within its section', type: Number })
   @Column({ name: 'order', type: 'integer' })

@@ -3,16 +3,16 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
-  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   ValidateNested,
   registerDecorator,
   ValidationOptions,
   ValidationArguments,
+  Min,
+  IsInt,
 } from 'class-validator';
 import { ActivityTypeEnum } from '../enums/activity-type.enum';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
@@ -197,12 +197,6 @@ export class CreateActivityDTO {
   @IsEnum(DifficultyEnum, { message: 'difficulty must be a valid DifficultyEnum value' })
   difficulty?: DifficultyEnum = DifficultyEnum.EASY;
 
-  @ApiProperty({ description: 'Order of this activity within the lesson content', type: Number })
-  @IsNotEmpty({ message: 'order should not be empty' })
-  @IsInt({ message: 'order must be an integer' })
-  @IsPositive({ message: 'order must be a positive number' })
-  order: number;
-
   @ApiProperty({ description: 'Instruction text shown to the user', type: String })
   @IsNotEmpty({ message: 'instruction should not be empty' })
   @IsString({ message: 'instruction must be a string' })
@@ -294,3 +288,28 @@ export class CreateActivityDTO {
 }
 
 export class UpdateActivityDTO extends PartialType(CreateActivityDTO) {}
+
+export class GetRandomExercisesDto {
+  @ApiProperty({ description: 'Requested difficulty level', enum: DifficultyEnum })
+  @Type(() => Number)
+  @IsEnum(DifficultyEnum, { message: 'difficulty must be a valid DifficultyEnum value' })
+  difficulty: DifficultyEnum;
+
+  @ApiProperty({ description: 'Number of primary exercises to fetch', type: Number })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  count: number;
+
+  @ApiProperty({
+    description: 'Number of preview exercises from the next difficulty level',
+    type: Number,
+    required: false,
+    default: 3,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  previewCount?: number = 3;
+}

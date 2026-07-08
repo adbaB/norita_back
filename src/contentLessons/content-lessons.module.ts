@@ -9,6 +9,7 @@ import { Dialog } from './entities/dialog.entity';
 import { Glossary } from './entities/glossary.entity';
 import { Notes } from './entities/notes.entity';
 import { TypeStructure } from './entities/type-structure.entity';
+import { Lesson } from '../lessons/entities/lesson.entity';
 
 import { ActivityController } from './controllers/activity.controller';
 import { BibliographyController } from './controllers/biblography.controller';
@@ -36,6 +37,7 @@ import { TypeStructureService } from './services/type-structure.service';
       Glossary,
       Notes,
       TypeStructure,
+      Lesson,
     ]),
   ],
   controllers: [
@@ -55,6 +57,6 @@ import { TypeStructureService } from './services/type-structure.service';
     NoteService,
     TypeStructureService,
   ],
-  exports: [ContentService],
+  exports: [ContentService, ActivityService],
 })
 export class ContentLessonsModule {}
