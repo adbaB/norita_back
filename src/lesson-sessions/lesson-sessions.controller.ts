@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Param,
   ParseIntPipe,
@@ -15,7 +16,7 @@ import { LessonSessionsService } from './lesson-sessions.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { CompleteSessionDto } from './dto/complete-session.dto';
 import { LessonSession } from './entities/lesson-session.entity';
-import { FormatResponse, PaginatedResponse } from '../utils/responses';
+import { PaginatedResponse } from '../utils/responses';
 
 @ApiTags('Lesson Sessions')
 @ApiBearerAuth()
@@ -50,21 +51,21 @@ export class LessonSessionsController {
   async getUserSessionsByLesson(
     @User() userId: string,
     @Query('lessonId', ParseUUIDPipe) lessonId: string,
-    @Query('limit', ParseIntPipe) limit: number = 20,
-    @Query('page', ParseIntPipe) page: number = 1,
-  ): Promise<FormatResponse<LessonSession>> {
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<PaginatedResponse<LessonSession[]>> {
     const sessions = await this.sessionsService.getUserSessionsByLesson(
       userId,
       lessonId,
       limit,
       page,
     );
-    return new PaginatedResponse(
+    return new PaginatedResponse<LessonSession[]>(
       true,
       'Sessions fetched successfully',
-      sessions.data,
+      sessions.data as LessonSession[],
       sessions.info,
-    ) as unknown as FormatResponse<LessonSession>;
+    );
   }
 
   @ApiOperation({ summary: 'Get details of a specific session' })

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -14,6 +15,7 @@ import { SessionStatusEnum } from '../enums/session-status.enum';
 import { SessionExercise } from './session-exercise.entity';
 
 @Entity('lesson_session')
+@Index(['user', 'lesson', 'startedAt'])
 export class LessonSession {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
@@ -52,9 +54,6 @@ export class LessonSession {
 
   @Column({ name: 'completed_at', type: 'timestamp with time zone', nullable: true })
   completedAt: Date;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
-  createdAt: Date;
 
   @OneToMany(() => SessionExercise, (exercise) => exercise.session, {
     cascade: true,

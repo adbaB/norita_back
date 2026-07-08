@@ -61,7 +61,7 @@ export class LessonSessionsService {
   ): Promise<LessonSession> {
     const session = await this.sessionRepo.findOne({
       where: { uuid: sessionId, user: { uuid: userId } },
-      relations: ['exercises'],
+      relations: ['exercises', 'exercises.exercise'],
     });
 
     if (!session) {
@@ -73,7 +73,7 @@ export class LessonSessionsService {
 
     // Update exercises
     for (const completedEx of dto.exercises) {
-      const existingEx = session.exercises.find((e) => e.exercise.uuid === completedEx.exerciseId);
+      const existingEx = session.exercises.find((e) => e.exercise?.uuid === completedEx.exerciseId);
       if (existingEx) {
         existingEx.correct = completedEx.correct;
         existingEx.responseTimeMs = completedEx.responseTimeMs;
@@ -105,16 +105,17 @@ export class LessonSessionsService {
     limit: number = 20,
     page: number = 1,
   ): Promise<FormatResponse<LessonSession>> {
-    const skip = (page - 1) * limit;
+    const take = Math.min(limit, 100);
+    const skip = (page - 1) * take;
 
     const [data, total] = await this.sessionRepo.findAndCount({
       where: { user: { uuid: userId }, lesson: { uuid: lessonId } },
       order: { startedAt: 'DESC' },
-      take: limit,
+      take: take,
       skip: skip,
     });
 
-    const lastPage = Math.ceil(total / limit) || 1;
+    const lastPage = Math.ceil(total / take) || 1;
     const info = {
       total,
       currentPage: page,

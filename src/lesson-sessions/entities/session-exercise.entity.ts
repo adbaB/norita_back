@@ -14,7 +14,7 @@ export class SessionExercise {
 
   @ManyToOne(() => Activity, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'exercise_id' })
-  exercise: Activity;
+  exercise: Activity | null;
 
   @Column({ type: 'enum', enum: DifficultyEnum })
   difficulty: DifficultyEnum;

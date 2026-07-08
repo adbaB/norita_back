@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { Activity } from '../contentLessons/entities/activity.entity';
@@ -76,7 +76,10 @@ export class LearningService {
     const { lessonId, count } = dto;
 
     // 1. Verificar que la lección existe
-    const lesson = await this.lessonRepo.findOne({ where: { uuid: lessonId } });
+    const lesson = await this.lessonRepo.findOne({
+      where: { uuid: lessonId },
+      relations: ['section'],
+    });
     if (!lesson) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
@@ -167,7 +170,8 @@ export class LearningService {
     // 11. TIPO 2: preview de próxima lección (EASY)
     if (tipo2Active && distribution.tipo2Count > 0) {
       const nextLesson = await this.lessonRepo.findOne({
-        where: { order: lesson.order + 1 },
+        where: { order: MoreThan(lesson.order), section: { uuid: lesson.section.uuid } },
+        order: { order: 'ASC' },
       });
       if (nextLesson) {
         const previewPool = await this.findActivitiesByLessonAndDifficulty(
@@ -330,10 +334,16 @@ export class LearningService {
     userProgress.totalAttempts += attempts.length;
     await this.userProgressRepo.save(userProgress);
 
-    // 5. Upsert ExerciseStat (global por ejercicio)
+    // 5. Upsert ExerciseStat (global por ejercicio) en batch
     const now = new Date();
+    const existingStats = await this.exerciseStatRepo.find({
+      where: { userId, exerciseId: In(Array.from(statUpdates.keys())) },
+    });
+    const existingStatsMap = new Map(existingStats.map((s) => [s.exerciseId, s]));
+    const statsToSave: ExerciseStat[] = [];
+
     for (const [exerciseId, update] of statUpdates) {
-      let stat = await this.exerciseStatRepo.findOne({ where: { userId, exerciseId } });
+      let stat = existingStatsMap.get(exerciseId);
       if (!stat) {
         stat = this.exerciseStatRepo.create({ userId, exerciseId });
         stat.timesPlayed = 0;
@@ -353,7 +363,11 @@ export class LearningService {
       stat.totalLearning += update.learning;
       stat.lastPlayed = now;
       stat.averageResponseTimeMs = newAvg;
-      await this.exerciseStatRepo.save(stat);
+      statsToSave.push(stat);
+    }
+
+    if (statsToSave.length > 0) {
+      await this.exerciseStatRepo.save(statsToSave);
     }
 
     // 6. Upsert UserLessonStat (SRS — actualizar last_played_at de esta lección)
@@ -373,25 +387,31 @@ export class LearningService {
     tipo2: boolean,
     tipo3: boolean,
   ): ChallengeDistribution {
+    let totalAssigned = 0;
     let tipo1Count = 0;
     let tipo2Count = 0;
     let tipo3Count = 0;
 
     if (tipo1 && tipo3) {
       // Coexistencia: 6 normales + 2 tipo1 + 2 tipo3
-      tipo1Count = Math.ceil(count * TIPO1_RATIO * 0.67); // ~20%
-      tipo3Count = Math.ceil(count * TIPO3_RATIO * 0.67); // ~20%
+      tipo1Count = Math.min(Math.ceil(count * TIPO1_RATIO * 0.67), count - totalAssigned);
+      totalAssigned += tipo1Count;
+      tipo3Count = Math.min(Math.ceil(count * TIPO3_RATIO * 0.67), count - totalAssigned);
+      totalAssigned += tipo3Count;
     } else if (tipo1) {
-      tipo1Count = Math.ceil(count * TIPO1_RATIO);
+      tipo1Count = Math.min(Math.ceil(count * TIPO1_RATIO), count - totalAssigned);
+      totalAssigned += tipo1Count;
     } else if (tipo2) {
-      tipo2Count = Math.ceil(count * TIPO2_RATIO);
+      tipo2Count = Math.min(Math.ceil(count * TIPO2_RATIO), count - totalAssigned);
+      totalAssigned += tipo2Count;
     } else if (tipo3) {
-      tipo3Count = Math.ceil(count * TIPO3_RATIO);
+      tipo3Count = Math.min(Math.ceil(count * TIPO3_RATIO), count - totalAssigned);
+      totalAssigned += tipo3Count;
     }
 
-    const normalCount = count - tipo1Count - tipo2Count - tipo3Count;
+    const normalCount = Math.max(0, count - totalAssigned);
     return {
-      normalCount: Math.max(0, normalCount),
+      normalCount,
       tipo1Count,
       tipo2Count,
       tipo3Count,
@@ -446,32 +466,32 @@ export class LearningService {
    * Busca o crea el UserProgress para el par (userId, lessonId).
    */
   private async findOrCreateUserProgress(userId: string, lessonId: string): Promise<UserProgress> {
-    let progress = await this.userProgressRepo.findOne({ where: { userId, lessonId } });
-    if (!progress) {
-      const user = await this.userRepo.findOne({ where: { uuid: userId } });
-      if (!user) throw new NotFoundException(`User with id ${userId} not found`);
-      progress = this.userProgressRepo.create({
-        userId,
-        lessonId,
-        eloScore: 300,
-        totalAttempts: 0,
-      });
-      await this.userProgressRepo.save(progress);
-    }
-    return progress;
+    const user = await this.userRepo.findOne({ where: { uuid: userId } });
+    if (!user) throw new NotFoundException(`User with id ${userId} not found`);
+
+    await this.userProgressRepo
+      .createQueryBuilder()
+      .insert()
+      .into(UserProgress)
+      .values({ userId, lessonId, eloScore: 300, totalAttempts: 0 })
+      .orIgnore()
+      .execute();
+
+    return this.userProgressRepo.findOne({ where: { userId, lessonId } });
   }
 
   /**
    * Crea o actualiza el UserLessonStat para registrar una sesión.
    */
   private async upsertUserLessonStat(userId: string, lessonId: string): Promise<void> {
-    let stat = await this.userLessonStatRepo.findOne({ where: { userId, lessonId } });
-    if (!stat) {
-      stat = this.userLessonStatRepo.create({ userId, lessonId, timesPlayed: 0 });
-    }
-    stat.lastPlayedAt = new Date();
-    stat.timesPlayed += 1;
-    await this.userLessonStatRepo.save(stat);
+    const now = new Date().toISOString();
+    await this.userLessonStatRepo.query(
+      `INSERT INTO "user_lesson_stat" ("user_id", "lesson_id", "times_played", "last_played_at")
+       VALUES ($1, $2, 1, $3)
+       ON CONFLICT ("user_id", "lesson_id")
+       DO UPDATE SET "times_played" = "user_lesson_stat"."times_played" + 1, "last_played_at" = EXCLUDED."last_played_at"`,
+      [userId, lessonId, now],
+    );
   }
 
   /**

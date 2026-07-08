@@ -86,8 +86,8 @@ export class RestructureActivityManyToMany1783254153109 implements MigrationInte
     await queryRunner.query(
       `ALTER TABLE "activity_options" ADD "role" character varying(20) NOT NULL DEFAULT 'option'`,
     );
-    await queryRunner.query(`ALTER TABLE "activities" ADD "lesson_content_uuid" uuid NOT NULL`);
-    await queryRunner.query(`ALTER TABLE "activities" ADD "order" integer NOT NULL`);
+    await queryRunner.query(`ALTER TABLE "activities" ADD "lesson_content_uuid" uuid`);
+    await queryRunner.query(`ALTER TABLE "activities" ADD "order" integer`);
     await queryRunner.query(`DROP INDEX "public"."IDX_5caeab99403bbce264c6f4948a"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_b979891e11bf519ff1d648d1bc"`);
     await queryRunner.query(`DROP TABLE "lesson_activities"`);

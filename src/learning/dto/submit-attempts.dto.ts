@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsInt, IsUUID, Min, ValidateNested } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsUUID,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AttemptDto {
@@ -27,6 +35,7 @@ export class SubmitAttemptsDto {
 
   @ApiProperty({ description: 'List of attempts to submit in batch', type: [AttemptDto] })
   @IsArray({ message: 'attempts must be an array' })
+  @ArrayMaxSize(100, { message: 'Cannot process more than 100 attempts in a single batch' })
   @ValidateNested({ each: true })
   @Type(() => AttemptDto)
   attempts: AttemptDto[];

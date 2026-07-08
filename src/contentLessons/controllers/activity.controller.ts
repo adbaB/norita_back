@@ -12,6 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { IsInt, Min } from 'class-validator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { ApiResponse as ClassApiResponse, DeleteResponse } from '../../utils/responses';
@@ -20,6 +21,8 @@ import { Activity } from '../entities/activity.entity';
 import { ActivityService } from '../services/activity.service';
 
 class AttachToLessonDto {
+  @IsInt()
+  @Min(0)
   order: number;
 }
 

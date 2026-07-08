@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsInt,
+  Min,
+  IsUUID,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
 
 class InitialSessionExerciseDto {
@@ -25,7 +34,8 @@ export class CreateSessionDto {
   difficulty: DifficultyEnum;
 
   @ApiProperty({ description: 'Total number of questions planned for this session' })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   totalQuestions: number;
 
   @ApiProperty({
@@ -33,7 +43,8 @@ export class CreateSessionDto {
     type: [InitialSessionExerciseDto],
   })
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => InitialSessionExerciseDto)
-  exercises: InitialSessionExerciseDto[];
+  exercises?: InitialSessionExerciseDto[];
 }

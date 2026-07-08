@@ -118,9 +118,7 @@ export class ActivityService {
   async findByLesson(lessonUuid: string): Promise<Activity[]> {
     return this.activityRepo
       .createQueryBuilder('activity')
-      .innerJoin('activity.lessons', 'lesson', 'lesson.uuid = :lessonUuid', { lessonUuid })
       .leftJoinAndSelect('activity.options', 'options')
-      .addSelect('la.order', 'pivotOrder')
       .innerJoin(
         'lesson_activities',
         'la',

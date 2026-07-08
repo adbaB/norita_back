@@ -12,6 +12,7 @@ import {
   ValidationOptions,
   ValidationArguments,
   Min,
+  IsInt,
 } from 'class-validator';
 import { ActivityTypeEnum } from '../enums/activity-type.enum';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
@@ -296,7 +297,7 @@ export class GetRandomExercisesDto {
 
   @ApiProperty({ description: 'Number of primary exercises to fetch', type: Number })
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
   @Min(1)
   count: number;
 
@@ -308,7 +309,7 @@ export class GetRandomExercisesDto {
   })
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
   @Min(0)
   previewCount?: number = 3;
 }

@@ -4,6 +4,7 @@ import { User } from '../users/decorators/user.decorator';
 import { LearningService } from './learning.service';
 import { GetExercisesDto } from './dto/get-exercises.dto';
 import { SubmitAttemptsDto } from './dto/submit-attempts.dto';
+import { ExerciseWithMetadata } from './interfaces/exercise-with-metadata.interface';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @ApiTags('Learning')
@@ -65,7 +66,7 @@ export class LearningController {
     lesson: { id: string; name: string };
     userElo: number;
     sessionMeta: Record<string, unknown>;
-    exercises: unknown[];
+    exercises: ExerciseWithMetadata[];
   }> {
     return this.learningService.getExercises(userId, dto);
   }

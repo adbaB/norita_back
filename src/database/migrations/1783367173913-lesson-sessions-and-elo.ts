@@ -11,18 +11,25 @@ export class LessonSessionsAndElo1783367173913 implements MigrationInterface {
       `CREATE TYPE "public"."lesson_session_status_enum" AS ENUM('COMPLETED', 'ABANDONED', 'REPEATED')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "lesson_session" ("uuid" uuid NOT NULL DEFAULT uuid_generate_v4(), "difficulty" "public"."lesson_session_difficulty_enum" NOT NULL, "status" "public"."lesson_session_status_enum" NOT NULL DEFAULT 'ABANDONED', "total_questions" integer NOT NULL, "correct_answers" integer NOT NULL DEFAULT '0', "incorrect_answers" integer NOT NULL DEFAULT '0', "percentage" double precision NOT NULL DEFAULT '0', "total_time_ms" integer, "started_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "completed_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "user_id" uuid, "lesson_id" uuid, CONSTRAINT "PK_fff631fc3c42623622c8e6acf5a" PRIMARY KEY ("uuid"))`,
+      `CREATE TABLE "lesson_session" ("uuid" uuid NOT NULL DEFAULT uuid_generate_v4(), "difficulty" "public"."lesson_session_difficulty_enum" NOT NULL, "status" "public"."lesson_session_status_enum" NOT NULL DEFAULT 'ABANDONED', "total_questions" integer NOT NULL, "correct_answers" integer NOT NULL DEFAULT '0', "incorrect_answers" integer NOT NULL DEFAULT '0', "percentage" double precision NOT NULL DEFAULT '0', "total_time_ms" integer, "started_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "completed_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "user_id" uuid NOT NULL, "lesson_id" uuid NOT NULL, CONSTRAINT "PK_fff631fc3c42623622c8e6acf5a" PRIMARY KEY ("uuid"))`,
     );
     await queryRunner.query(
       `CREATE TYPE "public"."session_exercise_difficulty_enum" AS ENUM('1', '2', '3')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "session_exercise" ("uuid" uuid NOT NULL DEFAULT uuid_generate_v4(), "difficulty" "public"."session_exercise_difficulty_enum" NOT NULL, "correct" boolean, "response_time_ms" integer, "answered_at" TIMESTAMP WITH TIME ZONE, "session_id" uuid, "exercise_id" uuid, CONSTRAINT "PK_3a83000bb90c1df733278e6d761" PRIMARY KEY ("uuid"))`,
+      `CREATE TABLE "session_exercise" ("uuid" uuid NOT NULL DEFAULT uuid_generate_v4(), "difficulty" "public"."session_exercise_difficulty_enum" NOT NULL, "correct" boolean, "response_time_ms" integer, "answered_at" TIMESTAMP WITH TIME ZONE, "session_id" uuid NOT NULL, "exercise_id" uuid, CONSTRAINT "PK_3a83000bb90c1df733278e6d761" PRIMARY KEY ("uuid"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "user_lesson_stat" ("user_id" uuid NOT NULL, "lesson_id" uuid NOT NULL, "last_played_at" TIMESTAMP WITH TIME ZONE, "times_played" integer NOT NULL DEFAULT '0', CONSTRAINT "PK_e8d2afeb0c7b6143a73ed4851b6" PRIMARY KEY ("user_id", "lesson_id"))`,
     );
-    await queryRunner.query(`ALTER TABLE "user_progress" ADD "lesson_id" uuid NOT NULL`);
+    await queryRunner.query(`ALTER TABLE "user_progress" ADD "lesson_id" uuid`);
+    await queryRunner.query(`
+      UPDATE "user_progress"
+      SET "lesson_id" = (SELECT "uuid" FROM "lessons" ORDER BY "order" ASC LIMIT 1)
+      WHERE "lesson_id" IS NULL
+    `);
+    await queryRunner.query(`DELETE FROM "user_progress" WHERE "lesson_id" IS NULL`);
+    await queryRunner.query(`ALTER TABLE "user_progress" ALTER COLUMN "lesson_id" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "user_progress" DROP CONSTRAINT "PK_c41601eeb8415a9eb15c8a4e557"`,
     );
@@ -77,6 +84,17 @@ export class LessonSessionsAndElo1783367173913 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "user_progress" DROP CONSTRAINT "PK_de6c7692d227177d4979fa43d49"`,
     );
+    await queryRunner.query(`
+      WITH cte AS (
+        SELECT "user_id", "lesson_id",
+               ROW_NUMBER() OVER(PARTITION BY "user_id" ORDER BY "updated_at" DESC) as rn
+        FROM "user_progress"
+      )
+      DELETE FROM "user_progress"
+      WHERE ("user_id", "lesson_id") IN (
+        SELECT "user_id", "lesson_id" FROM cte WHERE rn > 1
+      )
+    `);
     await queryRunner.query(
       `ALTER TABLE "user_progress" ADD CONSTRAINT "PK_c41601eeb8415a9eb15c8a4e557" PRIMARY KEY ("user_id")`,
     );
