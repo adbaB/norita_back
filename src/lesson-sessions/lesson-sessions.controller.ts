@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Get,
-  Param,
-  ParseIntPipe,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../users/decorators/user.decorator';
 import { LessonSessionsService } from './lesson-sessions.service';
@@ -17,6 +6,7 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { CompleteSessionDto } from './dto/complete-session.dto';
 import { LessonSession } from './entities/lesson-session.entity';
 import { PaginatedResponse } from '../utils/responses';
+import { Paginate } from '../utils/models/paginate-request';
 
 @ApiTags('Lesson Sessions')
 @ApiBearerAuth()
@@ -51,14 +41,13 @@ export class LessonSessionsController {
   async getUserSessionsByLesson(
     @User() userId: string,
     @Query('lessonId', ParseUUIDPipe) lessonId: string,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query() paginate: Paginate,
   ): Promise<PaginatedResponse<LessonSession[]>> {
     const sessions = await this.sessionsService.getUserSessionsByLesson(
       userId,
       lessonId,
-      limit,
-      page,
+      paginate.limit,
+      paginate.page,
     );
     return new PaginatedResponse<LessonSession[]>(
       true,

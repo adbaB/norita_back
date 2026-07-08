@@ -25,10 +25,19 @@ export class LessonSessionsAndElo1783367173913 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "user_progress" ADD "lesson_id" uuid`);
     await queryRunner.query(`
       UPDATE "user_progress"
-      SET "lesson_id" = (SELECT "uuid" FROM "lessons" ORDER BY "order" ASC LIMIT 1)
+      SET "lesson_id" = (SELECT "uuid" FROM "lessons" ORDER BY "order" ASC, "created_at" ASC LIMIT 1)
       WHERE "lesson_id" IS NULL
     `);
-    await queryRunner.query(`DELETE FROM "user_progress" WHERE "lesson_id" IS NULL`);
+
+    const unmappedRows = await queryRunner.query(
+      `SELECT COUNT(*) as count FROM "user_progress" WHERE "lesson_id" IS NULL`,
+    );
+    if (parseInt(unmappedRows[0].count, 10) > 0) {
+      throw new Error(
+        `Cannot safely backfill user_progress: ${unmappedRows[0].count} rows could not be mapped to a lesson_id.`,
+      );
+    }
+
     await queryRunner.query(`ALTER TABLE "user_progress" ALTER COLUMN "lesson_id" SET NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "user_progress" DROP CONSTRAINT "PK_c41601eeb8415a9eb15c8a4e557"`,
