@@ -113,6 +113,7 @@ export class ActivityOption {
     nullable: false,
   })
   @JoinColumn({ name: 'activity_uuid' })
+  @Exclude()
   activity: Activity;
 
   @Exclude({ toPlainOnly: true })

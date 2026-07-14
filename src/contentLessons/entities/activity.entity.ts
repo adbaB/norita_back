@@ -112,6 +112,7 @@ export class Activity {
     joinColumn: { name: 'activity_uuid', referencedColumnName: 'uuid' },
     inverseJoinColumn: { name: 'lesson_uuid', referencedColumnName: 'uuid' },
   })
+  @Exclude()
   lessons: Lesson[];
 
   @Exclude({ toPlainOnly: true })
