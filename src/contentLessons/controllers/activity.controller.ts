@@ -14,6 +14,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
 import { Roles } from '../../auth/decorators/role.decorator';
+import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
 import { ApiResponse as ClassApiResponse, DeleteResponse } from '../../utils/responses';
 import { CreateActivityDTO, GetRandomExercisesDto, UpdateActivityDTO } from '../dtos/activity.dto';
@@ -106,12 +107,15 @@ export class ActivityController {
   async getRandomExercises(
     @Param('lessonUuid', ParseUUIDPipe) lessonUuid: string,
     @Query() dto: GetRandomExercisesDto,
+    @User() userId?: string,
   ): Promise<{ requested: Activity[]; preview: Activity[] }> {
     return this.activityService.findRandomByDifficulty(
       lessonUuid,
       dto.difficulty,
       dto.count,
       dto.previewCount,
+      userId,
+      dto.typeCounts,
     );
   }
 

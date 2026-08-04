@@ -8,6 +8,7 @@ import { Lesson } from '../../lessons/entities/lesson.entity';
 import { CreateActivityDTO, UpdateActivityDTO } from '../dtos/activity.dto';
 import { Activity } from '../entities/activity.entity';
 import { ActivityOption } from '../entities/activity-option.entity';
+import { UserSeenActivity } from '../entities/user-seen-activity.entity';
 
 @Injectable()
 export class ActivityService {
@@ -18,6 +19,8 @@ export class ActivityService {
     private readonly optionRepo: Repository<ActivityOption>,
     @InjectRepository(Lesson)
     private readonly lessonRepo: Repository<Lesson>,
+    @InjectRepository(UserSeenActivity)
+    private readonly seenRepo: Repository<UserSeenActivity>,
   ) {}
 
   // ── CREATE ──────────────────────────────────────────────────────────────────
@@ -146,22 +149,53 @@ export class ActivityService {
   }
 
   /**
-   * Obtiene ejercicios aleatorios de una dificultad, y un número opcional
-   * de ejercicios del siguiente nivel (preview).
+   * Obtiene ejercicios aleatorios con soporte para:
+   * 1. Mezcla por tipo (typeCounts).
+   * 2. No-repetición por usuario hasta agotar el pool de esa dificultad/lección (Opción A).
+   * 3. Barajado (shuffle) automático de las opciones dentro de cada actividad.
    */
   async findRandomByDifficulty(
     lessonUuid: string,
     difficulty: DifficultyEnum,
-    count: number,
+    count?: number,
     previewCount: number = 3,
+    userId?: string,
+    typeCounts?: Record<number, number>,
   ): Promise<{ requested: Activity[]; preview: Activity[] }> {
-    // 1. Obtener los de la dificultad solicitada
-    const allRequested = await this.findByDifficulty(lessonUuid, difficulty);
-    const requested = this.shuffleArray(allRequested).slice(0, count);
+    let requested: Activity[] = [];
+
+    if (typeCounts && Object.keys(typeCounts).length > 0) {
+      for (const [typeStr, requestedCountVal] of Object.entries(typeCounts)) {
+        const typeNum = Number(typeStr);
+        const reqCount = Number(requestedCountVal);
+        if (isNaN(typeNum) || isNaN(reqCount) || reqCount <= 0) continue;
+
+        const typeActivities: Activity[] = await this.selectActivitiesWithCycle(
+          lessonUuid,
+          difficulty,
+          reqCount,
+          userId,
+          typeNum,
+        );
+        requested.push(...typeActivities);
+      }
+    } else {
+      const targetCount = count && Number(count) > 0 ? Number(count) : 10;
+      const defaultActivities: Activity[] = await this.selectActivitiesWithCycle(
+        lessonUuid,
+        difficulty,
+        targetCount,
+        userId,
+      );
+      requested.push(...defaultActivities);
+    }
+
+    // Barajar opciones dentro de cada actividad solicitada
+    requested = requested.map((activity) => this.shuffleActivityOptions(activity));
 
     let preview: Activity[] = [];
 
-    // 2. Determinar la siguiente dificultad
+    // Determinar la siguiente dificultad para preview
     let nextDifficulty: DifficultyEnum | null = null;
     if (difficulty === DifficultyEnum.EASY) {
       nextDifficulty = DifficultyEnum.INTERMEDIATE;
@@ -169,13 +203,103 @@ export class ActivityService {
       nextDifficulty = DifficultyEnum.HARD;
     }
 
-    // 3. Obtener los de la siguiente dificultad (si aplica)
     if (nextDifficulty && previewCount > 0) {
-      const allPreview = await this.findByDifficulty(lessonUuid, nextDifficulty);
-      preview = this.shuffleArray(allPreview).slice(0, previewCount);
+      const previewActivities: Activity[] = await this.selectActivitiesWithCycle(
+        lessonUuid,
+        nextDifficulty,
+        Number(previewCount),
+        userId,
+      );
+      preview = previewActivities.map((activity) => this.shuffleActivityOptions(activity));
     }
 
     return { requested, preview };
+  }
+
+  /**
+   * Selecciona N actividades para una lección y dificultad (y opcionalmente por tipo),
+   * excluyendo las ya vistas por el usuario en el ciclo actual.
+   * Si el pool disponible no alcanza N, se resetea el historial del usuario para esa canasta
+   * y se completa la selección del pool liberado.
+   */
+  private async selectActivitiesWithCycle(
+    lessonUuid: string,
+    difficulty: DifficultyEnum,
+    count: number,
+    userId?: string,
+    activityType?: number,
+  ): Promise<Activity[]> {
+    let qb = this.activityRepo
+      .createQueryBuilder('activity')
+      .innerJoin('activity.lessons', 'lesson', 'lesson.uuid = :lessonUuid', { lessonUuid })
+      .leftJoinAndSelect('activity.options', 'options')
+      .where('activity.difficulty = :difficulty', { difficulty })
+      .andWhere('activity.deletedAt IS NULL');
+
+    if (activityType !== undefined) {
+      qb = qb.andWhere('activity.type = :activityType', { activityType });
+    }
+
+    const fullPool: Activity[] = await qb.getMany();
+
+    if (fullPool.length === 0) {
+      return [];
+    }
+
+    if (!userId) {
+      return this.shuffleArray<Activity>(fullPool).slice(0, count);
+    }
+
+    const seenRecords = await this.seenRepo.find({
+      where: { userId, lessonUuid, difficulty },
+      select: ['activityUuid'],
+    });
+
+    const seenUuids = new Set(seenRecords.map((s) => s.activityUuid));
+    const unseenPool: Activity[] = fullPool.filter((a) => !seenUuids.has(a.uuid));
+
+    let selected: Activity[] = [];
+
+    if (unseenPool.length >= count) {
+      selected = this.shuffleArray<Activity>(unseenPool).slice(0, count);
+    } else {
+      selected = [...unseenPool];
+      const remainingNeeded = count - selected.length;
+
+      await this.seenRepo.delete({ userId, lessonUuid, difficulty });
+
+      const selectedUuids = new Set(selected.map((a) => a.uuid));
+      const resetPool: Activity[] = fullPool.filter((a) => !selectedUuids.has(a.uuid));
+
+      if (resetPool.length > 0) {
+        const extraSelected = this.shuffleArray<Activity>(resetPool).slice(0, remainingNeeded);
+        selected.push(...extraSelected);
+      } else {
+        const extraSelected = this.shuffleArray<Activity>(fullPool).slice(0, remainingNeeded);
+        selected.push(...extraSelected);
+      }
+    }
+
+    if (selected.length > 0) {
+      const newSeenEntities = selected.map((a) =>
+        this.seenRepo.create({
+          userId,
+          activityUuid: a.uuid,
+          lessonUuid,
+          difficulty,
+        }),
+      );
+      await this.seenRepo.save(newSeenEntities);
+    }
+
+    return selected;
+  }
+
+  private shuffleActivityOptions(activity: Activity): Activity {
+    if (activity.options && activity.options.length > 0) {
+      activity.options = this.shuffleArray<ActivityOption>(activity.options);
+    }
+    return activity;
   }
 
   private shuffleArray<T>(array: T[]): T[] {

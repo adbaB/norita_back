@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
@@ -295,11 +295,16 @@ export class GetRandomExercisesDto {
   @IsEnum(DifficultyEnum, { message: 'difficulty must be a valid DifficultyEnum value' })
   difficulty: DifficultyEnum;
 
-  @ApiProperty({ description: 'Number of primary exercises to fetch', type: Number })
+  @ApiProperty({
+    description: 'Number of primary exercises to fetch (used when typeCounts is omitted)',
+    type: Number,
+    required: false,
+  })
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  count: number;
+  count?: number;
 
   @ApiProperty({
     description: 'Number of preview exercises from the next difficulty level',
@@ -312,4 +317,23 @@ export class GetRandomExercisesDto {
   @IsInt()
   @Min(0)
   previewCount?: number = 3;
+
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts. Example: typeCounts[1]=8&typeCounts[3]=7 or typeCounts={"1":8,"3":7}',
+    required: false,
+    type: Object,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
+  typeCounts?: Record<number, number>;
 }

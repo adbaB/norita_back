@@ -9,6 +9,7 @@ import { Dialog } from './entities/dialog.entity';
 import { Glossary } from './entities/glossary.entity';
 import { Notes } from './entities/notes.entity';
 import { TypeStructure } from './entities/type-structure.entity';
+import { UserSeenActivity } from './entities/user-seen-activity.entity';
 import { Lesson } from '../lessons/entities/lesson.entity';
 
 import { ActivityController } from './controllers/activity.controller';
@@ -31,6 +32,7 @@ import { TypeStructureService } from './services/type-structure.service';
     TypeOrmModule.forFeature([
       Activity,
       ActivityOption,
+      UserSeenActivity,
       Content,
       Dialog,
       Bibliography,
