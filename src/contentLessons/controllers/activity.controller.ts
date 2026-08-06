@@ -16,7 +16,12 @@ import { IsInt, Min } from 'class-validator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
 import { RoleEnum } from '../../users/enum/role.enum';
-import { ApiResponse as ClassApiResponse, DeleteResponse } from '../../utils/responses';
+import {
+  ApiResponse as ClassApiResponse,
+  DeleteResponse,
+  PaginatedResponse,
+} from '../../utils/responses';
+import { Paginate } from '../../utils/models/paginate-request';
 import { CreateActivityDTO, GetRandomExercisesDto, UpdateActivityDTO } from '../dtos/activity.dto';
 import { Activity } from '../entities/activity.entity';
 import { ActivityService } from '../services/activity.service';
@@ -86,6 +91,22 @@ export class ActivityController {
   }
 
   // ── READ ─────────────────────────────────────────────────────────────────────
+
+  @ApiResponse({ status: 200, description: 'Paginated list of all activities' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiOperation({ summary: 'Get all activities with pagination (admin only)' })
+  @Roles(RoleEnum.ADMIN)
+  @Get()
+  async findAll(@Query() paginate: Paginate): Promise<PaginatedResponse<Activity[]>> {
+    const result = await this.activityService.findAll(paginate.limit, paginate.page);
+    return new PaginatedResponse<Activity[]>(
+      true,
+      'Activities fetched successfully',
+      result.data,
+      result.info,
+    );
+  }
 
   @ApiResponse({ status: 200, type: [Activity], description: 'All activities for a lesson' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

@@ -185,6 +185,12 @@ export interface WordOrderConfig {
   showKanjiToggle: boolean;
   /** Mezclar los chips al mostrarlos */
   shuffleChips: boolean;
+
+  /** URL del audio de la oración completa (opcional) */
+  audioUrl?: string;
+
+  /** URL de la imagen de referencia (opcional) */
+  imageUrl?: string;
 }
 
 /**
@@ -257,18 +263,46 @@ export interface FreeWritingConfig {
 
 // ── Futuro ─────────────────────────────────────────────────────────────────────
 
-export interface TrueFalseConfig {
-  type: ActivityTypeEnum.TRUE_FALSE;
-  statement: string;
-  correctAnswer: boolean;
-  explanation: string;
+export interface ConversationConfig {
+  type: ActivityTypeEnum.CONVERSATION;
+  /** Lista secuencial de las líneas de diálogo que componen la conversación */
+  dialogs: {
+    /** ID de la línea de diálogo */
+    id: string;
+    /** Emisor del diálogo (avatar izquierdo o derecho) */
+    sender: 'character_a' | 'character_b';
+    /** Kanji de la línea del diálogo */
+    kanji?: string;
+    /** Kana de la línea del diálogo */
+    kana?: string;
+    /** Traducción de referencia de la línea */
+    translation?: string;
+    /** Audio de la línea (opcional) */
+    audioUrl?: string;
+    /** Si esta línea requiere que el usuario seleccione la respuesta interactiva */
+    isInteractive: boolean;
+  }[];
 }
 
-export interface MatchColumnsConfig {
-  type: ActivityTypeEnum.MATCH_COLUMNS;
-  leftColumnTitle: string;
-  rightColumnTitle: string;
-  shuffleRight: boolean;
+/**
+ * IMAGE_MULTIPLE_CHOICE (type = 8)
+ * El usuario escucha/ve una palabra y debe seleccionar la imagen con la traducción correcta
+ * de entre varias opciones (típicamente 4).
+ *
+ * Estructura de ActivityOption:
+ *   - role: "option"
+ *   - image: URL de la imagen
+ *   - text / kanji / kana: texto de traducción debajo de la imagen
+ *   - isCorrect: true para la opción correcta
+ */
+export interface ImageMultipleChoiceConfig {
+  type: ActivityTypeEnum.IMAGE_MULTIPLE_CHOICE;
+  /** El texto de la palabra o expresión que se muestra (ej: "Biblioteca") */
+  promptText: string;
+  /** URL del archivo de audio de la palabra (ej: "biblioteca.mp3") */
+  audioUrl?: string;
+  /** Si se debe reproducir el audio automáticamente al iniciar */
+  autoPlay?: boolean;
 }
 
 // ── Tipo unión ─────────────────────────────────────────────────────────────────
@@ -278,9 +312,9 @@ export type ActivityConfig =
   | DragDropTextConfig
   | WordSelectionConfig
   | MultipleChoiceConfig
-  | TrueFalseConfig
+  | ConversationConfig
   | FillInTheBlankConfig
   | WordOrderConfig
-  | MatchColumnsConfig
+  | ImageMultipleChoiceConfig
   | ListenAndSelectConfig
   | FreeWritingConfig;

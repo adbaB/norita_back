@@ -115,6 +115,35 @@ export class ActivityService {
   // ── READ ────────────────────────────────────────────────────────────────────
 
   /**
+   * Obtiene todas las actividades con paginación (admin only).
+   */
+  async findAll(
+    limit: number = 20,
+    page: number = 1,
+  ): Promise<{ data: Activity[]; info: Record<string, unknown> }> {
+    const take = Math.min(Math.max(1, limit), 100);
+    const skip = (Math.max(1, page) - 1) * take;
+
+    const [data, total] = await this.activityRepo.findAndCount({
+      relations: ['options', 'lessons'],
+      order: { createdAt: 'DESC' },
+      take,
+      skip,
+    });
+
+    const lastPage = Math.ceil(total / take) || 1;
+    const info = {
+      total,
+      currentPage: page,
+      nextPage: page < lastPage ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
+      lastPage,
+    };
+
+    return { data, info };
+  }
+
+  /**
    * Obtiene todas las activities de una lección, ordenadas por el campo order
    * de la tabla pivote lesson_activities.
    */

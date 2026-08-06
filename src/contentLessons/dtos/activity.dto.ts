@@ -79,6 +79,26 @@ export function IsActivityConfig(validationOptions?: ValidationOptions): Propert
               });
             }
 
+            case ActivityTypeEnum.CONVERSATION: {
+              if (!Array.isArray(val.dialogs)) {
+                return false;
+              }
+              const dialogs = val.dialogs as unknown[];
+              return dialogs.every((item: unknown) => {
+                if (!item || typeof item !== 'object') return false;
+                const d = item as Record<string, unknown>;
+                return (
+                  typeof d.id === 'string' &&
+                  ['character_a', 'character_b'].includes(d.sender as string) &&
+                  typeof d.isInteractive === 'boolean' &&
+                  (d.kanji === undefined || typeof d.kanji === 'string') &&
+                  (d.kana === undefined || typeof d.kana === 'string') &&
+                  (d.translation === undefined || typeof d.translation === 'string') &&
+                  (d.audioUrl === undefined || typeof d.audioUrl === 'string')
+                );
+              });
+            }
+
             case ActivityTypeEnum.FILL_IN_THE_BLANK: {
               if (
                 !Array.isArray(val.sentences) ||
@@ -108,6 +128,13 @@ export function IsActivityConfig(validationOptions?: ValidationOptions): Propert
                 typeof val.targetLang === 'string' &&
                 typeof val.showKanjiToggle === 'boolean' &&
                 typeof val.shuffleChips === 'boolean'
+              );
+
+            case ActivityTypeEnum.IMAGE_MULTIPLE_CHOICE:
+              return (
+                typeof val.promptText === 'string' &&
+                (val.audioUrl === undefined || typeof val.audioUrl === 'string') &&
+                (val.autoPlay === undefined || typeof val.autoPlay === 'boolean')
               );
 
             case ActivityTypeEnum.LISTEN_AND_SELECT: {
