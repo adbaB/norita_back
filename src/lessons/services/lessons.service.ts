@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ContentDTO } from 'src/contentLessons/dtos/content.dto';
 import { MoreThan, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { ActivityService } from '../../contentLessons/services/activity.service';
 import { ContentService } from '../../contentLessons/services/content.service';
 import { TypeFileEnum } from '../../files/enums/type-file.enum';
 import { FileService } from '../../files/services/file.service';
@@ -20,6 +21,7 @@ export class LessonsService {
     private readonly sectionService: SectionService,
     private readonly contentService: ContentService,
     private readonly fileService: FileService,
+    private readonly activityService: ActivityService,
   ) {}
 
   @Transactional()
@@ -77,6 +79,8 @@ export class LessonsService {
     if (!lesson) {
       throw new NotFoundException('Lesson not found ');
     }
+
+    lesson.hasExercises = await this.activityService.checkExercisesAvailability(uuid);
 
     if (lesson.lessonProgress) {
       lesson['progress'] = lesson.lessonProgress[0];

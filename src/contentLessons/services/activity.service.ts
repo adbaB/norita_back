@@ -178,6 +178,29 @@ export class ActivityService {
   }
 
   /**
+   * Verifica si existen actividades creadas para cada nivel de dificultad en una lección.
+   */
+  async checkExercisesAvailability(
+    lessonUuid: string,
+  ): Promise<{ easy: boolean; intermediate: boolean; hard: boolean }> {
+    const rawResults = await this.activityRepo
+      .createQueryBuilder('activity')
+      .innerJoin('activity.lessons', 'lesson', 'lesson.uuid = :lessonUuid', { lessonUuid })
+      .select('activity.difficulty', 'difficulty')
+      .where('activity.deletedAt IS NULL')
+      .groupBy('activity.difficulty')
+      .getRawMany();
+
+    const difficulties = new Set(rawResults.map((r) => Number(r.difficulty)));
+
+    return {
+      easy: difficulties.has(DifficultyEnum.EASY),
+      intermediate: difficulties.has(DifficultyEnum.INTERMEDIATE),
+      hard: difficulties.has(DifficultyEnum.HARD),
+    };
+  }
+
+  /**
    * Obtiene ejercicios aleatorios con soporte para:
    * 1. Mezcla por tipo (typeCounts).
    * 2. No-repetición por usuario hasta agotar el pool de esa dificultad/lección (Opción A).

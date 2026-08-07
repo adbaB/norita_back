@@ -137,6 +137,16 @@ export class Lesson implements IOrder {
   })
   deletedAt?: Date;
 
+  @ApiProperty({
+    description: 'Availability of exercises by difficulty level (easy, intermediate, hard)',
+    example: { easy: true, intermediate: false, hard: true },
+  })
+  hasExercises?: {
+    easy: boolean;
+    intermediate: boolean;
+    hard: boolean;
+  };
+
   @Expose({ toPlainOnly: true })
   get infoComment(): Comments {
     if (Array.isArray(this.comments)) {
