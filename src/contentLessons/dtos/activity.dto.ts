@@ -352,15 +352,45 @@ export class GetRandomExercisesDto {
     type: Object,
   })
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }: { value: unknown }) => {
+    let parsed: unknown = value;
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
+        parsed = JSON.parse(value);
       } catch {
-        return value;
+        parsed = value;
       }
     }
-    return value;
+
+    if (!parsed || typeof parsed !== 'object') {
+      return parsed;
+    }
+
+    const result: Record<number, number> = {};
+
+    if (Array.isArray(parsed)) {
+      const isCompacted = parsed[0] !== undefined && parsed[0] !== null;
+      (parsed as unknown[]).forEach((val: unknown, idx: number) => {
+        if (val === undefined || val === null) return;
+        const count = Number(val);
+        if (isNaN(count) || count <= 0) return;
+        const typeNum = isCompacted ? idx + 1 : idx;
+        if (ActivityTypeEnum[typeNum]) {
+          result[typeNum] = count;
+        }
+      });
+    } else {
+      for (const [key, val] of Object.entries(parsed as Record<string, unknown>)) {
+        const typeNum = Number(key);
+        const count = Number(val);
+        if (isNaN(typeNum) || isNaN(count) || count <= 0) continue;
+        if (ActivityTypeEnum[typeNum]) {
+          result[typeNum] = count;
+        }
+      }
+    }
+
+    return result;
   })
   typeCounts?: Record<number, number>;
 }

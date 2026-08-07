@@ -6,6 +6,7 @@ import { DeleteResponse } from '../../utils/responses';
 import { DifficultyEnum } from '../../lessons/enums/difficulty.enum';
 import { Lesson } from '../../lessons/entities/lesson.entity';
 import { CreateActivityDTO, UpdateActivityDTO } from '../dtos/activity.dto';
+import { ActivityTypeEnum } from '../enums/activity-type.enum';
 import { Activity } from '../entities/activity.entity';
 import { ActivityOption } from '../entities/activity-option.entity';
 import { UserSeenActivity } from '../entities/user-seen-activity.entity';
@@ -220,7 +221,8 @@ export class ActivityService {
       for (const [typeStr, requestedCountVal] of Object.entries(typeCounts)) {
         const typeNum = Number(typeStr);
         const reqCount = Number(requestedCountVal);
-        if (isNaN(typeNum) || isNaN(reqCount) || reqCount <= 0) continue;
+        if (isNaN(typeNum) || !ActivityTypeEnum[typeNum] || isNaN(reqCount) || reqCount <= 0)
+          continue;
 
         const typeActivities: Activity[] = await this.selectActivitiesWithCycle(
           lessonUuid,
@@ -289,6 +291,9 @@ export class ActivityService {
       .andWhere('activity.deletedAt IS NULL');
 
     if (activityType !== undefined) {
+      if (!ActivityTypeEnum[activityType]) {
+        return [];
+      }
       qb = qb.andWhere('activity.type = :activityType', { activityType });
     }
 
