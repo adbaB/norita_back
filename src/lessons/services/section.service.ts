@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { ActivityService } from '../../contentLessons/services/activity.service';
 import { insertItem, moveItem, removeItem } from '../../utils/functions/order.function';
 import { DeleteResponse, UpdateResponse } from '../../utils/responses';
 import { CreateSectionDto, UpdateSectionDTO } from '../dto/section.dto';
@@ -9,7 +10,10 @@ import { Section } from '../entities/section.entity';
 
 @Injectable()
 export class SectionService {
-  constructor(@InjectRepository(Section) private sectionRepository: Repository<Section>) {}
+  constructor(
+    @InjectRepository(Section) private sectionRepository: Repository<Section>,
+    private readonly activityService: ActivityService,
+  ) {}
 
   @Transactional()
   async create(section: CreateSectionDto): Promise<Section> {
@@ -41,18 +45,53 @@ export class SectionService {
     }
     const sections = await query.getMany();
 
+    const allLessonUuids: string[] = [];
     for (const section of sections) {
-      section.lessons.forEach((lesson) => {
-        if (lesson.lessonProgress) {
-          lesson.progress = lesson.lessonProgress[0] ?? null;
+      if (section.lessons) {
+        for (const lesson of section.lessons) {
+          allLessonUuids.push(lesson.uuid);
         }
-      });
+      }
+    }
+
+    const exercisesMap =
+      await this.activityService.checkExercisesAvailabilityForLessons(allLessonUuids);
+
+    for (const section of sections) {
+      if (section.lessons) {
+        section.lessons.forEach((lesson) => {
+          if (lesson.lessonProgress) {
+            lesson.progress = lesson.lessonProgress[0] ?? null;
+          }
+          lesson.hasExercises = exercisesMap.get(lesson.uuid) ?? {
+            easy: false,
+            intermediate: false,
+            hard: false,
+          };
+        });
+      }
     }
     return sections;
   }
 
   async findOne(uuid: string): Promise<Section | null> {
-    return this.sectionRepository.findOne({ where: { uuid }, relations: ['lessons'] });
+    const section = await this.sectionRepository.findOne({
+      where: { uuid },
+      relations: ['lessons'],
+    });
+    if (section && section.lessons && section.lessons.length > 0) {
+      const lessonUuids = section.lessons.map((lesson) => lesson.uuid);
+      const exercisesMap =
+        await this.activityService.checkExercisesAvailabilityForLessons(lessonUuids);
+      section.lessons.forEach((lesson) => {
+        lesson.hasExercises = exercisesMap.get(lesson.uuid) ?? {
+          easy: false,
+          intermediate: false,
+          hard: false,
+        };
+      });
+    }
+    return section;
   }
 
   async findByUUID(uuid: string): Promise<Section> {

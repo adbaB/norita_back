@@ -184,21 +184,48 @@ export class ActivityService {
   async checkExercisesAvailability(
     lessonUuid: string,
   ): Promise<{ easy: boolean; intermediate: boolean; hard: boolean }> {
+    const map = await this.checkExercisesAvailabilityForLessons([lessonUuid]);
+    return map.get(lessonUuid) ?? { easy: false, intermediate: false, hard: false };
+  }
+
+  /**
+   * Verifica si existen actividades creadas para cada nivel de dificultad en un listado de lecciones.
+   */
+  async checkExercisesAvailabilityForLessons(
+    lessonUuids: string[],
+  ): Promise<Map<string, { easy: boolean; intermediate: boolean; hard: boolean }>> {
+    const resultMap = new Map<string, { easy: boolean; intermediate: boolean; hard: boolean }>();
+
+    if (!lessonUuids || lessonUuids.length === 0) {
+      return resultMap;
+    }
+
+    for (const uuid of lessonUuids) {
+      resultMap.set(uuid, { easy: false, intermediate: false, hard: false });
+    }
+
     const rawResults = await this.activityRepo
       .createQueryBuilder('activity')
-      .innerJoin('activity.lessons', 'lesson', 'lesson.uuid = :lessonUuid', { lessonUuid })
-      .select('activity.difficulty', 'difficulty')
-      .where('activity.deletedAt IS NULL')
-      .groupBy('activity.difficulty')
+      .innerJoin('activity.lessons', 'lesson')
+      .select('lesson.uuid', 'lessonUuid')
+      .addSelect('activity.difficulty', 'difficulty')
+      .where('lesson.uuid IN (:...lessonUuids)', { lessonUuids })
+      .andWhere('activity.deletedAt IS NULL')
+      .groupBy('lesson.uuid')
+      .addGroupBy('activity.difficulty')
       .getRawMany();
 
-    const difficulties = new Set(rawResults.map((r) => Number(r.difficulty)));
+    for (const r of rawResults) {
+      const entry = resultMap.get(r.lessonUuid);
+      if (entry) {
+        const diff = Number(r.difficulty);
+        if (diff === DifficultyEnum.EASY) entry.easy = true;
+        if (diff === DifficultyEnum.INTERMEDIATE) entry.intermediate = true;
+        if (diff === DifficultyEnum.HARD) entry.hard = true;
+      }
+    }
 
-    return {
-      easy: difficulties.has(DifficultyEnum.EASY),
-      intermediate: difficulties.has(DifficultyEnum.INTERMEDIATE),
-      hard: difficulties.has(DifficultyEnum.HARD),
-    };
+    return resultMap;
   }
 
   /**
