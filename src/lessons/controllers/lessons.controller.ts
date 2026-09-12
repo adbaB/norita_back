@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
@@ -9,7 +19,7 @@ import {
   DeleteResponse,
   UpdateResponse,
 } from '../../utils/responses';
-import { LessonDTO, UpdateLessonDTO } from '../dto/lesson.dto';
+import { LessonDTO, UpdateLessonDTO, UpdateLessonTypeCountsDto } from '../dto/lesson.dto';
 import { Lesson } from '../entities/lesson.entity';
 import { LessonsService } from '../services/lessons.service';
 
@@ -53,6 +63,26 @@ export class LessonsController {
     @Body() lesson: UpdateLessonDTO,
   ): Promise<UpdateResponse> {
     return this.lessonsService.update(uuid, lesson);
+  }
+
+  @ApiResponse({
+    status: 200,
+    type: ClassApiResponse,
+    description: 'Type counts updated successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Lesson not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Update activity type counts configuration for a specific lesson' })
+  @Patch('/:uuid/type-counts')
+  async updateTypeCounts(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Body() dto: UpdateLessonTypeCountsDto,
+  ): Promise<ClassApiResponse<Lesson>> {
+    const updated = await this.lessonsService.updateTypeCounts(uuid, dto.typeCounts);
+    return new ClassApiResponse(true, 'Type counts updated successfully', updated);
   }
 
   @ApiResponse({ status: 200, type: DeleteResponse, description: 'Success' })

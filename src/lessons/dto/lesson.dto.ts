@@ -160,6 +160,16 @@ export class LessonDTO {
     { message: 'order must be a number' },
   )
   order: number;
+
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: false,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsOptional()
+  typeCounts?: Record<number, number>;
 }
 
 export class UpdateLessonDTO {
@@ -309,4 +319,26 @@ export class UpdateLessonDTO {
     { message: 'order must be a number' },
   )
   order: number;
+
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: false,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsOptional()
+  typeCounts?: Record<number, number>;
+}
+
+export class UpdateLessonTypeCountsDto {
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: true,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsNotEmpty({ message: 'typeCounts should not be empty' })
+  typeCounts: Record<number, number>;
 }

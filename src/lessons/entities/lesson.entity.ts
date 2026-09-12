@@ -138,6 +138,16 @@ export class Lesson implements IOrder {
   deletedAt?: Date;
 
   @ApiProperty({
+    description: 'Target exercise counts grouped by activity type for this lesson',
+    type: Object,
+    required: false,
+    nullable: true,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @Column({ name: 'type_counts', type: 'jsonb', nullable: true, default: () => "'{}'" })
+  typeCounts?: Record<number, number> | null;
+
+  @ApiProperty({
     description: 'Availability of exercises by difficulty level (easy, intermediate, hard)',
     example: { easy: true, intermediate: false, hard: true },
   })

@@ -43,12 +43,13 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@stylistic/ts/indent': ['warn', 2],
-      '@stylistic/ts/quotes': ['warn', 'single'],
+      '@stylistic/ts/quotes': ['warn', 'single', { avoidEscape: true }],
       'no-trailing-spaces': 'warn',
     },
   },
   {
     ignores: [
+      '.agents',
       'node_module',
       'test',
       'pnpm-lock.yaml',

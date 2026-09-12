@@ -147,9 +147,11 @@ export class ActivityService {
   /**
    * Obtiene todas las activities de una lección, ordenadas por el campo order
    * de la tabla pivote lesson_activities.
+   * Si la lección tiene typeCounts configurado y all es false, filtra
+   * las actividades respetando exactamente las cantidades configuradas por tipo.
    */
-  async findByLesson(lessonUuid: string): Promise<Activity[]> {
-    return this.activityRepo
+  async findByLesson(lessonUuid: string, all: boolean = false): Promise<Activity[]> {
+    const activities = await this.activityRepo
       .createQueryBuilder('activity')
       .leftJoinAndSelect('activity.options', 'options')
       .innerJoin(
@@ -162,6 +164,31 @@ export class ActivityService {
       .orderBy('la.order', 'ASC')
       .addOrderBy('options.order', 'ASC')
       .getMany();
+
+    if (all) {
+      return activities;
+    }
+
+    const lesson = await this.lessonRepo.findOne({ where: { uuid: lessonUuid } });
+    if (!lesson?.typeCounts || Object.keys(lesson.typeCounts).length === 0) {
+      return activities;
+    }
+
+    const countsPerType: Record<number, number> = {};
+    const result: Activity[] = [];
+
+    for (const activity of activities) {
+      const type = Number(activity.type);
+      const maxCount = Number(lesson.typeCounts[type] ?? lesson.typeCounts[String(type)] ?? 0);
+      const currentCount = countsPerType[type] ?? 0;
+
+      if (maxCount > 0 && currentCount < maxCount) {
+        result.push(activity);
+        countsPerType[type] = currentCount + 1;
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -230,7 +257,7 @@ export class ActivityService {
 
   /**
    * Obtiene ejercicios aleatorios con soporte para:
-   * 1. Mezcla por tipo (typeCounts).
+   * 1. Mezcla por tipo (typeCounts provisto o configurado en la lección).
    * 2. No-repetición por usuario hasta agotar el pool de esa dificultad/lección (Opción A).
    * 3. Barajado (shuffle) automático de las opciones dentro de cada actividad.
    */
@@ -244,8 +271,17 @@ export class ActivityService {
   ): Promise<{ requested: Activity[]; preview: Activity[] }> {
     let requested: Activity[] = [];
 
-    if (typeCounts && Object.keys(typeCounts).length > 0) {
-      for (const [typeStr, requestedCountVal] of Object.entries(typeCounts)) {
+    // Si no se pasó typeCounts en la consulta, utilizar la configuración de la lección
+    let effectiveTypeCounts = typeCounts;
+    if (!effectiveTypeCounts || Object.keys(effectiveTypeCounts).length === 0) {
+      const lesson = await this.lessonRepo.findOne({ where: { uuid: lessonUuid } });
+      if (lesson?.typeCounts && Object.keys(lesson.typeCounts).length > 0) {
+        effectiveTypeCounts = lesson.typeCounts;
+      }
+    }
+
+    if (effectiveTypeCounts && Object.keys(effectiveTypeCounts).length > 0) {
+      for (const [typeStr, requestedCountVal] of Object.entries(effectiveTypeCounts)) {
         const typeNum = Number(typeStr);
         const reqCount = Number(requestedCountVal);
         if (isNaN(typeNum) || !ActivityTypeEnum[typeNum] || isNaN(reqCount) || reqCount <= 0)
