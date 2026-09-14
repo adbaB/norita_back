@@ -198,7 +198,7 @@ export class LessonsService {
     };
   }
 
-  async updateTypeCounts(uuid: string, typeCounts: Record<number, number>): Promise<Lesson> {
+  async updateTypeCounts(uuid: string, typeCounts: Record<number, number> | null): Promise<Lesson> {
     const lessonFound = await this.lessonRepo.findOne({ where: { uuid } });
 
     if (!lessonFound) {

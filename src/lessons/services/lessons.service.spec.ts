@@ -58,6 +58,42 @@ describe('LessonsService - TypeCounts Management', () => {
       );
     });
 
+    it('should allow unsetting typeCounts with null', async () => {
+      const existingLesson = new Lesson();
+      existingLesson.uuid = 'lesson-uuid-1';
+      existingLesson.typeCounts = { 1: 1, 2: 3 };
+
+      (lessonRepo.findOne as jest.Mock).mockResolvedValue(existingLesson);
+
+      const result = await service.updateTypeCounts('lesson-uuid-1', null);
+
+      expect(result.typeCounts).toBeNull();
+      expect(lessonRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uuid: 'lesson-uuid-1',
+          typeCounts: null,
+        }),
+      );
+    });
+
+    it('should allow unsetting typeCounts with empty object {}', async () => {
+      const existingLesson = new Lesson();
+      existingLesson.uuid = 'lesson-uuid-1';
+      existingLesson.typeCounts = { 1: 1 };
+
+      (lessonRepo.findOne as jest.Mock).mockResolvedValue(existingLesson);
+
+      const result = await service.updateTypeCounts('lesson-uuid-1', {});
+
+      expect(result.typeCounts).toEqual({});
+      expect(lessonRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uuid: 'lesson-uuid-1',
+          typeCounts: {},
+        }),
+      );
+    });
+
     it('should throw NotFoundException if lesson is not found', async () => {
       (lessonRepo.findOne as jest.Mock).mockResolvedValue(null);
 
