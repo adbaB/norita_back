@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { ContentDTO, UpdateContentDTO } from '../../contentLessons/dtos/content.dto';
 import { TypeLessonEnum } from '../enums/typeLesson.enum';
+import { IsValidTypeCounts } from '../validators/is-valid-type-counts.validator';
 
 export class LessonDTO {
   @ApiProperty({
@@ -160,6 +161,18 @@ export class LessonDTO {
     { message: 'order must be a number' },
   )
   order: number;
+
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: false,
+    nullable: true,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsOptional()
+  @IsValidTypeCounts()
+  typeCounts?: Record<number, number> | null;
 }
 
 export class UpdateLessonDTO {
@@ -309,4 +322,31 @@ export class UpdateLessonDTO {
     { message: 'order must be a number' },
   )
   order: number;
+
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: false,
+    nullable: true,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsOptional()
+  @IsValidTypeCounts()
+  typeCounts?: Record<number, number> | null;
 }
+
+export class UpdateLessonTypeCountsDto {
+  @ApiProperty({
+    description:
+      'Map of ActivityTypeEnum keys to requested counts for this lesson. Example: {"1": 1, "2": 3, "3": 1}',
+    required: true,
+    nullable: true,
+    type: Object,
+    example: { '1': 1, '2': 3, '3': 1 },
+  })
+  @IsValidTypeCounts()
+  typeCounts: Record<number, number> | null;
+}
+
+export { IsValidTypeCounts, isValidTypeCounts } from '../validators/is-valid-type-counts.validator';

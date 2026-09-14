@@ -198,6 +198,17 @@ export class LessonsService {
     };
   }
 
+  async updateTypeCounts(uuid: string, typeCounts: Record<number, number> | null): Promise<Lesson> {
+    const lessonFound = await this.lessonRepo.findOne({ where: { uuid } });
+
+    if (!lessonFound) {
+      throw new NotFoundException('Lesson not found ');
+    }
+
+    lessonFound.typeCounts = typeCounts;
+    return this.lessonRepo.save(lessonFound);
+  }
+
   async delete(uuid: string): Promise<DeleteResponse> {
     const lessonFound = await this.findByUUID(uuid);
     if (!lessonFound) {

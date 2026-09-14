@@ -11,7 +11,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
 import { Roles } from '../../auth/decorators/role.decorator';
 import { User } from '../../users/decorators/user.decorator';
@@ -108,12 +115,29 @@ export class ActivityController {
     );
   }
 
-  @ApiResponse({ status: 200, type: [Activity], description: 'All activities for a lesson' })
+  @ApiResponse({
+    status: 200,
+    type: [Activity],
+    description: 'Activities for a lesson (filtered by lesson typeCounts if configured)',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiOperation({ summary: 'Get all activities linked to a lesson (ordered by pivot order)' })
+  @ApiOperation({
+    summary: 'Get activities linked to a lesson (respects lesson typeCounts unless all=true)',
+  })
+  @ApiQuery({
+    name: 'all',
+    required: false,
+    type: Boolean,
+    description:
+      'If true, returns all activities linked to the lesson without filtering by lesson typeCounts',
+  })
   @Get('lesson/:lessonUuid')
-  async findByLesson(@Param('lessonUuid', ParseUUIDPipe) lessonUuid: string): Promise<Activity[]> {
-    return this.activityService.findByLesson(lessonUuid);
+  async findByLesson(
+    @Param('lessonUuid', ParseUUIDPipe) lessonUuid: string,
+    @Query('all') all?: string,
+  ): Promise<Activity[]> {
+    const isAll = all === 'true' || all === '1';
+    return this.activityService.findByLesson(lessonUuid, isAll);
   }
 
   @ApiResponse({
